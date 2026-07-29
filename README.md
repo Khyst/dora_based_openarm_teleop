@@ -6,7 +6,7 @@
 
 ## 💻 다른 PC에서 Git Clone 후 바로 사용하는 방법
 
-새로운 PC에서 이 저장소를 클론하여 구동할 때 아래 3가지 과정을 진행하면 바로 환경 설정 및 실행이 완료됩니다.
+새로운 PC에서 이 저장소를 클론하여 구동할 때 아래 3가지 과정을 진행하면 환경 설정 및 실행이 완벽하게 완료됩니다.
 
 ### 1. 저장소 클론
 ```bash
@@ -20,9 +20,13 @@ python3 -m pip install --user uv
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-### 3. 환경 동기화 (`uv sync`)
-단 한 번의 명령으로 모든 Dora 노드 패키지와 의존성(Dora-rs, MuJoCo 등)을 자동으로 동기화합니다:
+### 3. C++ 라이브러리 및 환경 동기화 (`uv sync`)
+`openarm-can` C++ 드라이버 컴파일을 위한 C++ 패키지를 설치한 후 `uv sync`를 수행합니다:
 ```bash
+# 필수 C++ 패키지 설치
+sudo apt update && sudo apt install -y libcli11-dev build-essential cmake
+
+# 전체 노드 패키지 동기화 (dora-openarm, openarm_driver 포함 전체 8개 노드)
 uv sync
 ```
 
@@ -32,22 +36,22 @@ uv sync
 
 ```
 ~/13.dora_based_nana_teleop_ws/
-├── pyproject.toml              # uv workspace 통합 관리 파일
+├── pyproject.toml              # uv workspace 통합 관리 파일 (전체 8개 서브 패키지 통합)
 ├── README.md                   # 본 사용 가이드 문서
 ├── MANAGEMENT_GUIDE.md        # 상세 환경 관리 및 전략 문서
 ├── run_sim.sh                  # 시뮬레이션(MuJoCo) 실행 스크립트
 ├── run_real.sh                 # 실물 로봇 제어 실행 스크립트
 └── src/
     ├── nana_v3_description/    # NANA v3 로봇 모델 (nana_v3.urdf, nana_v3.xml 및 3D Mesh)
-    └── nana_v3_dora_teleop_vr/ # Dora 기반 노드 패키지들
+    └── nana_v3_dora_teleop_vr/ # Dora 기반 노드 패키지들 (8개 통합 패키지)
         ├── dora-openarm-vr/               # VR (Meta Quest) 수신기 & Dataflow YAMLs
         ├── dora-openarm-kinematics/       # FK / IK 노드 (openarm-control 기반)
         ├── dora-openarm-mujoco/           # MuJoCo 시뮬레이터 뷰어 노드
         ├── dora-openarm-quitter/          # 안전 종료 및 틱 리더 노드
         ├── dora-openarm-data-collection-ui/ # 데이터 수집 및 상태 컨트롤 UI 노드
         ├── dora-openarm-dataset-recorder/   # 데이터셋 기록 노드
-        ├── dora-openarm/                  # 실물 팔 Follower 드라이버 노드 (하드웨어 전용)
-        └── openarm_driver/                # 실물 하드웨어 CAN 통신 드라이버 (하드웨어 전용)
+        ├── dora-openarm/                  # 실물 팔 Follower 드라이버 노드 (src/nana_v3_dora_teleop_vr 하위 패키지)
+        └── openarm_driver/                # 실물 하드웨어 CAN 통신 드라이버 (src/nana_v3_dora_teleop_vr 하위 패키지)
 ```
 
 ---
@@ -70,17 +74,15 @@ VR(Meta Quest)로 수신받은 위치 데이터를 **MuJoCo 시뮬레이터** �
 
 ### 2. 실물 로봇 원격 제어 실행 (Real Hardware Mode)
 
-실물 NANA v3 로봇과 연결하여 VR 제어를 수행합니다. *(실물 CAN 통신용 `libcli11-dev` 설치 필요)*
+실물 NANA v3 로봇과 연결하여 VR 원격 제어를 수행합니다. (`nana_v3_dora_teleop_vr` 하위의 `dora-openarm` 및 `openarm_driver` 직접 사용)
 
 ```bash
-# 하드웨어 드라이버 빌드 환경 동기화
-uv sync --extra hardware
-
-# 실물 제어 Dataflow 실행
 ./run_real.sh
 ```
 
 *(또는 `uv run dora run src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop.yaml`)*
+
+> **Dataflow 구성 노드**: `ui`, `quittable-tick-leader`, `udp-receiver`, `ik`, `mujoco-viewer`, `follower-left`, `follower-right`
 
 ---
 
@@ -107,5 +109,5 @@ Dora 실행 중 다른 터미널에서 다음 명령어로 상태 모니터링 �
 
 ## 💡 개발 및 코드 수정 안내
 
-- 모든 서브 노드 패키지(`dora-openarm-kinematics`, `dora-openarm-mujoco` 등)는 **Editable 모드 (`-e`)** 로 `.venv`에 링크되어 있습니다.
-- `src/` 디렉토리 내의 파이썬 코드를 수정하면 별도의 재설치 과정 없이 **즉시 변경 사항이 반영**됩니다.
+- `src/nana_v3_dora_teleop_vr/` 하위의 **모든 8개 서브 패키지**(`dora-openarm`, `openarm_driver`, `dora-openarm-kinematics` 등)는 **Editable 모드 (`-e`)** 로 `.venv`에 직접 링크되어 있습니다.
+- `src/` 디렉토리 내의 파이썬 소스 코드를 수정하면 별도의 재설치 과정 없이 **즉시 변경 사항이 반영**됩니다.

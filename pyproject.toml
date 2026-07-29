@@ -13,10 +13,6 @@ dependencies = [
     "dora-openarm-quitter",
     "dora-openarm-data-collection-ui",
     "dora-openarm-dataset-recorder",
-]
-
-[project.optional-dependencies]
-hardware = [
     "dora-openarm",
     "openarm-driver",
 ]
@@ -29,6 +25,8 @@ members = [
     "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics",
     "src/nana_v3_dora_teleop_vr/dora-openarm-mujoco",
     "src/nana_v3_dora_teleop_vr/dora-openarm-quitter",
+    "src/nana_v3_dora_teleop_vr/dora-openarm",
+    "src/nana_v3_dora_teleop_vr/openarm_driver",
 ]
 
 [tool.uv.sources]
@@ -38,5 +36,5 @@ dora-openarm-mujoco = { workspace = true }
 dora-openarm-quitter = { workspace = true }
 dora-openarm-data-collection-ui = { workspace = true }
 dora-openarm-dataset-recorder = { workspace = true }
-dora-openarm = { path = "src/nana_v3_dora_teleop_vr/dora-openarm", editable = true }
-openarm-driver = { path = "src/nana_v3_dora_teleop_vr/openarm_driver", editable = true }
+dora-openarm = { workspace = true }
+openarm-driver = { workspace = true }

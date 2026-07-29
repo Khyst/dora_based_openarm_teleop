@@ -3,6 +3,13 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export PATH="$HOME/.local/bin:$PATH"
+export CMAKE_PREFIX_PATH="$HOME/.local:$CMAKE_PREFIX_PATH"
+
+# Auto-run setup if virtual environment is missing
+if [ ! -d "$SCRIPT_DIR/.venv" ]; then
+    echo "[NANA Teleop] Initializing workspace environment..."
+    "$SCRIPT_DIR/setup_env.sh"
+fi
 
 echo "[NANA Teleop Real] Starting Dora real robot teleoperation dataflow locally..."
 echo "  - URDF/XML Model: nana_v3_description"

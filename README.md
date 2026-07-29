@@ -6,7 +6,7 @@
 
 ## 💻 다른 PC에서 Git Clone 후 바로 사용하는 방법
 
-새로운 PC에서 이 저장소를 클론하여 구동할 때 아래 3가지 과정을 진행하면 환경 설정 및 실행이 완벽하게 완료됩니다.
+새로운 PC에서 이 저장소를 클론한 후, **단 한 번의 자동화 설치 스크립트 실행**만으로 모든 환경 설정(C++ 의존성 자동 설치, `uv` 설치 및 통합 8개 서브 패키지 동기화)이 완료됩니다.
 
 ### 1. 저장소 클론
 ```bash
@@ -14,21 +14,15 @@ git clone <YOUR_REMOTE_REPO_URL> 13.dora_based_nana_teleop_ws
 cd 13.dora_based_nana_teleop_ws
 ```
 
-### 2. `uv` 설치 (미설치된 경우)
+### 2. 자동 환경 설정 실행
 ```bash
-python3 -m pip install --user uv
-export PATH="$HOME/.local/bin:$PATH"
+./setup_env.sh
 ```
 
-### 3. C++ 라이브러리 및 환경 동기화 (`uv sync`)
-`openarm-can` C++ 드라이버 컴파일을 위한 C++ 패키지를 설치한 후 `uv sync`를 수행합니다:
-```bash
-# 필수 C++ 패키지 설치
-sudo apt update && sudo apt install -y libcli11-dev build-essential cmake
-
-# 전체 노드 패키지 동기화 (dora-openarm, openarm_driver 포함 전체 8개 노드)
-uv sync
-```
+> **자동화 동작 스크립트내용**:
+> - `uv` 패키지 관리자 자동 검사 및 설치
+> - `openarm-can` C++ 바인딩 컴파일에 필요한 `CLI11` CMake 라이브러리 자동 다운로드 및 설치 (`~/.local`)
+> - `src/nana_v3_dora_teleop_vr/` 하위 **전체 8개 서브 패키지** 자동 빌드 및 `.venv` 동기화
 
 ---
 
@@ -36,6 +30,7 @@ uv sync
 
 ```
 ~/13.dora_based_nana_teleop_ws/
+├── setup_env.sh                # 자동화 환경 설치 및 동기화 스크립트
 ├── pyproject.toml              # uv workspace 통합 관리 파일 (전체 8개 서브 패키지 통합)
 ├── README.md                   # 본 사용 가이드 문서
 ├── MANAGEMENT_GUIDE.md        # 상세 환경 관리 및 전략 문서
@@ -44,14 +39,14 @@ uv sync
 └── src/
     ├── nana_v3_description/    # NANA v3 로봇 모델 (nana_v3.urdf, nana_v3.xml 및 3D Mesh)
     └── nana_v3_dora_teleop_vr/ # Dora 기반 노드 패키지들 (8개 통합 패키지)
+        ├── dora-openarm/                  # 실물 팔 Follower 드라이버 노드
+        ├── openarm_driver/                # 실물 하드웨어 CAN 통신 드라이버
         ├── dora-openarm-vr/               # VR (Meta Quest) 수신기 & Dataflow YAMLs
         ├── dora-openarm-kinematics/       # FK / IK 노드 (openarm-control 기반)
         ├── dora-openarm-mujoco/           # MuJoCo 시뮬레이터 뷰어 노드
         ├── dora-openarm-quitter/          # 안전 종료 및 틱 리더 노드
         ├── dora-openarm-data-collection-ui/ # 데이터 수집 및 상태 컨트롤 UI 노드
-        ├── dora-openarm-dataset-recorder/   # 데이터셋 기록 노드
-        ├── dora-openarm/                  # 실물 팔 Follower 드라이버 노드 (src/nana_v3_dora_teleop_vr 하위 패키지)
-        └── openarm_driver/                # 실물 하드웨어 CAN 통신 드라이버 (src/nana_v3_dora_teleop_vr 하위 패키지)
+        └── dora-openarm-dataset-recorder/   # 데이터셋 기록 노드
 ```
 
 ---

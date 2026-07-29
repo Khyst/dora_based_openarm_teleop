@@ -1,0 +1,42 @@
+[project]
+name = "dora-based-nana-teleop-ws"
+version = "0.1.0"
+description = "Workspace for Dora-based NANA v3 VR Teleoperation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "dora-rs>=0.5.0",
+    "dora-rs-cli>=0.5.0",
+    "dora-openarm-vr",
+    "dora-openarm-kinematics",
+    "dora-openarm-mujoco",
+    "dora-openarm-quitter",
+    "dora-openarm-data-collection-ui",
+    "dora-openarm-dataset-recorder",
+]
+
+[project.optional-dependencies]
+hardware = [
+    "dora-openarm",
+    "openarm-driver",
+]
+
+[tool.uv.workspace]
+members = [
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-data-collection-ui",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-dataset-recorder",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-mujoco",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-quitter",
+]
+
+[tool.uv.sources]
+dora-openarm-vr = { workspace = true }
+dora-openarm-kinematics = { workspace = true }
+dora-openarm-mujoco = { workspace = true }
+dora-openarm-quitter = { workspace = true }
+dora-openarm-data-collection-ui = { workspace = true }
+dora-openarm-dataset-recorder = { workspace = true }
+dora-openarm = { path = "src/nana_v3_dora_teleop_vr/dora-openarm", editable = true }
+openarm-driver = { path = "src/nana_v3_dora_teleop_vr/openarm_driver", editable = true }

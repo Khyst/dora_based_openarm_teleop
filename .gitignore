@@ -1,0 +1,33 @@
+# Python & Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+
+# Dora Runtime Outputs & Logs
+out/
+**/config/out/
+*.log
+*.dora-session.yaml
+
+# C/C++ & CMake Build Artifacts
+CMakeFiles/
+CMakeCache.txt
+*.so
+*.o
+*.a
+
+# OS & IDE Files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*~

@@ -1,0 +1,80 @@
+# Nana_v3 Driver Configuration
+# Customized from nana_v3.urdf physical specs and safe prototype bringup defaults
+
+# Joint limits for right and left arms [min, max] in radians (from nana_v3.urdf)
+joint_limits:
+  right_arm:
+    - [-1.396263, 3.490659] # joint1: -80 deg to +200 deg
+    - [-1.745329, 1.745329] # joint2: -100 deg to +100 deg
+    - [-1.570796, 1.570796] # joint3: -90 deg to +90 deg
+    - [0.0, 2.443461]       # joint4: 0 deg to +140 deg
+    - [-1.570796, 1.570796] # joint5: -90 deg to +90 deg
+    - [-0.785398, 0.785398] # joint6: -45 deg to +45 deg
+    - [-1.570796, 1.570796] # joint7: -90 deg to +90 deg
+    - [-1.047198, 0.4]      # joint8: gripper right
+
+  left_arm:
+    - [-1.396263, 3.490659] # joint1: -80 deg to +200 deg
+    - [-1.745329, 1.745329] # joint2: -100 deg to +100 deg
+    - [-1.570796, 1.570796] # joint3: -90 deg to +90 deg
+    - [0.0, 2.443461]       # joint4: 0 deg to +140 deg
+    - [-1.570796, 1.570796] # joint5: -90 deg to +90 deg
+    - [-0.785398, 0.785398] # joint6: -45 deg to +45 deg
+    - [-1.570796, 1.570796] # joint7: -90 deg to +90 deg
+    - [-0.4, 1.047198]      # joint8: gripper left
+
+# Fully aligned hardware and URDF zero origins
+joint_offsets:
+  right_arm: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  left_arm:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+# Ultra-safe slow joint delta position limits (rad/s) (~10-20 deg/s max)
+joint_delta_position_limits:
+  - 0.2 # J0 (DM8009) ~11 deg/s max
+  - 0.2 # J1 (DM8009) ~11 deg/s max
+  - 0.3 # J2 (DM4340) ~17 deg/s max
+  - 0.3 # J3 (DM4340) ~17 deg/s max
+  - 0.4 # J4 (DM4310) ~23 deg/s max
+  - 0.4 # J5 (DM4310) ~23 deg/s max
+  - 0.4 # J6 (DM4310) ~23 deg/s max
+  - 0.4 # J7 (DM4310) ~23 deg/s max
+
+# CAN interface
+can_interface:
+  right_arm: "can0"
+  left_arm: "can1"
+
+# Motor configuration matching nana_v3 actuator specs
+motor_config:
+  types: ['DM8009', 'DM8009', 'DM4340', 'DM4340', 'DM4310', 'DM4310', 'DM4310', 'DM4310']
+  send_ids: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]
+  recv_ids: [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
+
+# IF using POS_FORCE gripper, set to "POS_FORCE"
+gripper_posforce: true
+gripper_posforce_limits: [50.0, 1.0]
+
+# Safe default PD control gains for initial prototype bringup
+control_gains:
+  kps: [70.0, 70.0, 70.0, 60.0, 10.0, 10.0, 10.0, 10.0]
+  kds: [2.75, 2.5, 2.0, 2.0, 0.7, 0.6, 0.5, 0.2]
+
+# Start configuration: Zero origin (Attention Pose)
+start:
+  moves:
+    - name: "initial"
+      position:
+        right_arm: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        left_arm:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      hz: 50
+      duration: 2
+
+# Stop configuration: Zero origin (Attention Pose)
+stop:
+  moves:
+    - name: "initial"
+      position:
+        right_arm: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        left_arm:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      hz: 50
+      duration: 2

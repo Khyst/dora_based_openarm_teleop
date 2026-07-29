@@ -4,6 +4,30 @@
 
 ---
 
+## 💻 다른 PC에서 Git Clone 후 바로 사용하는 방법
+
+새로운 PC에서 이 저장소를 클론하여 구동할 때 아래 3가지 과정을 진행하면 바로 환경 설정 및 실행이 완료됩니다.
+
+### 1. 저장소 클론
+```bash
+git clone <YOUR_REMOTE_REPO_URL> 13.dora_based_nana_teleop_ws
+cd 13.dora_based_nana_teleop_ws
+```
+
+### 2. `uv` 설치 (미설치된 경우)
+```bash
+python3 -m pip install --user uv
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+### 3. 환경 동기화 (`uv sync`)
+단 한 번의 명령으로 모든 Dora 노드 패키지와 의존성(Dora-rs, MuJoCo 등)을 자동으로 동기화합니다:
+```bash
+uv sync
+```
+
+---
+
 ## 📁 워크스페이스 디렉토리 구조
 
 ```
@@ -28,38 +52,23 @@
 
 ---
 
-## 🚀 빠른 시작 (Quick Start)
+## 🚀 실행 가이드
 
-### 1. 환경 동기화 (`uv sync`)
-단 한 번의 명령으로 모든 Dora 노드 패키지와 의존성(Dora-rs, MuJoCo 등)을 동기화합니다:
-
-```bash
-cd ~/13.dora_based_nana_teleop_ws
-export PATH="$HOME/.local/bin:$PATH"
-uv sync
-```
-
----
-
-### 2. 시뮬레이션 실행 (Simulation Mode)
+### 1. 시뮬레이션 실행 (Simulation Mode)
 
 VR(Meta Quest)로 수신받은 위치 데이터를 **MuJoCo 시뮬레이터** 상의 NANA v3 로봇 모델에 실시간 IK 적용하여 확인합니다.
 
-#### 방법 A: 편리한 스크립트 실행
 ```bash
 ./run_sim.sh
 ```
 
-#### 방법 B: `uv` 명령 직접 실행
-```bash
-uv run dora start src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop-sim.yaml
-```
+*(또는 `uv run dora run src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop-sim.yaml`)*
 
 > **Dataflow 구성 노드**: `ui`, `quittable-tick-leader`, `udp-receiver`, `ik`, `mujoco-viewer`
 
 ---
 
-### 3. 실물 로봇 원격 제어 실행 (Real Hardware Mode)
+### 2. 실물 로봇 원격 제어 실행 (Real Hardware Mode)
 
 실물 NANA v3 로봇과 연결하여 VR 제어를 수행합니다. *(실물 CAN 통신용 `libcli11-dev` 설치 필요)*
 
@@ -71,11 +80,13 @@ uv sync --extra hardware
 ./run_real.sh
 ```
 
+*(또는 `uv run dora run src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop.yaml`)*
+
 ---
 
 ## 🛠️ Dora 데이터플로우 모니터링 & 조작
 
-Dora 가 실행 중일 때 다음 명령어로 상태 모니터링 및 제어가 가능합니다:
+Dora 실행 중 다른 터미널에서 다음 명령어로 상태 모니터링 및 제어가 가능합니다:
 
 - **실행 중인 데이터플로우 목록 조회**:
   ```bash

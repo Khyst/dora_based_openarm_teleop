@@ -654,6 +654,24 @@ def _parse_args() -> argparse.Namespace:
         default=_DEFAULT_ORIGIN_FRAME_TYPE,
         help=f"Origin frame type (default: {_DEFAULT_ORIGIN_FRAME_TYPE})",
     )
+    p.add_argument(
+        "--cam-azimuth",
+        type=float,
+        default=180.0,
+        help="MuJoCo viewer camera azimuth angle in degrees (default: 180.0 for front view, 0.0 for back view)",
+    )
+    p.add_argument(
+        "--cam-elevation",
+        type=float,
+        default=-20.0,
+        help="MuJoCo viewer camera elevation angle in degrees (default: -20.0)",
+    )
+    p.add_argument(
+        "--cam-distance",
+        type=float,
+        default=3.5,
+        help="MuJoCo viewer camera distance in meters (default: 3.5)",
+    )
     return p.parse_args()
 
 
@@ -702,9 +720,9 @@ def main() -> None:
 
     if args.viewer is not None:
         with mujoco.viewer.launch_passive(model, data) as viewer:
-            viewer.cam.azimuth = 0
-            viewer.cam.elevation = -20
-            viewer.cam.distance = 3.5
+            viewer.cam.azimuth = args.cam_azimuth
+            viewer.cam.elevation = args.cam_elevation
+            viewer.cam.distance = args.cam_distance
             viewer.cam.lookat[:] = [1.3, 0, 0.6]
 
             dora_thread = threading.Thread(

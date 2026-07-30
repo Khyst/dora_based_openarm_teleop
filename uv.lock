@@ -18,6 +18,7 @@ members = [
     "dora-openarm-kinematics",
     "dora-openarm-mujoco",
     "dora-openarm-quitter",
+    "dora-openarm-udp-replay",
     "dora-openarm-vr",
     "hamsa",
     "openarm-driver",
@@ -164,6 +165,7 @@ dependencies = [
     { name = "dora-openarm-kinematics" },
     { name = "dora-openarm-mujoco" },
     { name = "dora-openarm-quitter" },
+    { name = "dora-openarm-udp-replay" },
     { name = "dora-openarm-vr" },
     { name = "dora-rs" },
     { name = "dora-rs-cli" },
@@ -180,6 +182,7 @@ requires-dist = [
     { name = "dora-openarm-kinematics", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics" },
     { name = "dora-openarm-mujoco", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-mujoco" },
     { name = "dora-openarm-quitter", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-quitter" },
+    { name = "dora-openarm-udp-replay", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-udp-replay" },
     { name = "dora-openarm-vr", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-vr" },
     { name = "dora-rs", specifier = ">=0.5.0" },
     { name = "dora-rs-cli", specifier = ">=0.5.0" },
@@ -363,6 +366,21 @@ requires-dist = [{ name = "dora-rs", specifier = ">=0.3.9" }]
 dev = [
     { name = "pytest", specifier = ">=8.1.1" },
     { name = "ruff", specifier = "==0.14.11" },
+]
+
+[[package]]
+name = "dora-openarm-udp-replay"
+version = "1.0.0"
+source = { editable = "src/nana_v3_dora_teleop_vr/dora-openarm-udp-replay" }
+dependencies = [
+    { name = "dora-rs" },
+    { name = "pyarrow" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dora-rs", specifier = ">=0.3.9" },
+    { name = "pyarrow" },
 ]
 
 [[package]]

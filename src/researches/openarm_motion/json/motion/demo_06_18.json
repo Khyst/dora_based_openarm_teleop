@@ -1,0 +1,42 @@
+[
+  {
+    "group": "left_arm",
+    "pose": "salut_2"
+  },
+  {
+    "group": "right_arm",
+    "pose": "salut_2"
+  },
+  {
+    "group": "left",
+    "pose": "grab"
+  },
+  {
+    "group": "right",
+    "pose": "grab"
+  },
+  {
+    "group": "left",
+    "pose": "release"
+  },
+  {
+    "group": "right",
+    "pose": "release"
+  },
+  {
+    "group": "left",
+    "pose": "scissor"
+  },
+  {
+    "group": "right",
+    "pose": "scissor"
+  },
+  {
+    "group": "left_arm",
+    "pose": "home"
+  },
+  {
+    "group": "right_arm",
+    "pose": "home"
+  }
+]

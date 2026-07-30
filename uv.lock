@@ -14,10 +14,12 @@ members = [
     "dora-openarm",
     "dora-openarm-data-collection-ui",
     "dora-openarm-dataset-recorder",
+    "dora-openarm-hamsa",
     "dora-openarm-kinematics",
     "dora-openarm-mujoco",
     "dora-openarm-quitter",
     "dora-openarm-vr",
+    "hamsa",
     "openarm-driver",
 ]
 
@@ -158,12 +160,14 @@ dependencies = [
     { name = "dora-openarm" },
     { name = "dora-openarm-data-collection-ui" },
     { name = "dora-openarm-dataset-recorder" },
+    { name = "dora-openarm-hamsa" },
     { name = "dora-openarm-kinematics" },
     { name = "dora-openarm-mujoco" },
     { name = "dora-openarm-quitter" },
     { name = "dora-openarm-vr" },
     { name = "dora-rs" },
     { name = "dora-rs-cli" },
+    { name = "hamsa" },
     { name = "openarm-driver" },
 ]
 
@@ -172,12 +176,14 @@ requires-dist = [
     { name = "dora-openarm", editable = "src/nana_v3_dora_teleop_vr/dora-openarm" },
     { name = "dora-openarm-data-collection-ui", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-data-collection-ui" },
     { name = "dora-openarm-dataset-recorder", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-dataset-recorder" },
+    { name = "dora-openarm-hamsa", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-hamsa" },
     { name = "dora-openarm-kinematics", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics" },
     { name = "dora-openarm-mujoco", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-mujoco" },
     { name = "dora-openarm-quitter", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-quitter" },
     { name = "dora-openarm-vr", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-vr" },
     { name = "dora-rs", specifier = ">=0.5.0" },
     { name = "dora-rs-cli", specifier = ">=0.5.0" },
+    { name = "hamsa", editable = "src/utils/hamsa" },
     { name = "openarm-driver", editable = "src/nana_v3_dora_teleop_vr/openarm_driver" },
 ]
 
@@ -265,6 +271,21 @@ requires-dist = [
 dev = [
     { name = "pytest", specifier = ">=8.1.1" },
     { name = "ruff", specifier = "==0.14.11" },
+]
+
+[[package]]
+name = "dora-openarm-hamsa"
+version = "1.0.0"
+source = { editable = "src/nana_v3_dora_teleop_vr/dora-openarm-hamsa" }
+dependencies = [
+    { name = "dora-rs" },
+    { name = "pyarrow" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dora-rs", specifier = ">=0.3.9" },
+    { name = "pyarrow" },
 ]
 
 [[package]]
@@ -643,6 +664,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/01/ee/02a2c011bdab74c6f
 wheels = [
     { url = "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl", hash = "sha256:63cf8bbe7522de3bf65932fda1d9c2772064ffb3dae62d55932da54b31cb6c86", size = 37515, upload-time = "2025-04-24T03:35:24.344Z" },
 ]
+
+[[package]]
+name = "hamsa"
+version = "1.0.0"
+source = { editable = "src/utils/hamsa" }
 
 [[package]]
 name = "httpcore"

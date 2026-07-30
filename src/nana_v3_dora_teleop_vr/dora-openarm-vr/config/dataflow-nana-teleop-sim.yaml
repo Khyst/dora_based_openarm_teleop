@@ -1,25 +1,8 @@
 nodes:
-  - id: ui
-    build: pip install -e ../../dora-openarm-data-collection-ui
-    path: dora-openarm-data-collection-ui
-    env:
-      METADATA_FILE: "test_metadata.yaml"
-    inputs:
-      tick: dora/timer/secs/1
-      button_a:
-        source: udp-receiver/button_a
-        queue_size: 100
-      button_b:
-        source: udp-receiver/button_b
-        queue_size: 100
-    outputs:
-      - command
-
   - id: quittable-tick-leader
     build: pip install -e ../../dora-openarm-quitter
     path: dora-openarm-quitter
     inputs:
-      command: ui/command
       tick: dora/timer/millis/2
     outputs:
       - tick
@@ -77,3 +60,13 @@ nodes:
       joystick_y:     udp-receiver/joystick_y_left
     outputs:
       - status
+
+  - id: hamsa-motion
+    build: pip install -e ../../dora-openarm-hamsa
+    path: dora-openarm-hamsa
+    inputs:
+      button_a: udp-receiver/button_a
+      button_b: udp-receiver/button_b
+      button_x: udp-receiver/button_x
+      button_y: udp-receiver/button_y
+

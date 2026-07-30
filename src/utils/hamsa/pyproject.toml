@@ -1,0 +1,11 @@
+[project]
+name = "hamsa"
+version = "1.0.0"
+description = "Software for controlling the Robot Nano Hand"
+readme = "README.md"
+requires-python = ">=3.10"
+
+[build-system]
+requires = ["setuptools>=42", "wheel", "pybind11>=2.6"]
+build-backend = "setuptools.build_meta"
+

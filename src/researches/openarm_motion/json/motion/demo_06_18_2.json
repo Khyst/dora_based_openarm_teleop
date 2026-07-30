@@ -1,0 +1,18 @@
+[
+  {
+    "group": "left_arm",
+    "pose": "salut_2"
+  },
+  {
+    "group": "right_arm",
+    "pose": "salut_2"
+  },
+  {
+    "group": "left_arm",
+    "pose": "home"
+  },
+  {
+    "group": "right_arm",
+    "pose": "home"
+  }
+]

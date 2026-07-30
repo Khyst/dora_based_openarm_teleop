@@ -27,7 +27,13 @@ CMakeCache.txt
 
 # OS & IDE Files
 .DS_Store
+Thumbs.db
 .vscode/
 .idea/
 *.swp
 *~
+
+# CLI Local Workspace & Cache
+.gemini/
+.cache/
+

@@ -1,0 +1,103 @@
+nodes:
+  - id: ui
+    build: pip install -e ../../dora-openarm-data-collection-ui
+    path: dora-openarm-data-collection-ui
+    env:
+      METADATA_FILE: "test_metadata.yaml"
+    inputs:
+      tick: dora/timer/secs/1
+      button_a:
+        source: udp-receiver/button_a
+        queue_size: 100
+      button_b:
+        source: udp-receiver/button_b
+        queue_size: 100
+    outputs:
+      - command
+
+  - id: quittable-tick-leader
+    build: pip install -e ../../dora-openarm-quitter
+    path: dora-openarm-quitter
+    inputs:
+      command: ui/command
+      tick: dora/timer/millis/2
+    outputs:
+      - tick
+
+  - id: udp-receiver
+    build: pip install -e ..
+    path: dora-openarm-quest-receiver
+    args: "--host 0.0.0.0 --port 5006"
+    inputs:
+      tick: quittable-tick-leader/tick
+    outputs:
+      - pose_right
+      - trigger_right
+      - grip_right
+      - pose_left
+      - pose_reference
+      - trigger_left
+      - grip_left
+      - joystick_x_left
+      - joystick_y_left
+      - joystick_x_right
+      - joystick_y_right
+      - button_a
+      - button_b
+      - button_x
+      - button_y
+      - status
+
+  - id: ik
+    build: pip install -e ../../dora-openarm-kinematics
+    path: dora-openarm-ik
+    args: "--xml ../../../nana_v3_description/assets/robot/urdf/nana_v3.xml --mode bimanual --max-iters 10 --dt 0.02 --damping 1.0 --posture-cost 0.01 --lm-damping 0.1"
+    inputs:
+      tick: quittable-tick-leader/tick
+      target_right: udp-receiver/pose_right
+      target_left:  udp-receiver/pose_left
+      grip_right:   udp-receiver/grip_right
+      grip_left:    udp-receiver/grip_left
+      trigger_right: udp-receiver/trigger_right
+      trigger_left:  udp-receiver/trigger_left
+    outputs:
+      - position_left
+      - position_right
+      - status
+
+  - id: mujoco-viewer
+    build: pip install -e ../../dora-openarm-mujoco
+    path: dora-openarm-mujoco
+    args: "--xml ../../../nana_v3_description/assets/robot/urdf/nana_v3.xml --keyframe home --viewer --debug-frames"
+    inputs:
+      position_left:  ik/position_left
+      position_right: ik/position_right
+      pose_right:     udp-receiver/pose_right
+      pose_left:      udp-receiver/pose_left
+      joystick_y:     udp-receiver/joystick_y_left
+    outputs:
+      - status
+
+  - id: follower-right
+    build: pip install -e ../../dora-openarm
+    path: dora-openarm
+    args: "--side right --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../openarm_driver/src/openarm_driver/configs/nana_v3_cell.yaml"
+    inputs:
+      request_state: ik/position_right
+      move_position: ik/position_right
+      grip: udp-receiver/grip_right
+    outputs:
+      - state
+      - status
+
+  - id: follower-left
+    build: pip install -e ../../dora-openarm
+    path: dora-openarm
+    args: "--side left --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../openarm_driver/src/openarm_driver/configs/nana_v3_cell.yaml"
+    inputs:
+      request_state: ik/position_left
+      move_position: ik/position_left
+      grip: udp-receiver/grip_left
+    outputs:
+      - state
+      - status

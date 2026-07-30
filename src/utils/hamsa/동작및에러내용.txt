@@ -1,0 +1,29 @@
+1. hamsa.config
+
+모터별 ID 및 작동값 입력.
+모터 ID 수정 및 테스트 아래 참조
+리눅스 : feetech_scs_servo_gui  // https://github.com/jgdo/feetech_scs_servo_gui.git
+SCServo.cpp
+pSerial.setPortName("/dev/ttyACM0"); // 포트 확인
+
+윈도우 : FDSC모터 소프트웨어    // https://www.feetechrc.com/software.html
+
+2. hamsa import 문제
+
+import sys
+import os
+sys.path.append(os.path.join(os.environ["HOME"], "robothand/hamsa/src")) // 본인 폴더 위치
+
+3. 포트수정
+src/Serial.cpp
+USB = open( "/dev/ttyACM0", O_RDWR| O_NOCTTY| O_NONBLOCK );
+
+4. 동작
+src/hamsa/hand.py 파일의 함수 사용
+
+# 손가락 접기펴기
+hand.curl_pinky(0, 2000) // (0:접기 1:펼치기, 동작시간)
+# 좌우이동
+hand.wiggle_pinky(1, 2000)  // (0:왼쪽(손바닥 보는 기준으로 약지 펴는 방향 : 테스트핸드 오른손) 1:오른쪽, 동작시간)
+
+5. mimic(카메라) 테스트X

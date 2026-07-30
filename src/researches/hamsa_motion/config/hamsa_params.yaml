@@ -1,0 +1,7 @@
+hamsa_motion_node:
+  ros__parameters:
+    close_duration_ms: 500
+    open_duration_ms: 500
+    grab_duration_ms: 500
+    release_duration_ms: 500
+    scissor_duration_ms: 500

@@ -1,4 +1,4 @@
-# NANA v3 Dora VR Teleoperation Workspace (`13.dora_based_nana_teleop_ws`)
+# OpenARM Dora Teleoperation Workspace (`dora_based_openarm_teleop`)
 
 본 워크스페이스는 **Dora-rs** 및 **`uv` Workspace** 기반으로 NANA v3 로봇의 VR 원격 제어(Teleoperation) 및 시뮬레이션을 효율적으로 관리하고 실행할 수 있도록 통합 구성된 개발 환경입니다.
 
@@ -10,8 +10,8 @@
 
 ### 1. 저장소 클론
 ```bash
-git clone <YOUR_REMOTE_REPO_URL> 13.dora_based_nana_teleop_ws
-cd 13.dora_based_nana_teleop_ws
+git clone https://github.com/Khyst/dora_based_openarm_teleop.git dora_based_openarm_teleop
+cd dora_based_openarm_teleop
 ```
 
 ### 2. 자동 환경 설정 실행
@@ -29,7 +29,7 @@ cd 13.dora_based_nana_teleop_ws
 ## 📁 워크스페이스 디렉토리 구조
 
 ```
-~/13.dora_based_nana_teleop_ws/
+~/dora_based_openarm_teleop/
 ├── setup_env.sh                # 자동화 환경 설치 및 동기화 스크립트
 ├── pyproject.toml              # uv workspace 통합 관리 파일 (전체 8개 서브 패키지 통합)
 ├── README.md                   # 본 사용 가이드 문서

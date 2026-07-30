@@ -145,31 +145,43 @@ class QuestPoseProcessor:
     def process(
         self, msg: dict
     ) -> tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None]:
-        ref_raw = msg.get("rf")
-        right_raw = msg.get("rc")
-        left_raw = msg.get("lc")
+        ref_raw = msg.get("rf") # HMD 기준점 
+        right_raw = msg.get("rc") # 왼손 컨트롤러
+        left_raw = msg.get("lc") # 오른손 컨트롤러 
 
-        p_ref, r_ref = parse_lh_to_rh(ref_raw or _IDENTITY_REF)
-        active_p_ref = p_ref
-        active_r_ref_inv = r_ref.inv()
+        # Unity 좌표계(왼손 좌표계) -> Mujoco, ROS2(오른손 좌표계) 변환
+        # - p_ref : Ref(HMD)의 위치 벡터, r_ref : Ref(HMD)dml 회전 행렬
+        p_ref, r_ref = parse_lh_to_rh(ref_raw or _IDENTITY_REF) 
+        
+        active_p_ref = p_ref # HMD 위치 값을 기준 위치 변수로 복사 할당
+        active_r_ref_inv = r_ref.inv() # HMD 역회전 회전 객체
 
+        # 손목 컨트롤러 방향과 로봇 그리퍼 축 방향을 정렬하기 위한 90도 회전 객체 생성 (z축 90도 오일러 각도)
         r_fix = Rotation.from_euler("z", 90, degrees=True)
 
         def _rectify(raw: dict) -> np.ndarray:
-            p, r = parse_lh_to_rh(raw)
-            p_rel = active_r_ref_inv.apply(p - active_p_ref)
-            r_rel = active_r_ref_inv * r
-            p_out = _R_FRAME.apply(p_rel) + FRAME_OFFSET_NECK
-            r_out = _R_FRAME * r_rel * r_fix
+            """
+
+            """
+            p, r = parse_lh_to_rh(raw) # Unity 좌표계(왼손 좌표계) -> Mujoco, ROS2(오른손 좌표계) 변환
+            p_rel = active_r_ref_inv.apply(p - active_p_ref) # HMD 원점 기준 컨트롤러의 3D 위치 차이 (상대 변위) 계산 후 HMD 회전각 만큼 역회전시켜 HMD 시선 방향 기준 상대 위치로 회전 변환
+            r_rel = active_r_ref_inv * r # HMD 회전을 기준으로 한 컨트롤러의 상대 회전량 행렬 곱 게산
+            
+            p_out = _R_FRAME.apply(p_rel) + FRAME_OFFSET_NECK # 최종 로봇 기준 3D 목표 위치 획득
+            r_out = _R_FRAME * r_rel * r_fix # 최종 로봇 기준 회전 객체 획득
+
             return pose_to_array(p_out, r_out)
 
         pose_right = _rectify(right_raw) if right_raw is not None else None
         pose_left = _rectify(left_raw) if left_raw is not None else None
+
         pose_reference = pose_to_array(p_ref, r_ref) if ref_raw is not None else None
+
         return pose_right, pose_left, pose_reference
 
 
 def _run(args: argparse.Namespace) -> None:
+
     receiver = JsonUdpReceiver(args.host, args.port)
     processor = QuestPoseProcessor()
 
@@ -190,46 +202,63 @@ def _run(args: argparse.Namespace) -> None:
             continue
 
         recv_ts = receiver.drain_recv_timestamps()
+
         if recv_ts:
             node.send_output("vr_receive_times", pa.array(recv_ts, type=pa.int64()))
 
         msg = receiver.latest()
+
         if msg is None:
             continue
+
+        # 
         now = time.perf_counter()
 
-        v_overall = int(msg["v"]) if "v" in msg else VALID_OK
-        v_right = int(msg["vr"]) if "vr" in msg else VALID_OK
-        v_left = int(msg["vl"]) if "vl" in msg else VALID_OK
+        # 포즈 추적 유효성 검사 (VR 기기에서 보냄, VALID_STALE: 컨트롤러가 잠시 안 보여 마지막 정상 위치 유지 중, VALID_INVALID: 추적 완전 손실, VALID_OK: 카메라 추적 정상)
+        v_overall = int(msg["v"]) if "v" in msg else VALID_OK # (전체)
+        v_right = int(msg["vr"]) if "vr" in msg else VALID_OK # (오른손)
+        v_left = int(msg["vl"]) if "vl" in msg else VALID_OK # (왼손)
 
-        if v_overall != prev_v_overall:
+        # 추적 상태 변경 시 로그 출력
+        if v_overall != prev_v_overall: # 전체
+            """
+                추적 상태가 변화했을 떄만, 하단 로그를 출력
+                [receiver] validity: OK → STALE (L=OK, R=STALE)
+            """
             print(
                 f"[receiver] validity: {_VALID_NAMES[prev_v_overall]} → {_VALID_NAMES[v_overall]} "
                 f"(L={_VALID_NAMES[v_left]}, R={_VALID_NAMES[v_right]})"
             )
             prev_v_overall = v_overall
 
+        # VR 기기로 부터 받은 데이터로 부터 변환된 로봇 좌표게 포즈 획득 (오른손, 왼손, HMD)
         pose_right_raw, pose_left_raw, pose_reference_raw = processor.process(msg)
 
-        if v_right == VALID_INVALID:
-            if prev_v_right != VALID_INVALID:
-                smoother_right.reset()
-            pose_right = None
-        else:
+        """
+            컨트롤러가 카메라 밖으로 나갔다가 다시 들어오거나, 손에 가려졌다가 다시 나타날 때, 손 위치가 순간적으로 크게 점프(Jump)할 수 있음
+            이때, 과거 위치 데이터를 기억하고 있던 필터(OneEuroFilter)가 작동하면, 로봇 팔이 이전 위치에서 새 위치로 확 튀거나 뒤 늦게 들어오는 현상이 발생함
+            이를 방지하기 위해서, 추적이 끊기는 순간 필터의 과거 기록을 싹 지워버려, 추적 재기 시 로봇이 점프 없이 부드럽게 새 포즈부터 다시 시작하도록 만든 안전 장
+        """
+
+        if v_right == VALID_INVALID: # 오른손 추적 실패시
+            if prev_v_right != VALID_INVALID: # 손실이 시작된 "첫 순간" 감지
+                smoother_right.reset() # 스무더(필터) 히스토리 초기화
+            pose_right = None # 잘못된 포즈 데이터는 None으로 해서 IK 등의 작업 수행 못하도록 원천 차단
+        else: # 오른손 추적 정상 (OK 또는 STALE 시)
             pose_right = smoother_right.smooth(now, pose_right_raw)
 
-        if v_left == VALID_INVALID:
-            if prev_v_left != VALID_INVALID:
-                smoother_left.reset()
-            pose_left = None
-        else:
+        if v_left == VALID_INVALID: # 왼손 추적 실패시
+            if prev_v_left != VALID_INVALID: # 손실이 시작된 "첫 순간" 감지 
+                smoother_left.reset() # 스무더(필터) 히스토리 초기화
+            pose_left = None # 잘못된 포즈 데이터는 None으로 해서 IK 등의 작업 수행 못하도록 원천 차단
+        else: # 왼손 추적 정상 (OK 또는 STALE 시)
             pose_left = smoother_left.smooth(now, pose_left_raw)
 
-        if v_overall == VALID_INVALID:
-            if prev_v_reference != VALID_INVALID:
-                smoother_reference.reset()
-            pose_reference = None
-        else:
+        if v_overall == VALID_INVALID: # HMD 추적 실패시
+            if prev_v_reference != VALID_INVALID: # 손실이 시작된 "첫 순간" 감지
+                smoother_reference.reset() # 스무더(필터) 히스토리 초기화
+            pose_reference = None # 잘못된 포즈 데이터는 None으로 해서 IK 등의 작업 수행 못하도록 원천 차단
+        else: # HMD 추적 정상 (OK 또는 STALE 시)
             pose_reference = smoother_reference.smooth(now, pose_reference_raw)
 
         prev_v_right = v_right
@@ -239,15 +268,49 @@ def _run(args: argparse.Namespace) -> None:
         ts = {"timestamp": time.time_ns()}
 
         if pose_right is not None and ("rg" in msg or "rt" in msg):
+            """
+                pose_with_gripper (길이 8의 float32 np.ndarray):
+                [x, y, z, qw, qx, qy, qz, gripper_angle]
+
+                - Pose 기준 (x, y, z, qw, qx, qy, qz):
+                  Unity 오른손 좌표계를 오른손 좌표계(MuJoCo)로 변환 후, 헤드셋(HMD) 리셋 위치 기준의 
+                  상대 변화량을 로봇의 가슴 원점 프레임(`arm_origin` site) 및 기본 오프셋(`FRAME_OFFSET_NECK`)에 
+                  투영한 최종 위치 및 회전 값.
+
+                - Gripper Angle 기준 (gripper_angle):
+                  VR 컨트롤러의 트리거 입력 값(rg/rt, 0.0~1.0)을 로봇 우측 그리퍼의 
+                  열림/닫힘 보정 각도범위(-45° ~ 10°)로 선형 매핑하여 라디안(rad)으로 변환한 값.
+
+                예시 데이터:
+                np.array([-0.085, 0.20, -0.14, 1.0, 0.0, 0.0, 0.0, -0.785398], dtype=np.float32)
+            """
             grip_val = float(msg.get("rg", msg.get("rt", 0.0)))
             gripper_angle = _map_trigger_to_gripper(grip_val, "right")
             pose_with_gripper = np.concatenate([pose_right, [gripper_angle]], axis=0)
             node.send_output("pose_right", build_pose_output(pose_with_gripper), ts)
+
         if pose_left is not None and ("lg" in msg or "lt" in msg):
+            """
+                pose_with_gripper (길이 8의 float32 np.ndarray):
+                [x, y, z, qw, qx, qy, qz, gripper_angle]
+
+                - Pose 기준 (x, y, z, qw, qx, qy, qz):
+                  Unity 왼손 좌표계를 오른손 좌표계(MuJoCo)로 변환 후, 헤드셋(HMD) 리셋 위치 기준의 
+                  상대 변화량을 로봇의 가슴 원점 프레임(`arm_origin` site) 및 기본 오프셋(`FRAME_OFFSET_NECK`)에 
+                  투영한 최종 위치 및 회전 값.
+
+                - Gripper Angle 기준 (gripper_angle):
+                  VR 컨트롤러의 트리거 입력 값(lg/lt, 0.0~1.0)을 로봇 좌측 그리퍼의 
+                  열림/닫힘 보정 각도범위(45° ~ -10°)로 선형 매핑하여 라디안(rad)으로 변환한 값.
+
+                예시 데이터:
+                np.array([-0.085, -0.20, -0.14, 1.0, 0.0, 0.0, 0.0, 0.785398], dtype=np.float32)
+            """
             grip_val = float(msg.get("lg", msg.get("lt", 0.0)))
             gripper_angle = _map_trigger_to_gripper(grip_val, "left")
             pose_with_gripper = np.concatenate([pose_left, [gripper_angle]], axis=0)
-            node.send_output("pose_left", build_pose_output(pose_with_gripper), ts)
+            node.send_output("pose_left", build_pose_output(pose_with_gripper), ts) # 시간 동기화를 위해 ns 단위의 timestamp도 보냄 (혹은 지연 시간(Latency) 측정 및 모니터링, 그리고 AI 학습 데이터 수집을 위한 시계열 축으로도 사용 가능)
+
         if pose_reference is not None:
             node.send_output("pose_reference", build_pose_output(pose_reference), ts)
 

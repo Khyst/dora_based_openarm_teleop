@@ -1,0 +1,228 @@
+{
+  "main": {
+    "id": "4d6f9b4a28251a3a",
+    "type": "split",
+    "children": [
+      {
+        "id": "cec3aba53f99fc2a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c5bd005c22fef1a7",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "새 탭"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "7f05db5d6c9c406c",
+    "type": "split",
+    "children": [
+      {
+        "id": "0ab8b5d9b2af88ce",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "35636f89df6c991e",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "파일 탐색기"
+            }
+          },
+          {
+            "id": "da61b1f9875c0756",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "검색"
+            }
+          },
+          {
+            "id": "f6cf43ef4201efc9",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "북마크"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "c6cd8a0711f0f5b8",
+    "type": "split",
+    "children": [
+      {
+        "id": "4772f400e990f29f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "df0e132da07c4159",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "백링크"
+            }
+          },
+          {
+            "id": "20818c7e73a4f8d8",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "나가는 링크"
+            }
+          },
+          {
+            "id": "161a2a8b74afe69f",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "태그"
+            }
+          },
+          {
+            "id": "5cf72cfc9b3c028b",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "모든 속성"
+            }
+          },
+          {
+            "id": "310aa3af29958e12",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "개요"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:빠른 전환기 열기": false,
+      "graph:그래프 뷰 열기": false,
+      "canvas:새 캔버스 만들기": false,
+      "daily-notes:오늘의 일일 노트 열기": false,
+      "templates:템플릿 삽입": false,
+      "command-palette:명령어 팔레트 열기": false,
+      "bases:새 베이스 생성하기": false
+    }
+  },
+  "active": "c5bd005c22fef1a7",
+  "lastOpenFiles": [
+    "uv.lock",
+    "src/researches/openarm_motion/json/motion/demo_06_18_2.json",
+    "src/researches/openarm_motion/json/motion/demo.json",
+    "src/researches/openarm_motion/json/motion/demo_06_18.json",
+    "src/researches/openarm_motion/srv/ExecuteSequence.srv",
+    "src/researches/openarm_motion/src/motion_teaching_node.py",
+    "src/researches/openarm_motion/src/motion_action_server_joint_states_sync.cpp",
+    "src/researches/openarm_motion/src/motion_action_server.cpp",
+    "src/researches/openarm_motion/launch/motion.launch.py",
+    "src/researches/openarm_motion/json/motion",
+    "src/researches/openarm_motion/config/motion_params.yaml",
+    "src/utils/hamsa/docs/verify_image.md",
+    "src/utils/hamsa/docs/tutorial_thumbnail.jpg",
+    "src/utils/hamsa/docs/sticky_load.png",
+    "src/utils/hamsa/docs/servo_calibration.md",
+    "src/utils/hamsa/docs/selections_highlighted.png",
+    "src/utils/hamsa/docs/normal_load.png",
+    "src/utils/hamsa/docs/image_recognition.md",
+    "src/utils/hamsa/docs/draw_highlighted.png",
+    "src/utils/hamsa/docs/disk_image.md",
+    "src/utils/hamsa/docs/constant_load.png",
+    "src/utils/hamsa/docs/Attributions.md",
+    "src/utils/hamsa/hamsa_setup_guide.md",
+    "src/utils/hamsa/README.md",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-data-collection-ui/dev/README.md",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-data-collection-ui/README.md",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-data-collection-ui/CODE_OF_CONDUCT.md",
+    "src/docs/OPENARM_CAN_SETUP_GUIDE.md",
+    "src/docs/MANAGEMENT_GUIDE.md",
+    "src/docs/002_udp_telemetry_record_replay_system_260702.md",
+    "src/docs/001_hamsa_motion_dora_node_260701.md",
+    "README.md",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/tutorial_thumbnail.jpg",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/verify_image.md",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/sticky_load.png",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/servo_calibration.md",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/selections_highlighted.png",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/normal_load.png",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/image_recognition.md",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/Attributions.md",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/disk_image.md",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/hamsa_setup_guide.md",
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/README.md",
+    "dora_based_openarm_teleop_proj_local/src/nana_v3_dora_teleop_vr/dora-openarm-udp-replay/README.md",
+    "dora_based_openarm_teleop_proj_local/src/nana_v3_dora_teleop_vr/openarm_driver/README.md",
+    "dora_based_openarm_teleop_proj_local/src/nana_v3_dora_teleop_vr/openarm_driver/CONTRIBUTING.md"
+  ]
+}

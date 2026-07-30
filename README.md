@@ -16,7 +16,7 @@ cd dora_based_openarm_teleop
 
 ### 2. 자동 환경 설정 실행
 ```bash
-./setup_env.sh
+./scripts/setup_env.sh
 ```
 
 > **자동화 동작 스크립트내용**:
@@ -30,17 +30,18 @@ cd dora_based_openarm_teleop
 
 ```
 ~/dora_based_openarm_teleop/
-├── setup_env.sh                # 자동화 환경 설치 및 동기화 스크립트
 ├── pyproject.toml              # uv workspace 통합 관리 파일 (전체 8개 서브 패키지 통합)
 ├── README.md                   # 본 사용 가이드 문서
-├── MANAGEMENT_GUIDE.md        # 상세 환경 관리 및 전략 문서
-├── run_sim.sh                  # 시뮬레이션(MuJoCo) 실행 스크립트
-├── run_sim_record.sh           # 시뮬레이션 실행 + VR 텔레메트리 녹화 스크립트
-├── run_sim_play.sh             # 시뮬레이션 상에서 녹화본 재생 스크립트 (VR 헤드셋 미사용)
-├── run_real.sh                 # 실물 로봇 제어 실행 스크립트
-├── run_real_record.sh          # 실물 로봇 제어 + VR 텔레메트리 녹화 스크립트
-├── run_real_play.sh            # 실물 로봇 상에서 녹화본 재생 스크립트 (VR 헤드셋 미사용)
+├── scripts/                    # 유틸리티 및 데이터플로우 실행 스크립트 폴더
+│   ├── setup_env.sh            # 자동화 환경 설치 및 동기화 스크립트
+│   ├── run_sim.sh              # 시뮬레이션(MuJoCo) 실행 스크립트
+│   ├── run_sim_record.sh       # 시뮬레이션 실행 + VR 텔레메트리 녹화 스크립트
+│   ├── run_sim_play.sh         # 시뮬레이션 상에서 녹화본 재생 스크립트 (VR 헤드셋 미사용)
+│   ├── run_real.sh             # 실물 로봇 제어 실행 스크립트
+│   ├── run_real_record.sh      # 실물 로봇 제어 + VR 텔레메트리 녹화 스크립트
+│   └── run_real_play.sh        # 실물 로봇 상에서 녹화본 재생 스크립트 (VR 헤드셋 미사용)
 └── src/
+    ├── docs/                   # 프로젝트 파이프라인 & 파라미터 튜닝 문서
     ├── nana_v3_description/    # NANA v3 로봇 모델 (nana_v3.urdf, nana_v3.xml 및 3D Mesh)
     ├── utils/
     │   └── hamsa/              # Hamsa 로봇 손 컨트롤러 라이브러리
@@ -66,13 +67,13 @@ cd dora_based_openarm_teleop
 #### 1) 시뮬레이션 실행 (Simulation Mode)
 VR(Meta Quest 3)로 수신받은 위치 데이터를 **MuJoCo 시뮬레이터** 상의 NANA v3 로봇 모델에 실시간 IK 및 Hamsa 손 제어를 적용하여 확인합니다.
 ```bash
-./run_sim.sh
+./scripts/run_sim.sh
 ```
 
 #### 2) 실물 로봇 원격 제어 실행 (Real Hardware Mode)
 실물 NANA v3 로봇 및 Hamsa 손과 연결하여 VR 원격 제어를 수행합니다.
 ```bash
-./run_real.sh
+./scripts/run_real.sh
 ```
 
 ---
@@ -84,13 +85,13 @@ Meta Quest 3 헤드셋이 연결된 상태에서 수신되는 조종 데이터�
 #### 1) 녹화 (Record Mode)
 - **시뮬레이션 조종 & 녹화**:
   ```bash
-  ./run_sim_record.sh
+  ./scripts/run_sim_record.sh
   ```
   *(수신 데이터는 `recordings/vr_sim_session.jsonl` 파일로 저장됩니다.)*
 
 - **실물 로봇 조종 & 녹화**:
   ```bash
-  ./run_real_record.sh
+  ./scripts/run_real_record.sh
   ```
   *(수신 데이터는 `recordings/vr_real_session.jsonl` 파일로 저장됩니다.)*
 
@@ -98,11 +99,11 @@ Meta Quest 3 헤드셋이 연결된 상태에서 수신되는 조종 데이터�
 Meta Quest 3 헤드셋 연결 없이 녹화된 세션 데이터를 재생하여 시뮬레이터 또는 실물 로봇의 동작 및 IK를 재연 테스트합니다.
 - **시뮬레이션 상에서 녹화본 재생**:
   ```bash
-  ./run_sim_play.sh
+  ./scripts/run_sim_play.sh
   ```
 - **실물 로봇 상에서 녹화본 재생**:
   ```bash
-  ./run_real_play.sh
+  ./scripts/run_real_play.sh
   ```
 
 ---
@@ -142,4 +143,3 @@ Dora 실행 중 다른 터미널에서 다음 명령어로 상태 모니터링 �
 
 - `src/nana_v3_dora_teleop_vr/` 하위의 **모든 서브 패키지**들은 **Editable 모드 (`-e`)** 로 `.venv`에 직접 링크되어 있습니다.
 - `src/` 디렉토리 내의 파이썬 소스 코드를 수정하면 별도의 재설치 과정 없이 **즉시 변경 사항이 반영**됩니다.
-

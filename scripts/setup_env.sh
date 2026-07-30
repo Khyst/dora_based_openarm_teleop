@@ -2,6 +2,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 export PATH="$HOME/.local/bin:$PATH"
 export CMAKE_PREFIX_PATH="$HOME/.local:$CMAKE_PREFIX_PATH"
 
@@ -36,6 +37,7 @@ fi
 
 # 3. Synchronize Python workspace (8 sub-packages)
 echo "[3/3] Synchronizing all workspace packages with uv sync..."
+cd "$ROOT_DIR"
 uv sync
 
 echo "=== Setup complete! ==="

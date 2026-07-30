@@ -3,7 +3,6 @@ nodes:
     build: pip install -e ../../dora-openarm-quitter
     path: dora-openarm-quitter
     inputs:
-      command: ui/command
       tick: dora/timer/millis/2
     outputs:
       - tick

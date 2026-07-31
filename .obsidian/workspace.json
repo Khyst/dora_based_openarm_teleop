@@ -182,17 +182,18 @@
   },
   "active": "35636f89df6c991e",
   "lastOpenFiles": [
+    "docs/012_update_jump_threshold_to_5cm_260710.md",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6d0-41b6-74fe-bcd2-f382ed821221/log_udp-player.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6d0-41b6-74fe-bcd2-f382ed821221/log_quittable-tick-leader.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6d0-41b6-74fe-bcd2-f382ed821221/log_mujoco-viewer.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6d0-41b6-74fe-bcd2-f382ed821221/log_ik.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6d0-41b6-74fe-bcd2-f382ed821221/log_hamsa-motion.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6d0-41b6-74fe-bcd2-f382ed821221",
     "docs/011_ik_reentry_smooth_pose_ramping_guard_260709.md",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6ce-c0f3-747d-b37e-120f3967a5bc/log_udp-player.txt",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6ce-c0f3-747d-b37e-120f3967a5bc/log_quittable-tick-leader.txt",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6ce-c0f3-747d-b37e-120f3967a5bc/log_mujoco-viewer.txt",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6ce-c0f3-747d-b37e-120f3967a5bc/log_ik.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6ce-c0f3-747d-b37e-120f3967a5bc/log_hamsa-motion.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6ce-c0f3-747d-b37e-120f3967a5bc",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c7-3d73-7907-acd3-8728f0913e77/log_udp-receiver.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c7-3d73-7907-acd3-8728f0913e77/log_quittable-tick-leader.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c7-3d73-7907-acd3-8728f0913e77/log_mujoco-viewer.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c7-3d73-7907-acd3-8728f0913e77/log_ik.txt",
     "docs/010_teleop_safety_drop_and_reentry_guard_260708.md",
     "docs/009_nana_v3_cell_config_conservative_joint_limits_260707.md",
     "docs/OPENARM_CAN_SETUP_GUIDE.md",
@@ -226,7 +227,6 @@
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/selections_highlighted.png",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/normal_load.png",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/image_recognition.md",
-    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/Attributions.md",
-    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/disk_image.md"
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/Attributions.md"
   ]
 }

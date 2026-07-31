@@ -106,8 +106,8 @@ def _run(args: argparse.Namespace) -> None:
     has_grip_left = False
 
     # ── Safety Drop & Re-entry Smooth Ramping Guard ─────────────────────────
-    # Max allowed 3D target jump distance when updating IK target (5 cm threshold)
-    JUMP_THRESHOLD_METERS = 0.05
+    # Max allowed 3D target jump distance when updating IK target (8 cm threshold)
+    JUMP_THRESHOLD_METERS = 0.08
     # Max allowed step distance per tick (6 mm / 0.02s => max 0.3 m/s for smooth re-entry)
     MAX_STEP_METERS_PER_TICK = 0.006
 

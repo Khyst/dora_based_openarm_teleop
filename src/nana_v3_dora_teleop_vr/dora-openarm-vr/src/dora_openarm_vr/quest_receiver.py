@@ -143,7 +143,7 @@ def build_pose_output(pose: np.ndarray) -> pa.Array:
 
 class QuestPoseProcessor:
     def __init__(
-        self, scale_x: float = 1.0, scale_y: float = 1.15, scale_z: float = 1.0
+        self, scale_x: float = 1.0, scale_y: float = 1.25, scale_z: float = 1.0
     ) -> None:
         self.scale_x = scale_x
         self.scale_y = scale_y
@@ -403,8 +403,8 @@ def main() -> None:
     parser.add_argument(
         "--scale-y",
         type=float,
-        default=1.15,
-        help="Left/right arm stretch scale multiplier (default: 1.15 for safe shoulder width compensation)",
+        default=1.25,
+        help="Left/right arm stretch scale multiplier (default: 1.25 for safe shoulder width compensation)",
     )
     parser.add_argument(
         "--scale-z",

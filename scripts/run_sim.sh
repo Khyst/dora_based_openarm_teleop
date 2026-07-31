@@ -24,4 +24,4 @@ echo "  - Press Ctrl+C to stop"
 echo ""
 
 cd "$ROOT_DIR"
-uv run dora run "$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop-sim.yaml"
+"$ROOT_DIR/.venv/bin/dora" run "$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop-sim.yaml"

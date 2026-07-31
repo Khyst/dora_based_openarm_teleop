@@ -58,22 +58,22 @@ control_gains:
   kps: [70.0, 70.0, 70.0, 60.0, 10.0, 10.0, 10.0, 10.0]
   kds: [2.75, 2.5, 2.0, 2.0, 0.7, 0.6, 0.5, 0.2]
 
-# Start configuration: Zero origin (Attention Pose)
+# Start configuration: A-Pose (Registration & Ready Pose)
 start:
   moves:
-    - name: "initial"
+    - name: "a_pose"
       position:
-        right_arm: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        left_arm:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        right_arm: [0.5236, 0.0, 0.0, 0.5236, 0.0, 0.0, 0.0, 0.0] # Shoulder +30 deg, Elbow +30 deg
+        left_arm:  [-0.5236, 0.0, 0.0, 0.5236, 0.0, 0.0, 0.0, 0.0] # Shoulder -30 deg, Elbow +30 deg
       hz: 50
       duration: 2
 
-# Stop configuration: Zero origin (Attention Pose)
+# Stop configuration: A-Pose (Registration & Ready Pose)
 stop:
   moves:
-    - name: "initial"
+    - name: "a_pose"
       position:
-        right_arm: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        left_arm:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        right_arm: [0.5236, 0.0, 0.0, 0.5236, 0.0, 0.0, 0.0, 0.0]
+        left_arm:  [-0.5236, 0.0, 0.0, 0.5236, 0.0, 0.0, 0.0, 0.0]
       hz: 50
       duration: 2

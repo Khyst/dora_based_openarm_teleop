@@ -142,6 +142,13 @@ def build_pose_output(pose: np.ndarray) -> pa.Array:
 
 
 class QuestPoseProcessor:
+    def __init__(
+        self, scale_x: float = 1.0, scale_y: float = 1.15, scale_z: float = 1.0
+    ) -> None:
+        self.scale_x = scale_x
+        self.scale_y = scale_y
+        self.scale_z = scale_z
+
     def process(
         self, msg: dict
     ) -> tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None]:
@@ -161,13 +168,18 @@ class QuestPoseProcessor:
 
         def _rectify(raw: dict) -> np.ndarray:
             """
-
             """
             p, r = parse_lh_to_rh(raw) # Unity 좌표계(왼손 좌표계) -> Mujoco, ROS2(오른손 좌표계) 변환
             p_rel = active_r_ref_inv.apply(p - active_p_ref) # HMD 원점 기준 컨트롤러의 3D 위치 차이 (상대 변위) 계산 후 HMD 회전각 만큼 역회전시켜 HMD 시선 방향 기준 상대 위치로 회전 변환
             r_rel = active_r_ref_inv * r # HMD 회전을 기준으로 한 컨트롤러의 상대 회전량 행렬 곱 게산
             
             p_out = _R_FRAME.apply(p_rel) + FRAME_OFFSET_NECK # 최종 로봇 기준 3D 목표 위치 획득
+
+            # 어깨 폭 보정을 위한 가슴 중심 기준 X, Y, Z축 스케일링 적용 (Y축 기본 1.15 배로 벌림 감도 상승)
+            p_out[0] = FRAME_OFFSET_NECK[0] + (p_out[0] - FRAME_OFFSET_NECK[0]) * self.scale_x
+            p_out[1] = FRAME_OFFSET_NECK[1] + (p_out[1] - FRAME_OFFSET_NECK[1]) * self.scale_y
+            p_out[2] = FRAME_OFFSET_NECK[2] + (p_out[2] - FRAME_OFFSET_NECK[2]) * self.scale_z
+
             r_out = _R_FRAME * r_rel * r_fix # 최종 로봇 기준 회전 객체 획득
 
             return pose_to_array(p_out, r_out)
@@ -183,7 +195,9 @@ class QuestPoseProcessor:
 def _run(args: argparse.Namespace) -> None:
 
     receiver = JsonUdpReceiver(args.host, args.port)
-    processor = QuestPoseProcessor()
+    processor = QuestPoseProcessor(
+        scale_x=args.scale_x, scale_y=args.scale_y, scale_z=args.scale_z
+    )
 
     smoother_right = OneEuroPoseSmoother(min_cutoff=2.0, beta=0.04, d_cutoff=1.5)
     smoother_left = OneEuroPoseSmoother(min_cutoff=2.0, beta=0.04, d_cutoff=1.5)
@@ -380,6 +394,24 @@ def main() -> None:
     )
     parser.add_argument("--host", default=_DEFAULT_HOST)
     parser.add_argument("--port", type=int, default=_DEFAULT_PORT)
+    parser.add_argument(
+        "--scale-x",
+        type=float,
+        default=1.0,
+        help="Forward/backward movement scale multiplier",
+    )
+    parser.add_argument(
+        "--scale-y",
+        type=float,
+        default=1.15,
+        help="Left/right arm stretch scale multiplier (default: 1.15 for safe shoulder width compensation)",
+    )
+    parser.add_argument(
+        "--scale-z",
+        type=float,
+        default=1.0,
+        help="Up/down movement scale multiplier",
+    )
     args = parser.parse_args()
     _run(args)
 

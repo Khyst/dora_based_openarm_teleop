@@ -65,35 +65,6 @@ def extract_values(value: pa.Array, key: str) -> np.ndarray:
     return np.array(value, dtype=np.float32)
 
 
-def _ramp_pose(
-    current_pose: np.ndarray, target_pose: np.ndarray, max_step: float = 0.006
-) -> np.ndarray:
-    """Ramp 7D pose [x, y, z, qw, qx, qy, qz] gradually so that position delta per tick never exceeds max_step."""
-    curr_p = current_pose[:3]
-    targ_p = target_pose[:3]
-    diff = targ_p - curr_p
-    dist = float(np.linalg.norm(diff))
-
-    if dist <= max_step or dist < 1e-6:
-        return target_pose.copy()
-
-    # Step position smoothly by max_step (0.6 cm / 0.02s => max 0.3 m/s)
-    step_p = curr_p + (diff / dist) * max_step
-
-    # Spherical linear interpolation (Slerp) for rotation
-    try:
-        r_curr = Rotation.from_quat(current_pose[3:])
-        r_targ = Rotation.from_quat(target_pose[3:])
-        slerp = Slerp([0.0, 1.0], Rotation.concatenate([r_curr, r_targ]))
-        alpha = min(1.0, max_step / dist)
-        r_next = slerp(alpha)
-        next_quat = r_next.as_quat()
-    except Exception:
-        next_quat = target_pose[3:]
-
-    return np.concatenate([step_p, next_quat], axis=0)
-
-
 def _run(args: argparse.Namespace) -> None:
     kin = Kinematics(setup_from_args(args), ik_params_from_args(args))
 
@@ -104,16 +75,6 @@ def _run(args: argparse.Namespace) -> None:
     grip_left = 1.0   # Default to 1.0 if not connected
     has_grip_right = False
     has_grip_left = False
-
-    # ── Safety Drop & Re-entry Smooth Ramping Guard ─────────────────────────
-    # Max allowed 3D target jump distance when updating IK target (8 cm threshold)
-    JUMP_THRESHOLD_METERS = 0.08
-    # Max allowed step distance per tick (6 mm / 0.02s => max 0.3 m/s for smooth re-entry)
-    MAX_STEP_METERS_PER_TICK = 0.006
-
-    last_target_pose: dict[str, np.ndarray | None] = {"right": None, "left": None}
-    engage_blocked: dict[str, bool] = {"right": False, "left": False}
-    # ─────────────────────────────────────────────────────────────────────────
 
     for event in node:
         if event["type"] != "INPUT":
@@ -149,31 +110,7 @@ def _run(args: argparse.Namespace) -> None:
                 continue
             pose = values[:7]
             gripper_angle = values[7]
-
-            # Check 3D distance jump safety guard
-            if last_target_pose["right"] is not None:
-                dist = float(np.linalg.norm(pose[:3] - last_target_pose["right"][:3]))
-                if dist > JUMP_THRESHOLD_METERS:
-                    if not engage_blocked["right"]:
-                        print(
-                            f"[IK Safety Guard] RIGHT arm target jump detected ({dist*100:.1f} cm > {JUMP_THRESHOLD_METERS*100:.1f} cm). "
-                            f"Holding robot pose. Move VR hand closer to resume."
-                        )
-                        engage_blocked["right"] = True
-                    continue  # Drop update until VR hand is brought back within safety threshold
-                elif engage_blocked["right"]:
-                    print(
-                        f"[IK Safety Guard] RIGHT arm re-entered safety zone ({dist*100:.1f} cm <= {JUMP_THRESHOLD_METERS*100:.1f} cm). Smoothly ramping IK."
-                    )
-                    engage_blocked["right"] = False
-
-                # Smooth ramping for re-entry and step limiting
-                next_pose = _ramp_pose(last_target_pose["right"], pose, max_step=MAX_STEP_METERS_PER_TICK)
-            else:
-                next_pose = pose
-
-            last_target_pose["right"] = next_pose
-            kin.set_target("right", next_pose)
+            kin.set_target("right", pose)
             kin.set_gripper("right", gripper_angle)
 
         elif eid == "target_left" and "left" in kin.setup.sides:
@@ -187,31 +124,7 @@ def _run(args: argparse.Namespace) -> None:
                 continue
             pose = values[:7]
             gripper_angle = values[7]
-
-            # Check 3D distance jump safety guard
-            if last_target_pose["left"] is not None:
-                dist = float(np.linalg.norm(pose[:3] - last_target_pose["left"][:3]))
-                if dist > JUMP_THRESHOLD_METERS:
-                    if not engage_blocked["left"]:
-                        print(
-                            f"[IK Safety Guard] LEFT arm target jump detected ({dist*100:.1f} cm > {JUMP_THRESHOLD_METERS*100:.1f} cm). "
-                            f"Holding robot pose. Move VR hand closer to resume."
-                        )
-                        engage_blocked["left"] = True
-                    continue  # Drop update until VR hand is brought back within safety threshold
-                elif engage_blocked["left"]:
-                    print(
-                        f"[IK Safety Guard] LEFT arm re-entered safety zone ({dist*100:.1f} cm <= {JUMP_THRESHOLD_METERS*100:.1f} cm). Smoothly ramping IK."
-                    )
-                    engage_blocked["left"] = False
-
-                # Smooth ramping for re-entry and step limiting
-                next_pose = _ramp_pose(last_target_pose["left"], pose, max_step=MAX_STEP_METERS_PER_TICK)
-            else:
-                next_pose = pose
-
-            last_target_pose["left"] = next_pose
-            kin.set_target("left", next_pose)
+            kin.set_target("left", pose)
             kin.set_gripper("left", gripper_angle)
 
         else:

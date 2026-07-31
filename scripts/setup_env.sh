@@ -39,5 +39,6 @@ fi
 echo "[3/3] Synchronizing all workspace packages with uv sync..."
 cd "$ROOT_DIR"
 uv sync
+uv pip install pip
 
 echo "=== Setup complete! ==="

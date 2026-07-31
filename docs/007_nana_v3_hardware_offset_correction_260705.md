@@ -37,6 +37,13 @@
   - `dataflow-nana-teleop-sim-data-collection.yaml`
 - **수정 내용**: `ik` 및 `mujoco-viewer` 노드의 `--xml` 인자 경로를 `nana_v3_corrected.xml`로 변경하여 `run_sim_play.sh` 등 스크립트 실행 시 신규 오프셋 모델이 자동 적용되도록 반영.
 
+### 2.3 실행 스크립트가 외부 이전 가상환경(Python 3.10)을 참조하던 빌드 이슈 해결
+- **문제 원인**: 터미널 셸 환경변수(`VIRTUAL_ENV`)에 이전 워크스페이스 가상환경(Python 3.10)이 남아있어 `dora` 노드 빌드 시 `pip`가 Python 3.10으로 호출되어 `requires-python = ">=3.11"` 요구조건 미달 오류(`ERROR: Package 'dora-openarm-kinematics' requires a different Python: 3.10.12 not in '>=3.11'`)가 발생함.
+- **수정 조치**:
+  - `scripts/setup_env.sh`: `uv pip install pip` 구문을 추가하여 프로젝트 가상환경(`.venv`) 내에 Python 3.14 전용 `pip`를 보장함.
+  - `scripts/run_*.sh` (6개 파일): `unset VIRTUAL_ENV`를 추가하고 `$ROOT_DIR/.venv/bin`을 `PATH` 최우선으로 배치하여 외부/시스템 Python 오염을 완벽히 차단함.
+
 ## 3. 테스트 및 승인 내용
 - MuJoCo Python API를 통한 XML 파싱 유효성 테스트 검증 완료 (`body count: 17`).
+- `./scripts/run_sim_play.sh` 스크립트를 통한 Dora 노드 패키지 컴파일 및 정상 빌드 실행 테스트 검증 완료 (`Successfully installed dora-openarm-kinematics`).
 - 사용자 검토 및 최종 승인 완료.

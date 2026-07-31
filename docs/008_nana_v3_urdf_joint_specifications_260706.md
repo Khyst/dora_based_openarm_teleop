@@ -19,15 +19,15 @@
 ### 2.2 7축 회전 관절 (Revolute Joints, 총 14개)
 
 #### 1) 왼팔 관절 (Left Arm: 7-DOF)
-| 관절명 (Joint Name) | 타입 | Parent $\to$ Child | 회전축 (Axis) | 가동 범위 (Lower ~ Upper) | 최대 토크 (Effort) | 최대 속도 (Velocity) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **`nana_v3_left_joint1`** | revolute | `left_link0` $\to$ `left_link1` | `(0, 0, 1)` | $-1.3963 \sim 3.4907 \text{ rad}$<br>($-80^\circ \sim +200^\circ$) | $40 \text{ N}\cdot\text{m}$ | $16.75 \text{ rad/s}$ ($960^\circ/\text{s}$) |
-| **`nana_v3_left_joint2`** | revolute | `left_link1` $\to$ `left_link2` | `(-1, 0, 0)` | $-1.7453 \sim 1.7453 \text{ rad}$<br>($-100^\circ \sim +100^\circ$) | $40 \text{ N}\cdot\text{m}$ | $16.75 \text{ rad/s}$ ($960^\circ/\text{s}$) |
-| **`nana_v3_left_joint3`** | revolute | `left_link2` $\to$ `left_link3` | `(0, 0, 1)` | $-1.5708 \sim 1.5708 \text{ rad}$<br>($-90^\circ \sim +90^\circ$) | $27 \text{ N}\cdot\text{m}$ | $5.45 \text{ rad/s}$ ($312^\circ/\text{s}$) |
-| **`nana_v3_left_joint4`** | revolute | `left_link3` $\to$ `left_link4` | `(0, 1, 0)` | $0.0 \sim 2.4435 \text{ rad}$<br>($0^\circ \sim +140^\circ$) | $27 \text{ N}\cdot\text{m}$ | $5.45 \text{ rad/s}$ ($312^\circ/\text{s}$) |
-| **`nana_v3_left_joint5`** | revolute | `left_link4` $\to$ `left_link5` | `(0, 0, 1)` | $-1.5708 \sim 1.5708 \text{ rad}$<br>($-90^\circ \sim +90^\circ$) | $7 \text{ N}\cdot\text{m}$ | $20.94 \text{ rad/s}$ ($1200^\circ/\text{s}$) |
-| **`nana_v3_left_joint6`** | revolute | `left_link5` $\to$ `left_link6` | `(1, 0, 0)` | $-0.7854 \sim 0.7854 \text{ rad}$<br>($-45^\circ \sim +45^\circ$) | $7 \text{ N}\cdot\text{m}$ | $20.94 \text{ rad/s}$ ($1200^\circ/\text{s}$) |
-| **`nana_v3_left_joint7`** | revolute | `left_link6` $\to$ `left_link7` | `(0, -1, 0)` | $-1.5708 \sim 1.5708 \text{ rad}$<br>($-90^\circ \sim +90^\circ$) | $7 \text{ N}\cdot\text{m}$ | $20.94 \text{ rad/s}$ ($1200^\circ/\text{s}$) |
+| 관절명 (Joint Name)　　　 | 타입　　 | Parent $\to$ Child              | 회전축 (Axis) | 가동 범위 (Lower ~ Upper)　　　　　　　　　　　　　　　　　　　　　 | 최대 토크 (Effort)　　　　　| 최대 속도 (Velocity)　　　　　　　　　　　　　|
+| :--------------------------| :--------:| :-------------------------------:| :-------------:| :-------------------------------------------------------------------:| :---------------------------:| :---------------------------------------------:|
+| **`nana_v3_left_joint1`** | revolute | `left_link0` $\to$ `left_link1` | `(0, 0, 1)`　 | $-1.3963 \sim 3.4907 \text{ rad}$<br>($-80^\circ \sim +200^\circ$)　| $40 \text{ N}\cdot\text{m}$ | $16.75 \text{ rad/s}$ ($960^\circ/\text{s}$)　|
+| **`nana_v3_left_joint2`** | revolute | `left_link1` $\to$ `left_link2` | `(-1, 0, 0)`　| $-1.7453 \sim 1.7453 \text{ rad}$<br>($-100^\circ \sim +100^\circ$) | $40 \text{ N}\cdot\text{m}$ | $16.75 \text{ rad/s}$ ($960^\circ/\text{s}$)　|
+| **`nana_v3_left_joint3`** | revolute | `left_link2` $\to$ `left_link3` | `(0, 0, 1)`　 | $-1.5708 \sim 1.5708 \text{ rad}$<br>($-90^\circ \sim +90^\circ$)　 | $27 \text{ N}\cdot\text{m}$ | $5.45 \text{ rad/s}$ ($312^\circ/\text{s}$)　 |
+| **`nana_v3_left_joint4`** | revolute | `left_link3` $\to$ `left_link4` | `(0, 1, 0)`　 | $0.0 \sim 2.4435 \text{ rad}$<br>($0^\circ \sim +140^\circ$)　　　　| $27 \text{ N}\cdot\text{m}$ | $5.45 \text{ rad/s}$ ($312^\circ/\text{s}$)　 |
+| **`nana_v3_left_joint5`** | revolute | `left_link4` $\to$ `left_link5` | `(0, 0, 1)`　 | $-1.5708 \sim 1.5708 \text{ rad}$<br>($-90^\circ \sim +90^\circ$)　 | $7 \text{ N}\cdot\text{m}$　| $20.94 \text{ rad/s}$ ($1200^\circ/\text{s}$) |
+| **`nana_v3_left_joint6`** | revolute | `left_link5` $\to$ `left_link6` | `(1, 0, 0)`　 | $-0.7854 \sim 0.7854 \text{ rad}$<br>($-45^\circ \sim +45^\circ$)　 | $7 \text{ N}\cdot\text{m}$　| $20.94 \text{ rad/s}$ ($1200^\circ/\text{s}$) |
+| **`nana_v3_left_joint7`** | revolute | `left_link6` $\to$ `left_link7` | `(0, -1, 0)`　| $-1.5708 \sim 1.5708 \text{ rad}$<br>($-90^\circ \sim +90^\circ$)　 | $7 \text{ N}\cdot\text{m}$　| $20.94 \text{ rad/s}$ ($1200^\circ/\text{s}$) |
 
 #### 2) 오른팔 관절 (Right Arm: 7-DOF)
 | 관절명 (Joint Name) | 타입 | Parent $\to$ Child | 회전축 (Axis) | 가동 범위 (Lower ~ Upper) | 최대 토크 (Effort) | 최대 속도 (Velocity) |

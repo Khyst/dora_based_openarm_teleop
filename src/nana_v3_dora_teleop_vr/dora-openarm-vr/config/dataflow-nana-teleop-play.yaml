@@ -65,7 +65,6 @@ nodes:
     path: dora-openarm
     args: "--side right --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../openarm_driver/src/openarm_driver/configs/nana_v3_cell.yaml"
     inputs:
-      request_state: ik/position_right
       move_position: ik/position_right
       grip: udp-player/grip_right
     outputs:
@@ -77,7 +76,6 @@ nodes:
     path: dora-openarm
     args: "--side left --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../openarm_driver/src/openarm_driver/configs/nana_v3_cell.yaml"
     inputs:
-      request_state: ik/position_left
       move_position: ik/position_left
       grip: udp-player/grip_left
     outputs:

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/OPENARM_CAN_SETUP_GUIDE.md",
+                "file": "docs/008_nana_v3_urdf_joint_specifications_260706.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "OPENARM_CAN_SETUP_GUIDE"
+              "title": "008_nana_v3_urdf_joint_specifications_260706"
             }
           }
         ]
@@ -180,12 +180,13 @@
       "bases:새 베이스 생성하기": false
     }
   },
-  "active": "c909a0392f15cc20",
+  "active": "35636f89df6c991e",
   "lastOpenFiles": [
+    "docs/009_nana_v3_cell_config_conservative_joint_limits_260707.md",
+    "docs/OPENARM_CAN_SETUP_GUIDE.md",
     "docs/008_nana_v3_urdf_joint_specifications_260706.md",
     "README.md",
     "docs/MANAGEMENT_GUIDE.md",
-    "docs/OPENARM_CAN_SETUP_GUIDE.md",
     "uv.lock",
     "src/researches/openarm_motion/json/motion/demo_06_18_2.json",
     "src/researches/openarm_motion/json/motion/demo.json",
@@ -226,7 +227,6 @@
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/Attributions.md",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/disk_image.md",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/hamsa_setup_guide.md",
-    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/README.md",
-    "dora_based_openarm_teleop_proj_local/src/nana_v3_dora_teleop_vr/dora-openarm-udp-replay/README.md"
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/README.md"
   ]
 }

@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "cec3aba53f99fc2a",
+        "id": "2f06582cbd7d9e63",
         "type": "tabs",
         "children": [
           {
-            "id": "c5bd005c22fef1a7",
+            "id": "c909a0392f15cc20",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "docs/OPENARM_CAN_SETUP_GUIDE.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "새 탭"
+              "title": "OPENARM_CAN_SETUP_GUIDE"
             }
           }
         ]
@@ -176,8 +180,12 @@
       "bases:새 베이스 생성하기": false
     }
   },
-  "active": "c5bd005c22fef1a7",
+  "active": "c909a0392f15cc20",
   "lastOpenFiles": [
+    "docs/008_nana_v3_urdf_joint_specifications_260706.md",
+    "README.md",
+    "docs/MANAGEMENT_GUIDE.md",
+    "docs/OPENARM_CAN_SETUP_GUIDE.md",
     "uv.lock",
     "src/researches/openarm_motion/json/motion/demo_06_18_2.json",
     "src/researches/openarm_motion/json/motion/demo.json",
@@ -188,7 +196,6 @@
     "src/researches/openarm_motion/src/motion_action_server.cpp",
     "src/researches/openarm_motion/launch/motion.launch.py",
     "src/researches/openarm_motion/json/motion",
-    "src/researches/openarm_motion/config/motion_params.yaml",
     "src/utils/hamsa/docs/verify_image.md",
     "src/utils/hamsa/docs/tutorial_thumbnail.jpg",
     "src/utils/hamsa/docs/sticky_load.png",
@@ -209,7 +216,6 @@
     "src/docs/MANAGEMENT_GUIDE.md",
     "src/docs/002_udp_telemetry_record_replay_system_260702.md",
     "src/docs/001_hamsa_motion_dora_node_260701.md",
-    "README.md",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/tutorial_thumbnail.jpg",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/verify_image.md",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/sticky_load.png",
@@ -221,8 +227,6 @@
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/disk_image.md",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/hamsa_setup_guide.md",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/README.md",
-    "dora_based_openarm_teleop_proj_local/src/nana_v3_dora_teleop_vr/dora-openarm-udp-replay/README.md",
-    "dora_based_openarm_teleop_proj_local/src/nana_v3_dora_teleop_vr/openarm_driver/README.md",
-    "dora_based_openarm_teleop_proj_local/src/nana_v3_dora_teleop_vr/openarm_driver/CONTRIBUTING.md"
+    "dora_based_openarm_teleop_proj_local/src/nana_v3_dora_teleop_vr/dora-openarm-udp-replay/README.md"
   ]
 }

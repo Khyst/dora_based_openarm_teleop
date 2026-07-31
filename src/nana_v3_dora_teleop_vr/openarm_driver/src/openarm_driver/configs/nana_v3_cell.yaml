@@ -4,23 +4,23 @@
 # Joint limits for right and left arms [min, max] in radians (from nana_v3.urdf)
 joint_limits:
   right_arm:
-    - [-1.2217, 3.1416] # joint1: -70 deg to +180 deg (was -80 to +200)
-    - [-1.5708, 1.5708] # joint2: -90 deg to +90 deg (was -100 to +100)
-    - [-1.3963, 1.3963] # joint3: -80 deg to +80 deg (was -90 to +90)
-    - [0.0873, 2.2689]  # joint4: +5 deg to +130 deg (was 0 to +140)
-    - [-1.3963, 1.3963] # joint5: -80 deg to +80 deg (was -90 to +90)
-    - [-0.6109, 0.6109] # joint6: -35 deg to +35 deg (was -45 to +45)
-    - [-1.3963, 1.3963] # joint7: -80 deg to +80 deg (was -90 to +90)
-    - [-0.95, 0.35]     # joint8: gripper right
+    - [-1.396263, 3.490659] # joint1: -80 deg to +200 deg
+    - [-1.745329, 1.745329] # joint2: -100 deg to +100 deg
+    - [-1.570796, 1.570796] # joint3: -90 deg to +90 deg
+    - [0.0, 2.443461]       # joint4: 0 deg to +140 deg
+    - [-1.570796, 1.570796] # joint5: -90 deg to +90 deg
+    - [-0.785398, 0.785398] # joint6: -45 deg to +45 deg
+    - [-1.570796, 1.570796] # joint7: -90 deg to +90 deg
+    - [-1.047198, 0.4]      # joint8: gripper right
   left_arm:
-    - [-1.2217, 3.1416] # joint1: -70 deg to +180 deg (was -80 to +200)
-    - [-1.5708, 1.5708] # joint2: -90 deg to +90 deg (was -100 to +100)
-    - [-1.3963, 1.3963] # joint3: -80 deg to +80 deg (was -90 to +90)
-    - [0.0873, 2.2689]  # joint4: +5 deg to +130 deg (was 0 to +140)
-    - [-1.3963, 1.3963] # joint5: -80 deg to +80 deg (was -90 to +90)
-    - [-0.6109, 0.6109] # joint6: -35 deg to +35 deg (was -45 to +45)
-    - [-1.3963, 1.3963] # joint7: -80 deg to +80 deg (was -90 to +90)
-    - [-0.35, 0.95]     # joint8: gripper left
+    - [-1.396263, 3.490659] # joint1: -80 deg to +200 deg
+    - [-1.745329, 1.745329] # joint2: -100 deg to +100 deg
+    - [-1.570796, 1.570796] # joint3: -90 deg to +90 deg
+    - [0.0, 2.443461]       # joint4: 0 deg to +140 deg
+    - [-1.570796, 1.570796] # joint5: -90 deg to +90 deg
+    - [-0.785398, 0.785398] # joint6: -45 deg to +45 deg
+    - [-1.570796, 1.570796] # joint7: -90 deg to +90 deg
+    - [-0.4, 1.047198]      # joint8: gripper left
 
 # Fully aligned hardware and URDF zero origins
 joint_offsets:

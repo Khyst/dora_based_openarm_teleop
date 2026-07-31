@@ -17,13 +17,11 @@ limitations under the License.
 -->
 <robot name="openarm">
   <link name="world"/>
-
   <joint name="nana_v3_body_world_joint" type="fixed">
     <parent link="world"/>
     <child link="nana_v3_body_link0"/>
     <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
-
   <link name="nana_v3_body_link0">
     <visual name="nana_v3_body_link0_visual">
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
@@ -43,13 +41,11 @@ limitations under the License.
       <inertia ixx="1.653" ixy="0.0" ixz="0.0" iyy="1.653" iyz="0.0" izz="0.051"/>
     </inertial>
   </link>
-
   <joint name="nana_v3_left_nana_v3_body_link0_joint" type="fixed">
     <parent link="nana_v3_body_link0"/>
     <child link="nana_v3_left_link0"/>
-    <origin rpy="-1.5708 0 0" xyz="0.0 0.031 0.698"/>
+    <origin rpy="-1.5708 0 0" xyz="0.0 0.18 1.22"/>
   </joint>
-
   <link name="nana_v3_left_link0">
     <visual name="nana_v3_left_link0_visual">
       <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
@@ -69,7 +65,6 @@ limitations under the License.
       <inertia ixx="0.001128" ixy="4e-06" ixz="-3.3e-05" iyy="0.000962" iyz="7e-06" izz="0.00147"/>
     </inertial>
   </link>
-
   <link name="nana_v3_left_link1">
     <visual name="nana_v3_left_link1_visual">
       <origin rpy="0.0 0.0 0.0" xyz="-0.0 0.0 -0.0625"/>
@@ -89,7 +84,6 @@ limitations under the License.
       <inertia ixx="0.001567" ixy="1e-06" ixz="-2.9e-05" iyy="0.001273" iyz="-1e-06" izz="0.001016"/>
     </inertial>
   </link>
-  
   <joint name="nana_v3_left_joint1" type="revolute">
     <origin rpy="0 0 0" xyz="0.0 0.0 0.0625"/>
     <parent link="nana_v3_left_link0"/>
@@ -256,7 +250,7 @@ limitations under the License.
   <joint name="nana_v3_right_nana_v3_body_link0_joint" type="fixed">
     <parent link="nana_v3_body_link0"/>
     <child link="nana_v3_right_link0"/>
-    <origin rpy="1.5708 0 0" xyz="0.0 -0.031 0.698"/>
+    <origin rpy="1.5708 0 0" xyz="0.0 -0.18 1.22"/>
   </joint>
   <link name="nana_v3_right_link0">
     <visual name="nana_v3_right_link0_visual">

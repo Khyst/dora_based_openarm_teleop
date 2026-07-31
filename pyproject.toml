@@ -31,8 +31,8 @@ members = [
     "src/nana_v3_dora_teleop_vr/dora-openarm",
     "src/nana_v3_dora_teleop_vr/openarm_driver",
     "src/nana_v3_dora_teleop_vr/dora-openarm-hamsa",
-    "src/utils/hamsa",
     "src/nana_v3_dora_teleop_vr/dora-openarm-udp-replay",
+    "src/utils/hamsa",
 ]
 
 [tool.uv.sources]

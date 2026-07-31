@@ -182,6 +182,13 @@
   },
   "active": "35636f89df6c991e",
   "lastOpenFiles": [
+    "docs/010_teleop_safety_drop_and_reentry_guard_260708.md",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c5-cf18-793b-8de4-6d0add4ee45a/log_udp-player.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c5-cf18-793b-8de4-6d0add4ee45a/log_quittable-tick-leader.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c5-cf18-793b-8de4-6d0add4ee45a/log_mujoco-viewer.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c5-cf18-793b-8de4-6d0add4ee45a/log_ik.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c5-cf18-793b-8de4-6d0add4ee45a/log_hamsa-motion.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fb6c5-cf18-793b-8de4-6d0add4ee45a",
     "docs/009_nana_v3_cell_config_conservative_joint_limits_260707.md",
     "docs/OPENARM_CAN_SETUP_GUIDE.md",
     "docs/008_nana_v3_urdf_joint_specifications_260706.md",
@@ -191,12 +198,6 @@
     "src/researches/openarm_motion/json/motion/demo_06_18_2.json",
     "src/researches/openarm_motion/json/motion/demo.json",
     "src/researches/openarm_motion/json/motion/demo_06_18.json",
-    "src/researches/openarm_motion/srv/ExecuteSequence.srv",
-    "src/researches/openarm_motion/src/motion_teaching_node.py",
-    "src/researches/openarm_motion/src/motion_action_server_joint_states_sync.cpp",
-    "src/researches/openarm_motion/src/motion_action_server.cpp",
-    "src/researches/openarm_motion/launch/motion.launch.py",
-    "src/researches/openarm_motion/json/motion",
     "src/utils/hamsa/docs/verify_image.md",
     "src/utils/hamsa/docs/tutorial_thumbnail.jpg",
     "src/utils/hamsa/docs/sticky_load.png",
@@ -226,7 +227,6 @@
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/image_recognition.md",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/Attributions.md",
     "dora_based_openarm_teleop_proj_local/src/utils/hamsa/docs/disk_image.md",
-    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/hamsa_setup_guide.md",
-    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/README.md"
+    "dora_based_openarm_teleop_proj_local/src/utils/hamsa/hamsa_setup_guide.md"
   ]
 }

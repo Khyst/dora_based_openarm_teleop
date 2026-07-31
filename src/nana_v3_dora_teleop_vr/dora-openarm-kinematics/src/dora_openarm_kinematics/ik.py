@@ -76,6 +76,13 @@ def _run(args: argparse.Namespace) -> None:
     has_grip_right = False
     has_grip_left = False
 
+    # ── Safety Drop & Re-entry Guard (Option 1) ─────────────────────────────
+    # Max allowed 3D target jump distance when updating IK target (8 cm threshold)
+    JUMP_THRESHOLD_METERS = 0.08
+    last_target_pose: dict[str, np.ndarray | None] = {"right": None, "left": None}
+    engage_blocked: dict[str, bool] = {"right": False, "left": False}
+    # ─────────────────────────────────────────────────────────────────────────
+
     for event in node:
         if event["type"] != "INPUT":
             continue
@@ -110,6 +117,25 @@ def _run(args: argparse.Namespace) -> None:
                 continue
             pose = values[:7]
             gripper_angle = values[7]
+
+            # Check 3D distance jump safety guard (Option 1: Drop & Safety Re-entry)
+            if last_target_pose["right"] is not None:
+                dist = float(np.linalg.norm(pose[:3] - last_target_pose["right"][:3]))
+                if dist > JUMP_THRESHOLD_METERS:
+                    if not engage_blocked["right"]:
+                        print(
+                            f"[IK Safety Guard] RIGHT arm target jump detected ({dist*100:.1f} cm > {JUMP_THRESHOLD_METERS*100:.1f} cm). "
+                            f"Holding robot pose. Move VR hand closer to resume."
+                        )
+                        engage_blocked["right"] = True
+                    continue  # Drop update until VR hand is brought back within safety threshold
+                elif engage_blocked["right"]:
+                    print(
+                        f"[IK Safety Guard] RIGHT arm re-entered safety zone ({dist*100:.1f} cm <= {JUMP_THRESHOLD_METERS*100:.1f} cm). Teleoperation resumed."
+                    )
+                    engage_blocked["right"] = False
+
+            last_target_pose["right"] = pose
             kin.set_target("right", pose)
             kin.set_gripper("right", gripper_angle)
 
@@ -124,6 +150,25 @@ def _run(args: argparse.Namespace) -> None:
                 continue
             pose = values[:7]
             gripper_angle = values[7]
+
+            # Check 3D distance jump safety guard (Option 1: Drop & Safety Re-entry)
+            if last_target_pose["left"] is not None:
+                dist = float(np.linalg.norm(pose[:3] - last_target_pose["left"][:3]))
+                if dist > JUMP_THRESHOLD_METERS:
+                    if not engage_blocked["left"]:
+                        print(
+                            f"[IK Safety Guard] LEFT arm target jump detected ({dist*100:.1f} cm > {JUMP_THRESHOLD_METERS*100:.1f} cm). "
+                            f"Holding robot pose. Move VR hand closer to resume."
+                        )
+                        engage_blocked["left"] = True
+                    continue  # Drop update until VR hand is brought back within safety threshold
+                elif engage_blocked["left"]:
+                    print(
+                        f"[IK Safety Guard] LEFT arm re-entered safety zone ({dist*100:.1f} cm <= {JUMP_THRESHOLD_METERS*100:.1f} cm). Teleoperation resumed."
+                    )
+                    engage_blocked["left"] = False
+
+            last_target_pose["left"] = pose
             kin.set_target("left", pose)
             kin.set_gripper("left", gripper_angle)
 

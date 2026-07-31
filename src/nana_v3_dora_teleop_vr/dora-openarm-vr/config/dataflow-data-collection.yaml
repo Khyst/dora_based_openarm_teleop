@@ -104,7 +104,7 @@ nodes:
     build: pip install -e ../../dora-openarm
     path: dora-openarm
     # args: "--side right --align-trigger gripper --config ../../openarm_driver/config/openarm_cell_higher_pd.yaml"
-    args: "--side right --align-trigger gripper --align-delta-limit 0.003"
+    args: "--side right --align-trigger gripper"
     inputs:
       move_position: ik/position_right
     outputs:
@@ -115,7 +115,7 @@ nodes:
     build: pip install -e ../../dora-openarm
     path: dora-openarm
     # args: "--side left --align-trigger gripper --config ../../openarm_driver/config/openarm_cell_higher_pd.yaml"
-    args: "--side left --align-trigger gripper --align-delta-limit 0.003"
+    args: "--side left --align-trigger gripper"
     inputs:
       move_position: ik/position_left
     outputs:

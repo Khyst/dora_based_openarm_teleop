@@ -3,6 +3,10 @@
 - **작업 일자**: 2026-07-30
 - **작업 분류**: Docs
 
+1. MetaQuest3에서 실제 Hardware Teleop를 안정적으로 하기 위한 좌표 변환 과정
+2. Smoothing Logic for 안정성
+
+
 ## 1. 개요 및 목적
 본 문서는 Meta Quest HMD 및 컨트롤러로부터 수신되는 원시(Raw) UDP 데이터 패킷이 로봇(OpenARM / MuJoCo) 제어를 위한 3D/8D 포즈 데이터로 변환되는 전체 파이프라인과 노이즈 제거를 위한 스무딩(One Euro Filter) 알고리즘의 동작 원리 및 파라미터 튜닝 가이드를 정리하는 것을 목적으로 합니다.
 

@@ -140,6 +140,53 @@ Meta Quest 3 헤드셋 연결 없이 녹화된 세션 데이터를 재생하여 
 
 ---
 
+### 3. 하드웨어 진단 및 제어 (`openarm-can-cli`)
+
+실제 하드웨어 연결 시 `openarm-can-cli` 도구를 사용하여 CAN 통신 상태와 모터 하드웨어를 직접 점검하고 제어할 수 있습니다.
+
+#### 1) CAN 통신 및 모터 상태 모니터링
+실제 모터의 실시간 상태(위치, 속도, 토크, 온도 등)를 모니터링하여 CAN 통신이 정상적으로 동작하는지 체크합니다.
+
+```bash
+# can0 (오른팔) 모터 상태 실시간 모니터링 (기본 1~8번 모터)
+openarm-can-cli -i can0 monitor
+
+# can1 (왼팔) 모터 상태 실시간 모니터링
+openarm-can-cli -i can1 monitor
+
+# 특정 모터(예: 1, 2, 3번)만 모니터링할 경우
+openarm-can-cli -i can0 monitor --id 1,2,3
+```
+
+#### 2) 기타 유용한 진단 및 제어 명령어
+
+- **연결된 모터 검색 (Discover)**: 버스에 연결된 모든 모터의 ID 및 통신 속도를 스캔하여 통신 가능한 모터를 확인합니다.
+  ```bash
+  openarm-can-cli -i can0 discover
+  ```
+
+- **모터 토크 활성화 (Enable)**: 모터의 출력을 켭니다 (Torque ON).
+  ```bash
+  openarm-can-cli -i can0 enable
+  ```
+
+- **모터 토크 비활성화 (Disable)**: 모터의 출력을 끕니다 (Torque OFF).
+  ```bash
+  openarm-can-cli -i can0 disable
+  ```
+
+- **모터 에러 초기화 (Clear Error)**: 모터에 발생한 에러 플래그를 클리어하여 정상 상태로 복구합니다.
+  ```bash
+  openarm-can-cli -i can0 clear_error
+  ```
+
+- **모터 파라미터 확인 (Show Parameter)**: 모터 내부에 설정된 PID 값 및 제한 사항(Limit) 파라미터를 읽어옵니다.
+  ```bash
+  openarm-can-cli -i can0 show_param
+  ```
+
+---
+
 ## ✋ Hamsa 로봇 손 VR 버튼 제어 (Hamsa Motion)
 
 VR 컨트롤러의 버튼 입력으로 Hamsa 로봇 손의 동작을 토글 방식으로 조작합니다:

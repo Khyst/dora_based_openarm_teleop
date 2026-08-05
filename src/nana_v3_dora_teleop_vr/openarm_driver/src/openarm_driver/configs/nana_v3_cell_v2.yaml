@@ -31,7 +31,7 @@ joint_offsets:
 joint_delta_position_limits:
   - 0.5 # J0 (DM8009) 어깨 Pitch: ~28 deg/s (기존 0.2 -> 안전 상향)
   - 0.5 # J1 (DM8009) 어깨 Roll:  ~28 deg/s (기존 0.2 -> 안전 상향)
-  - 0.8 # J2 (DM4340) 어깨 Yaw:   ~45 deg/s (기존 0.3 -> 안전 상향)
+  - 0.3 # J2 (DM4340) 어깨 Yaw:   ~17 deg/s (어깨 Yaw 급격한 변화 방지를 위해 0.8 -> 0.3으로 하향)
   - 0.8 # J3 (DM4340) 팔꿈치:      ~45 deg/s (기존 0.3 -> 안전 상향)
   - 0.4 # J4 (DM4310) 손목 Roll:  기존 유지 (~23 deg/s)
   - 0.4 # J5 (DM4310) 손목 Pitch: 기존 유지 (~23 deg/s)

@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "2f06582cbd7d9e63",
+        "id": "660f54fa8e385258",
         "type": "tabs",
         "children": [
           {
-            "id": "c909a0392f15cc20",
+            "id": "758d5175f14a4764",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "docs/OPENARM_CAN_SETUP_GUIDE.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "OPENARM_CAN_SETUP_GUIDE"
+              "title": "새 탭"
             }
           }
         ]
@@ -182,8 +178,9 @@
       "bases:새 베이스 생성하기": false
     }
   },
-  "active": "c909a0392f15cc20",
+  "active": "758d5175f14a4764",
   "lastOpenFiles": [
+    "docs/OPENARM_CAN_SETUP_GUIDE.md",
     "src/nana_v3_dora_teleop_vr/openarm_driver/src/openarm_driver/configs/nana_v3_cell_v3.yaml",
     "src/nana_v3_dora_teleop_vr/openarm_driver/src/openarm_driver/configs/nana_v3_cell_v2.yaml",
     "src/nana_v3_dora_teleop_vr/openarm_driver/src/openarm_driver/configs/nana_v3_cell copy 2.yaml",
@@ -195,10 +192,8 @@
     "log/build_2026-08-03_11-48-21/nana_v4_description/stdout.log",
     "log/build_2026-08-03_11-48-21/nana_v4_description/stderr.log",
     "log/build_2026-08-03_11-48-21/nana_v4_description/command.log",
-    "log/build_2026-08-03_11-48-21/nana_v4_description",
     "docs/010_ik_parameter_tuning_guide_260801.md",
     "docs/quest_openarm_teleop_pipeline.png",
-    "docs/OPENARM_CAN_SETUP_GUIDE.md",
     "docs/MANAGEMENT_GUIDE.md",
     "docs/009_nana_v3_cell_config_conservative_joint_limits_260707.md",
     "docs/017_set_hardware_start_pose_to_a_pose_260715.md",

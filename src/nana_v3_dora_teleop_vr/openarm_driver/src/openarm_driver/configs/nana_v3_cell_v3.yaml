@@ -1,25 +1,25 @@
-# Nana_v3 Driver Configuration
-# Customized from nana_v3.urdf physical specs and safe prototype bringup defaults
+# Nana_v3 Driver Configuration (v3 - Optimized for Sign Language & Safe Teleop)
+# Customized from nana_v3.urdf physical specs and sign language optimization limits
 
-# Joint limits for right and left arms [min, max] in radians (from nana_v3.urdf)
+# Joint limits for right and left arms [min, max] in radians
 joint_limits:
   right_arm:
-    - [-1.396263, 3.490659] # joint1: -80 deg to +200 deg
-    - [-1.745329, 1.745329] # joint2: -100 deg to +100 deg
-    - [-1.570796, 1.570796] # joint3: -90 deg to +90 deg
-    - [0.0, 2.443461]       # joint4: 0 deg to +140 deg
-    - [-1.570796, 1.570796] # joint5: -90 deg to +90 deg
-    - [-0.785398, 0.785398] # joint6: -45 deg to +45 deg
-    - [-1.570796, 1.570796] # joint7: -90 deg to +90 deg
+    - [-0.785398, 2.617994] # joint1 (Shoulder Pitch): -45 deg to +150 deg (안전 마진 확보)
+    - [-1.047198, 1.570796] # joint2 (Shoulder Roll) : -60 deg to +90 deg
+    - [-1.047198, 1.047198] # joint3 (Shoulder Yaw)  : -60 deg to +60 deg (수화 표현 보장 & 어깨 꺾임 방지)
+    - [0.0, 2.356194]       # joint4 (Elbow Pitch)   : 0 deg to +135 deg
+    - [-1.570796, 1.570796] # joint5 (Wrist Roll)    : -90 deg to +90 deg
+    - [-0.785398, 0.785398] # joint6 (Wrist Pitch)   : -45 deg to +45 deg
+    - [-1.570796, 1.570796] # joint7 (Wrist Yaw)     : -90 deg to +90 deg
     - [-1.047198, 0.4]      # joint8: gripper right
   left_arm:
-    - [-1.396263, 3.490659] # joint1: -80 deg to +200 deg
-    - [-1.745329, 1.745329] # joint2: -100 deg to +100 deg
-    - [-1.570796, 1.570796] # joint3: -90 deg to +90 deg
-    - [0.0, 2.443461]       # joint4: 0 deg to +140 deg
-    - [-1.570796, 1.570796] # joint5: -90 deg to +90 deg
-    - [-0.785398, 0.785398] # joint6: -45 deg to +45 deg
-    - [-1.570796, 1.570796] # joint7: -90 deg to +90 deg
+    - [-0.785398, 2.617994] # joint1 (Shoulder Pitch): -45 deg to +150 deg (안전 마진 확보)
+    - [-1.047198, 1.570796] # joint2 (Shoulder Roll) : -60 deg to +90 deg
+    - [-1.047198, 1.047198] # joint3 (Shoulder Yaw)  : -60 deg to +60 deg (수화 표현 보장 & 어깨 꺾임 방지)
+    - [0.0, 2.356194]       # joint4 (Elbow Pitch)   : 0 deg to +135 deg
+    - [-1.570796, 1.570796] # joint5 (Wrist Roll)    : -90 deg to +90 deg
+    - [-0.785398, 0.785398] # joint6 (Wrist Pitch)   : -45 deg to +45 deg
+    - [-1.570796, 1.570796] # joint7 (Wrist Yaw)     : -90 deg to +90 deg
     - [-0.4, 1.047198]      # joint8: gripper left
 
 # Fully aligned hardware and URDF zero origins
@@ -27,16 +27,16 @@ joint_offsets:
   right_arm: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   left_arm:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
-# Ultra-safe slow joint delta position limits (rad/s) (~10-20 deg/s max)
+# Joint delta position limits (rad/s)
 joint_delta_position_limits:
-  - 0.2 # J0 (DM8009) ~11 deg/s max
-  - 0.2 # J1 (DM8009) ~11 deg/s max
-  - 0.3 # J2 (DM4340) ~17 deg/s max
-  - 0.3 # J3 (DM4340) ~17 deg/s max
-  - 0.4 # J4 (DM4310) ~23 deg/s max
-  - 0.4 # J5 (DM4310) ~23 deg/s max
-  - 0.4 # J6 (DM4310) ~23 deg/s max
-  - 0.4 # J7 (DM4310) ~23 deg/s max
+  - 0.5 # J0 (DM8009) 어깨 Pitch: ~28 deg/s
+  - 0.5 # J1 (DM8009) 어깨 Roll:  ~28 deg/s
+  - 0.3 # J2 (DM4340) 어깨 Yaw:   ~17 deg/s (어깨 Yaw 급격한 변화 방지)
+  - 0.8 # J3 (DM4340) 팔꿈치:      ~45 deg/s
+  - 0.4 # J4 (DM4310) 손목 Roll:  ~23 deg/s
+  - 0.4 # J5 (DM4310) 손목 Pitch: ~23 deg/s
+  - 0.4 # J6 (DM4310) 손목 Yaw:   ~23 deg/s
+  - 0.4 # J7 (DM4310) 그리퍼
 
 # CAN interface
 can_interface:
@@ -55,8 +55,8 @@ gripper_posforce_limits: [50.0, 1.0]
 
 # Safe default PD control gains for initial prototype bringup
 control_gains:
-  kps: [70.0, 70.0, 70.0, 60.0, 10.0, 10.0, 10.0, 10.0]
-  kds: [2.75, 2.5, 2.0, 2.0, 0.7, 0.6, 0.5, 0.2]
+  kps: [85.0, 85.0, 80.0, 75.0, 10.0, 10.0, 10.0, 10.0]
+  kds: [ 3.2,  3.0,  2.5,  2.5,  0.7,  0.6,  0.5,  0.2]
 
 # Start configuration: A-Pose (Registration & Ready Pose)
 start:

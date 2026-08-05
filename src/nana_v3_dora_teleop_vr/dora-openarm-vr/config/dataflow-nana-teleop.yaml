@@ -43,6 +43,8 @@ nodes:
       grip_left:    udp-receiver/grip_left
       trigger_right: udp-receiver/trigger_right
       trigger_left:  udp-receiver/trigger_left
+      position_right: follower-right/position
+      position_left: follower-left/position
     outputs:
       - position_left
       - position_right
@@ -68,9 +70,12 @@ nodes:
     inputs:
       move_position: ik/position_right
       grip: udp-receiver/grip_right
+      request_position: quittable-tick-leader/tick
+      request_state: quittable-tick-leader/tick
     outputs:
       - state
       - status
+      - position
 
   - id: follower-left
     build: pip install -e ../../dora-openarm
@@ -79,9 +84,12 @@ nodes:
     inputs:
       move_position: ik/position_left
       grip: udp-receiver/grip_left
+      request_position: quittable-tick-leader/tick
+      request_state: quittable-tick-leader/tick
     outputs:
       - state
       - status
+      - position
 
   - id: hamsa-motion
     build: pip install -e ../../dora-openarm-hamsa

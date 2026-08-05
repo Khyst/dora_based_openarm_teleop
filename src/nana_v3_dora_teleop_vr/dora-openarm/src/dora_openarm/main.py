@@ -211,19 +211,18 @@ def main():
     current_grip = 0.0
 
     for event in node:
+        
         if event["type"] != "INPUT":
             continue
 
         event_id = event["id"]
-        if event_id == "command":
+        
 
+        if event_id == "command": # 로봇 드라이버 세션을 외부에서 start, stop 시키도록 하는 목적의 제어 명령
             command = event["value"][0].as_py()
-
-            if command == "start":
-                
+            if command == "start":                
                 if arm is not None:
                     arm.stop()  # Stop the existing session before replacing it
-
                 arm = openarm_driver.SingleArmDriver(
                     name, config
                 )  # Re-initialize the arm to ensure a fresh start
@@ -235,7 +234,6 @@ def main():
                 )
                 status = ArmStatus.STARTED
                 node.send_output("status", pa.array([status]))
-
             elif command == "stop":
                 status = ArmStatus.STOPPED
                 node.send_output("status", pa.array([ArmStatus.STOPPED]))
@@ -244,18 +242,13 @@ def main():
                     arm = None  # Drop the instance to free resources
                 align_state = None
 
-        elif event_id == "request_position":
+        elif event_id == "request_position": # 현재 로봇의 관절 각도를 조회하여 position 출력으로 요청
             if status is ArmStatus.STOPPED:
                 continue
-            current_position = arm.fetch_position(
-                refresh=args.refresh_every_request,
-            )
-            node.send_output(
-                "position",
-                build_qpos_output(np.asarray(current_position, dtype=np.float32)),
-            )
+            current_position = arm.fetch_position(refresh=args.refresh_every_request,)
+            node.send_output("position",build_qpos_output(np.asarray(current_position, dtype=np.float32)),)
 
-        elif event_id == "request_state":
+        elif event_id == "request_state": # 현재 로봇의 전체 상태(속도, 토크 등)를 조회하여 state 출력으로 요청
             if status is ArmStatus.STOPPED:
                 continue
             state = arm.fetch_state(refresh=args.refresh_every_request)

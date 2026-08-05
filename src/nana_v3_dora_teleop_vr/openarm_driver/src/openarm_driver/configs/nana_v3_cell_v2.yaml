@@ -1,0 +1,79 @@
+# Nana_v3 Driver Configuration
+# Customized from nana_v3.urdf physical specs and safe prototype bringup defaults
+
+# Joint limits for right and left arms [min, max] in radians (from nana_v3.urdf)
+joint_limits:
+  right_arm:
+    - [-1.396263, 3.490659] # joint1: -80 deg to +200 deg
+    - [-1.745329, 1.745329] # joint2: -100 deg to +100 deg
+    - [-1.570796, 1.570796] # joint3: -90 deg to +90 deg
+    - [0.0, 2.443461]       # joint4: 0 deg to +140 deg
+    - [-1.570796, 1.570796] # joint5: -90 deg to +90 deg
+    - [-0.785398, 0.785398] # joint6: -45 deg to +45 deg
+    - [-1.570796, 1.570796] # joint7: -90 deg to +90 deg
+    - [-1.047198, 0.4]      # joint8: gripper right
+  left_arm:
+    - [-1.396263, 3.490659] # joint1: -80 deg to +200 deg
+    - [-1.745329, 1.745329] # joint2: -100 deg to +100 deg
+    - [-1.570796, 1.570796] # joint3: -90 deg to +90 deg
+    - [0.0, 2.443461]       # joint4: 0 deg to +140 deg
+    - [-1.570796, 1.570796] # joint5: -90 deg to +90 deg
+    - [-0.785398, 0.785398] # joint6: -45 deg to +45 deg
+    - [-1.570796, 1.570796] # joint7: -90 deg to +90 deg
+    - [-0.4, 1.047198]      # joint8: gripper left
+
+# Fully aligned hardware and URDF zero origins
+joint_offsets:
+  right_arm: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+  left_arm:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+# Ultra-safe slow joint delta position limits (rad/s) (~10-20 deg/s max)
+joint_delta_position_limits:
+  - 0.5 # J0 (DM8009) 어깨 Pitch: ~28 deg/s (기존 0.2 -> 안전 상향)
+  - 0.5 # J1 (DM8009) 어깨 Roll:  ~28 deg/s (기존 0.2 -> 안전 상향)
+  - 0.8 # J2 (DM4340) 어깨 Yaw:   ~45 deg/s (기존 0.3 -> 안전 상향)
+  - 0.8 # J3 (DM4340) 팔꿈치:      ~45 deg/s (기존 0.3 -> 안전 상향)
+  - 0.4 # J4 (DM4310) 손목 Roll:  기존 유지 (~23 deg/s)
+  - 0.4 # J5 (DM4310) 손목 Pitch: 기존 유지 (~23 deg/s)
+  - 0.4 # J6 (DM4310) 손목 Yaw:   기존 유지 (~23 deg/s)
+  - 0.4 # J7 (DM4310) 그리퍼:     기존 유지
+
+# CAN interface
+can_interface:
+  right_arm: "can0"
+  left_arm: "can1"
+
+# Motor configuration matching nana_v3 actuator specs
+motor_config:
+  types: ['DM8009', 'DM8009', 'DM4340', 'DM4340', 'DM4310', 'DM4310', 'DM4310', 'DM4310']
+  send_ids: [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08]
+  recv_ids: [0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18]
+
+# IF using POS_FORCE gripper, set to "POS_FORCE"
+gripper_posforce: true
+gripper_posforce_limits: [50.0, 1.0]
+
+# Safe default PD control gains for initial prototype bringup
+control_gains: # 손목(J4~J7)은 10.0으로 건드리지 않고, 어깨/팔꿈치만 자중 보강을 위해 Kp/Kd 미세 보정
+  kps: [85.0, 85.0, 80.0, 75.0, 10.0, 10.0, 10.0, 10.0]  # J0~J3만 +15~20 상향
+  kds: [ 3.2,  3.0,  2.5,  2.5,  0.7,  0.6,  0.5,  0.2]  # Kp 증가에 맞춘 Damping 상향
+
+# Start configuration: A-Pose (Registration & Ready Pose)
+start:
+  moves:
+    - name: "a_pose"
+      position:
+        right_arm: [0.5236, 0.0, 0.0, 0.5236, 0.0, 0.0, 0.0, 0.0] # Shoulder +30 deg, Elbow +30 deg
+        left_arm:  [-0.5236, 0.0, 0.0, 0.5236, 0.0, 0.0, 0.0, 0.0] # Shoulder -30 deg, Elbow +30 deg
+      hz: 50
+      duration: 2
+
+# Stop configuration: Zero origin (Attention Pose)
+stop:
+  moves:
+    - name: "initial"
+      position:
+        right_arm: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        left_arm:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+      hz: 50
+      duration: 2

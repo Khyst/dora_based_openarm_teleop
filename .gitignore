@@ -14,6 +14,8 @@ build/
 
 # Dora Runtime Outputs & Logs
 out/
+log/
+install/
 **/config/out/
 *.log
 *.dora-session.yaml

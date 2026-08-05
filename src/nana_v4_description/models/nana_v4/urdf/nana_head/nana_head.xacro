@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!-- Global 속성 정의 -->
+    <!-- ================================================================================================ -->
+    <xacro:property name="neck_yaw_min" value="-10.0"/>
+    <xacro:property name="neck_yaw_max" value="25.0"/>
+    <xacro:property name="neck_pitch_min" value="-45.0"/>
+    <xacro:property name="neck_pitch_max" value="45.0"/>
+
+    <!-- Macro 요소 정의 -->
+    <!-- ================================================================================================ -->
+    <xacro:macro name="nana_head" params="mesh_path parent_link">
+
+        <joint name="neck_yaw_joint" type="revolute">
+            <origin xyz="-0.0481538 -0.0014986 0.3853381" rpy="0 0 0"/>
+            <parent link="${parent_link}"/>
+            <child link="neck_virtual_link"/>
+            <axis xyz="0 0 1"/>
+            <limit lower="${radians(neck_yaw_min)}" upper="${radians(neck_yaw_max)}" effort="100" velocity="1.0"/>
+            <dynamics damping="10.0" friction="1.0"/>
+        </joint>
+
+        <link name="neck_virtual_link">
+            <inertial>
+                <mass value="0.1"/>
+                <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+            </inertial>
+        </link>
+
+        <joint name="neck_pitch_joint" type="revolute">
+            <origin xyz="0 0 0" rpy="0 0 0"/> 
+            <parent link="neck_virtual_link"/>
+            <child link="head"/>
+            <axis xyz="0 1 0"/>
+            <limit lower="${radians(neck_pitch_min)}" upper="${radians(neck_pitch_max)}" effort="100" velocity="1.0"/>
+            <dynamics damping="10.0" friction="1.0"/>
+        </joint>
+
+        <link name="head">
+            <visual>
+                <origin xyz="-0.1311025 0.0002869 -0.0141792" rpy="-0.0108396 0.0055032 1.5707366"/>
+                <geometry>
+                    <mesh filename="${mesh_path}/visual/head_mesh.obj" scale="1. 1. 1."/>
+                </geometry>
+                <material name="grey"/>
+            </visual>
+            <collision>
+                <origin xyz="-0.1311025 0.0002869 -0.0141792" rpy="-0.0108396 0.0055032 1.5707366"/>
+                <geometry>
+                    <mesh filename="${mesh_path}/collision/head_mesh_collision.stl" scale="1. 1. 1."/>
+                </geometry>
+            </collision>
+            <inertial>
+                <!-- <origin xyz="-0.01777 1.42161 0.25245" rpy="0 0 0"/> -->
+                <mass value="1.70836"/>    
+                <inertia ixx="0.01334737" ixy="-0.00002336" ixz="0.00026346" iyy="0.00966943" iyz="-0.00058289" izz="0.00999851" />
+            </inertial>
+        </link>
+
+    </xacro:macro>    
+
+</robot>

@@ -71,7 +71,39 @@ VR(Meta Quest 3)로 수신받은 위치 데이터를 **MuJoCo 시뮬레이터** 
 ```
 
 #### 2) 실물 로봇 원격 제어 실행 (Real Hardware Mode)
-실물 NANA v3 로봇 및 Hamsa 손과 연결하여 VR 원격 제어를 수행합니다.
+
+> ⚠️ **실물 로봇 제어 전 필수 사전 작업 (CAN FD 설정)**  
+> 실물 로봇 제어를 수행하기 전, OpenArm Power Unit의 USB-to-CAN 디바이스 및 SocketCAN 인터페이스(`can0`: 오른팔, `can1`: 왼팔)가 정상 설정되어야 합니다.
+
+##### 🔧 Quick SocketCAN 셋업 (Native Ubuntu)
+1. **커널 모듈 로드**:
+   ```bash
+   sudo modprobe can && sudo modprobe can_raw && sudo modprobe peak_usb
+   ```
+2. **CAN FD 인터페이스 활성화 (1Mbps Bitrate / 5Mbps Data Bitrate)**:
+   ```bash
+   # 오른팔 (can0)
+   sudo ip link set can0 down 2>/dev/null
+   sudo ip link set can0 type can bitrate 1000000 dbitrate 5000000 fd on
+   sudo ip link set can0 up
+
+   # 왼팔 (can1)
+   sudo ip link set can1 down 2>/dev/null
+   sudo ip link set can1 type can bitrate 1000000 dbitrate 5000000 fd on
+   sudo ip link set can1 up
+   ```
+   *(또는 OpenArm 전용 유틸리티 사용: `openarm-can-configure-socketcan can0 -fd -b 1000000 -d 5000000`)*
+
+3. **통신 확인 (오른팔 LED 테스트 등)**:
+   ```bash
+   candump can0
+   # 또는 Joint 1 LED On 명령 전송 테스트: cansend can0 001#FFFFFFFFFFFFFFFC
+   ```
+
+> 📖 **상세 셋업 & WSL2 트러블슈팅 가이드**:  
+> 패키지 자동 설치, WSL2 커스텀 커널 빌드 및 트러블슈팅 상세 내역은 [`docs/OPENARM_CAN_SETUP_GUIDE.md`](docs/OPENARM_CAN_SETUP_GUIDE.md)를 참고하세요.
+
+##### 실물 제어 스크립트 실행
 ```bash
 ./scripts/run_real.sh
 ```

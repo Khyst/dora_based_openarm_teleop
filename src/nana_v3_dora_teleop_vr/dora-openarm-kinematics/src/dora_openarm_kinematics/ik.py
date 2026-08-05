@@ -81,6 +81,11 @@ def _run(args: argparse.Namespace) -> None:
     has_grip_right = False
     has_grip_left = False
 
+    current_qpos_16 = np.zeros(16, dtype=np.float32)
+
+    has_pos_right = False
+    has_pos_left = False
+    
     # Dora 이벤트 루프
     for event in node:
         
@@ -89,6 +94,36 @@ def _run(args: argparse.Namespace) -> None:
             continue
 
         eid = event["id"]
+
+        if eid == "position_right":
+            values = extract_values(event["value"], "qpos")
+            if values.shape == (8,):
+                current_qpos_16[:8] = values
+                has_pos_right = True
+
+                # 양쪽 피드백이 다 모였거나 갱신되면 동기화
+                if has_pos_left or "left" not in kin.setup.sides:
+                    kin.sync(current_qpos_16)
+            continue
+
+        elif eid == "position_left":
+            values = extract_values(event["value"], "qpos")
+            if values.shape == (8,):
+                current_qpos_16[8:16] = values
+                has_pos_left = True
+
+                # 양쪽 피드백이 다 모였거나 갱신되면 동기화
+                if has_pos_right or "right" not in kin.setup.sides:
+                    kin.sync(current_qpos_16)
+            continue
+
+        # 기존 16차원 단일 position 처리 (유지)
+        elif eid == "position":
+            values = extract_values(event["value"], "qpos")
+            if values.shape == (16,):
+                kin.sync(values)
+            continue
+
 
         # 그립 값을 받아오는 처리
         if eid == "grip_right":
@@ -102,14 +137,6 @@ def _run(args: argparse.Namespace) -> None:
             val = event["value"]
             grip_left = float(val[0].as_py() if hasattr(val, "as_py") else val[0])
             has_grip_left = True
-            continue
-
-        # 포지션 값을 받아오는 처리
-        if eid == "position":
-            values = extract_values(event["value"], "qpos")
-
-            if values.shape == (16,):
-                kin.sync(values) # 현재 joint 값을 IK 엔진에 알려줌
             continue
 
         # 타겟 값을 받아오는 처리
@@ -131,7 +158,8 @@ def _run(args: argparse.Namespace) -> None:
             # 타겟 값에서 포즈와 그립 값을 추출
             pose = values[:7]
             gripper_angle = values[7]
-            kin.set_target("right", pose) # IK 엔진에 타겟 값을 전달
+
+            kin.set_target("right", pose) # IK 엔진에 타겟 값을 전달 (x,y,z,qw,qx,qy,qz)
             kin.set_gripper("right", gripper_angle) # 그립 값을 IK 엔진에 전달
 
         elif eid == "target_left" and "left" in kin.setup.sides:
@@ -152,7 +180,8 @@ def _run(args: argparse.Namespace) -> None:
             # 타겟 값에서 포즈와 그립 값을 추출
             pose = values[:7]
             gripper_angle = values[7]
-            kin.set_target("left", pose) # IK 엔진에 타겟 값을 전달
+
+            kin.set_target("left", pose) # IK 엔진에 타겟 값을 전달 (x,y,z,qw,qx,qy,qz)
             kin.set_gripper("left", gripper_angle) # 그립 값을 IK 엔진에 전달
 
         else:

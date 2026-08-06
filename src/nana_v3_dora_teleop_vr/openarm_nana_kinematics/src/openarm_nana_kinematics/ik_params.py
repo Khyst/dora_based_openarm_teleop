@@ -37,8 +37,10 @@ class IKParams:
     solver: str = "daqp"
     posture_cost: float = 0.0
     dt: float = 0.004
+    max_iters: int = 5
     use_elbow: bool = True
     elbow_cost: float = 0.5
+    velocity_limits: dict[str, float] | None = None
 
     frame_position_error_limit: float = 0.02
     frame_orientation_error_limit: float = 0.25

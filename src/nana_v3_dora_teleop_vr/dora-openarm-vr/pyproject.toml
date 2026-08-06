@@ -35,6 +35,7 @@ Repository = "https://github.com/enactic/dora-openarm-vr.git"
 
 [project.scripts]
 dora-openarm-quest-receiver = "dora_openarm_vr.quest_receiver:main"
+dora-openarm-inspect-quest = "dora_openarm_vr.inspect_quest_udp:main"
 
 [build-system]
 requires = ["setuptools>=64", "wheel"]

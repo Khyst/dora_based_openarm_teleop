@@ -16,13 +16,32 @@ fi
 export PATH="$ROOT_DIR/.venv/bin:$HOME/.local/bin:$PATH"
 export CMAKE_PREFIX_PATH="$HOME/.local:$CMAKE_PREFIX_PATH"
 
+MODE="${1:-webxr}"
+
+case "$MODE" in
+    webxr)
+        FLOW_FILE="$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop-webxr.yaml"
+        RECEIVER_DESC="WebXR Server (https://<host>:8443)"
+        ;;
+    quest|quest_receiver)
+        FLOW_FILE="$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop.yaml"
+        RECEIVER_DESC="UDP Quest Receiver (0.0.0.0:5006)"
+        ;;
+    *)
+        echo "[NANA Teleop Real] Error: Invalid mode '$MODE'. Use 'webxr' (default) or 'quest' / 'quest_receiver'."
+        exit 1
+        ;;
+esac
+
 echo "[NANA Teleop Real] Starting Dora real robot teleoperation dataflow locally..."
+echo "  - Mode: $MODE"
+echo "  - Receiver: $RECEIVER_DESC"
 echo "  - URDF/XML Model: nana_v3_description"
 echo "  - Follower Arms: Left & Right OpenArm Hardware"
-echo "  - UDP Listener: 0.0.0.0:5006 (Meta Quest VR)"
 echo "  - Web UI: http://localhost:8000"
+echo "  - Flow file: $FLOW_FILE"
 echo "  - Press Ctrl+C to stop"
 echo ""
 
 cd "$ROOT_DIR"
-"$ROOT_DIR/.venv/bin/dora" run "$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop.yaml"
+"$ROOT_DIR/.venv/bin/dora" run "$FLOW_FILE"

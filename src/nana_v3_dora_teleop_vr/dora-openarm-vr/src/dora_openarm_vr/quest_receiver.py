@@ -194,14 +194,22 @@ class QuestPoseProcessor:
 
 def _run(args: argparse.Namespace) -> None:
 
-    receiver = JsonUdpReceiver(args.host, args.port)
+    receiver = JsonUdpReceiver(
+        args.host, args.port
+    )
     processor = QuestPoseProcessor(
         scale_x=args.scale_x, scale_y=args.scale_y, scale_z=args.scale_z
     )
 
-    smoother_right = OneEuroPoseSmoother(min_cutoff=2.0, beta=0.04, d_cutoff=1.5)
-    smoother_left = OneEuroPoseSmoother(min_cutoff=2.0, beta=0.04, d_cutoff=1.5)
-    smoother_reference = OneEuroPoseSmoother(min_cutoff=2.0, beta=0.04, d_cutoff=1.5)
+    smoother_right = OneEuroPoseSmoother(
+        min_cutoff=2.0, beta=0.04, d_cutoff=1.5
+    )
+    smoother_left = OneEuroPoseSmoother(
+        min_cutoff=2.0, beta=0.04, d_cutoff=1.5
+    )
+    smoother_reference = OneEuroPoseSmoother(
+        min_cutoff=2.0, beta=0.04, d_cutoff=1.5
+    )
 
     prev_v_right = VALID_OK
     prev_v_left = VALID_OK
@@ -225,7 +233,6 @@ def _run(args: argparse.Namespace) -> None:
         if msg is None:
             continue
 
-        # 
         now = time.perf_counter()
 
         # 포즈 추적 유효성 검사 (VR 기기에서 보냄, VALID_STALE: 컨트롤러가 잠시 안 보여 마지막 정상 위치 유지 중, VALID_INVALID: 추적 완전 손실, VALID_OK: 카메라 추적 정상)

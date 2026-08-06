@@ -19,12 +19,13 @@
 
 ## 2. 연구 패키지별 분석 및 벤치마킹 요소 Summary
 
-| 연구 패키지 | 특징 및 한계 | 적용 가능한 핵심 기법 |
-| :--- | :--- | :--- |
-| **`TeleVision`** | WebXR 기반 손가락 retargeting & 3D 비전 (팔꿈치 IK 미포함) | 손가락 Landmarks retargeting (`dex_retargeting`), WebXR 스트리밍 |
-| **`xr_teleoperate`** | Unitree 7-DOF 휴머노이드 VR teleop (기본은 손목 IK) | **Head-Yaw Relative 참조계**, **Human-Robot Arm Scaling**, Pinocchio/CasADi IK Cost 구조 |
-| **`openarmx_teleop_vr`** | OpenArmX 전용 ROS 2 VR teleop 패키지 | **Relative Delta Pose (Clutching) 제어**, 관절별 Step Limit 안전 망 |
-| **`beavr-bot`** | MIT ARCLab의 다종 로봇 VR teleop & 데이터 수집 | **LeRobot 표준 데이터셋 수집 포맷**, 모듈화 아키텍처 |
+| 연구 패키지　　　　　　　| 특징 및 한계　　　　　　　　　　　　　　　　　　　　　　　 | 적용 가능한 핵심 기법　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　|
+| :-------------------------| :-----------------------------------------------------------| :-----------------------------------------------------------------------------------------|
+| **`TeleVision`**　　　　 | WebXR 기반 손가락 retargeting & 3D 비전 (팔꿈치 IK 미포함) | 손가락 Landmarks retargeting (`dex_retargeting`), WebXR 스트리밍　　　　　　　　　　　　 |
+| **`xr_teleoperate`**　　 | Unitree 7-DOF 휴머노이드 VR teleop (
+기본은 손목 IK)　　　　| **Head-Yaw Relative 참조계**, **Human-Robot Arm Scaling**, Pinocchio/CasADi IK Cost 구조 |
+| **`openarmx_teleop_vr`** | OpenArmX 전용 ROS 2 VR teleop 패키지　　　　　　　　　　　 | **Relative Delta Pose (Clutching) 제어**, 관절별 Step Limit 안전 망　　　　　　　　　　　|
+| **`beavr-bot`**　　　　　| MIT ARCLab의 다종 로봇 VR teleop & 데이터 수집　　　　　　 | **LeRobot 표준 데이터셋 수집 포맷**, 모듈화 아키텍처　　　　　　　　　　　　　　　　　　 |
 
 ---
 

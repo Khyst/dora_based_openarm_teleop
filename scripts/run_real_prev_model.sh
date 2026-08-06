@@ -16,6 +16,9 @@ fi
 export PATH="$ROOT_DIR/.venv/bin:$HOME/.local/bin:$PATH"
 export CMAKE_PREFIX_PATH="$HOME/.local:$CMAKE_PREFIX_PATH"
 
+export TLS_CERTIFICATE_FILE="${TLS_CERTIFICATE_FILE:-$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-webxr/example/server.crt}"
+export TLS_KEY_FILE="${TLS_KEY_FILE:-$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-webxr/example/server.key}"
+
 MODE="${1:-webxr}"
 
 case "$MODE" in

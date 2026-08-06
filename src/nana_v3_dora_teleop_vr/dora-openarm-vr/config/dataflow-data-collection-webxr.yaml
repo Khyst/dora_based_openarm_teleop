@@ -53,6 +53,9 @@ nodes:
   - id: webxr
     build: pip install -e ../../dora-openarm-webxr
     path: dora-openarm-webxr
+    env:
+      TLS_CERTIFICATE_FILE: "../../dora-openarm-webxr/example/server.crt"
+      TLS_KEY_FILE: "../../dora-openarm-webxr/example/server.key"
     inputs:
       tick: quittable-tick-leader/tick
     outputs:

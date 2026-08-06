@@ -22,6 +22,7 @@ members = [
     "dora-openarm-vr",
     "hamsa",
     "openarm-driver",
+    "openarm-nana-kinematics",
 ]
 
 [[package]]
@@ -171,6 +172,7 @@ dependencies = [
     { name = "dora-rs-cli" },
     { name = "hamsa" },
     { name = "openarm-driver" },
+    { name = "openarm-nana-kinematics" },
 ]
 
 [package.metadata]
@@ -188,6 +190,7 @@ requires-dist = [
     { name = "dora-rs-cli", specifier = ">=0.5.0" },
     { name = "hamsa", editable = "src/utils/hamsa" },
     { name = "openarm-driver", editable = "src/nana_v3_dora_teleop_vr/openarm_driver" },
+    { name = "openarm-nana-kinematics", editable = "src/nana_v3_dora_teleop_vr/openarm_nana_kinematics" },
 ]
 
 [[package]]
@@ -297,7 +300,7 @@ version = "0.2.1"
 source = { editable = "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics" }
 dependencies = [
     { name = "dora-rs" },
-    { name = "openarm-control" },
+    { name = "openarm-nana-kinematics" },
     { name = "pyarrow" },
 ]
 
@@ -310,7 +313,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "dora-rs", specifier = ">=0.5.0" },
-    { name = "openarm-control", specifier = ">=0.2.0" },
+    { name = "openarm-nana-kinematics", editable = "src/nana_v3_dora_teleop_vr/openarm_nana_kinematics" },
     { name = "pyarrow" },
 ]
 
@@ -1103,21 +1106,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/5f/50/6a86ea825a18e62a69fa6c974c1a01d8a6f877fe9850f262ef09a72cab87/openarm_can-1.2.9.tar.gz", hash = "sha256:6c30c191bcd803cc23d49426c24c51520ef6a93f39973a7539d7cd1df4bc52f7", size = 355801, upload-time = "2026-05-18T01:23:20.885Z" }
 
 [[package]]
-name = "openarm-control"
-version = "0.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "daqp" },
-    { name = "mink" },
-    { name = "mujoco" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "openarm-mujoco" },
-    { name = "pyyaml" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/21/16/5b23d535ce34a2051298cd21af019bd0e70378efe9abe0dd36a6bd254896/openarm_control-0.2.0.tar.gz", hash = "sha256:7f945d88596dfe6def88ca7d2a348da457c4b659ac314f7cef7a05298ff01269", size = 13965, upload-time = "2026-07-28T02:11:54.801Z" }
-
-[[package]]
 name = "openarm-driver"
 version = "0.2.0"
 source = { editable = "src/nana_v3_dora_teleop_vr/openarm_driver" }
@@ -1157,6 +1145,38 @@ dependencies = [
     { name = "numpy", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/dc/48/cf9034a180929b07ab11efd0f7c7d0b361c385dfa755bfafc8521f32fba8/openarm_mujoco-2.0.1.tar.gz", hash = "sha256:8823defa462c0540b4225871ca3423d8ba4156b6b155859117ff1b71d8e7730d", size = 5694891, upload-time = "2026-07-27T06:40:55.407Z" }
+
+[[package]]
+name = "openarm-nana-kinematics"
+version = "0.2.0"
+source = { editable = "src/nana_v3_dora_teleop_vr/openarm_nana_kinematics" }
+dependencies = [
+    { name = "daqp" },
+    { name = "mink" },
+    { name = "mujoco" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "openarm-mujoco" },
+    { name = "pyyaml" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "daqp", specifier = "==0.7.2" },
+    { name = "mink", specifier = ">=1.1.0,<1.2.0" },
+    { name = "mujoco", specifier = ">=3.6.0" },
+    { name = "numpy" },
+    { name = "openarm-mujoco", specifier = ">=2.0.1" },
+    { name = "pyyaml" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=8.1.1" }]
 
 [[package]]
 name = "opencv-python"

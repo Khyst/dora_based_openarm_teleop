@@ -1,6 +1,6 @@
 # dora-openarm-kinematics
 
-Dora nodes for forward and inverse kinematics on the OpenArm bimanual robot, backed by MuJoCo and [mink](https://github.com/kevinzakka/mink). FK/IK logic lives in the [`openarm_control`](https://github.com/enactic/openarm_control) package, imported as `control`.
+Dora nodes for forward and inverse kinematics on the OpenArm bimanual robot, backed by MuJoCo and [mink](https://github.com/kevinzakka/mink). FK/IK logic lives in the `openarm_nana_kinematics` package.
 
 
 ## Install

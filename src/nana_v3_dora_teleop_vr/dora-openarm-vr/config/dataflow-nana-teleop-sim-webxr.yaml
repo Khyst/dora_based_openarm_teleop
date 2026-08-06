@@ -46,6 +46,8 @@ nodes:
       tick: quittable-tick-leader/tick
       target_right: webxr/pose_right
       target_left:  webxr/pose_left
+      elbow_right:  webxr/elbow_right
+      elbow_left:   webxr/elbow_left
       grip_right:   webxr/grip_right
       grip_left:    webxr/grip_left
     outputs:

@@ -41,7 +41,7 @@ import dora
 import numpy as np
 import pyarrow as pa
 
-from openarm_control import (
+from openarm_nana_kinematics import (
     Kinematics,
     register_common_args,
     register_ik_args,
@@ -124,6 +124,21 @@ def _run(args: argparse.Namespace) -> None:
                 kin.sync(values)
             continue
 
+
+        # 팔꿈치 타겟 값 처리 (elbow_right / elbow_left)
+        if eid == "elbow_right" and "right" in kin.setup.sides:
+            values = extract_values(event["value"], "pose")
+            if values.size in (3, 7, 8):
+                elbow_pos = values[:3]
+                kin.set_elbow_target("right", elbow_pos)
+            continue
+
+        elif eid == "elbow_left" and "left" in kin.setup.sides:
+            values = extract_values(event["value"], "pose")
+            if values.size in (3, 7, 8):
+                elbow_pos = values[:3]
+                kin.set_elbow_target("left", elbow_pos)
+            continue
 
         # 그립 값을 받아오는 처리
         if eid == "grip_right":
@@ -208,7 +223,7 @@ def main() -> None:
         description="Mink IK dora node – OpenArm end-effector pose → joint angles"
     )
 
-    # 외부 라이브러리(openarm_control)에 정의된 옵션 등록 함수들을 활용해, "노드 실행 파라미터"들을 체계적으로 수집하는 구조로 되어 있음
+    # 외부 라이브러리(openarm_nana_kinematics)에 정의된 옵션 등록 함수들을 활용해, "노드 실행 파라미터"들을 체계적으로 수집하는 구조로 되어 있음
     register_common_args(parser) 
     register_ik_args(parser)
 

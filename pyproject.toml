@@ -18,6 +18,7 @@ dependencies = [
     "dora-openarm-hamsa",
     "hamsa",
     "dora-openarm-udp-replay",
+    "openarm_nana_kinematics",
 ]
 
 [tool.uv.workspace]
@@ -30,6 +31,7 @@ members = [
     "src/nana_v3_dora_teleop_vr/dora-openarm-quitter",
     "src/nana_v3_dora_teleop_vr/dora-openarm",
     "src/nana_v3_dora_teleop_vr/openarm_driver",
+    "src/nana_v3_dora_teleop_vr/openarm_nana_kinematics",
     "src/nana_v3_dora_teleop_vr/dora-openarm-hamsa",
     "src/nana_v3_dora_teleop_vr/dora-openarm-udp-replay",
     "src/utils/hamsa",
@@ -47,5 +49,6 @@ openarm-driver = { workspace = true }
 dora-openarm-hamsa = { workspace = true }
 hamsa = { workspace = true }
 dora-openarm-udp-replay = { workspace = true }
+openarm_nana_kinematics = { workspace = true }
 
 

@@ -184,6 +184,7 @@
   },
   "active": "758d5175f14a4764",
   "lastOpenFiles": [
+    "docs/016_webxr_grip_shoulder_elbow_telemetry_260802.md",
     "docs/015_dora_openarm_webxr_flow_integration_260801.md",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/dataflow-nana-teleop-webxr.dora-session.yaml",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop-prev-model-webxr.yaml",
@@ -227,7 +228,6 @@
     "src/researches/xr_teleoperate/img/real_head.jpg",
     "src/researches/xr_teleoperate/img/head_camera_mount_install.png",
     "src/researches/xr_teleoperate/img/head_camera_mount.png",
-    "src/researches/xr_teleoperate/assets/h1_2/README.md",
     "docs/quest_openarm_teleop_pipeline.png",
     "src/utils/hamsa/docs/tutorial_thumbnail.jpg"
   ]

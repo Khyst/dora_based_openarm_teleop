@@ -33,8 +33,15 @@ nodes:
     outputs:
       - pose_right
       - trigger_right
+      - grip_right
       - pose_left
       - trigger_left
+      - grip_left
+      - shoulder_right
+      - shoulder_left
+      - elbow_right
+      - elbow_left
+      - pose_reference
       - joystick_x_right
       - joystick_y_right
       - joystick_x_left

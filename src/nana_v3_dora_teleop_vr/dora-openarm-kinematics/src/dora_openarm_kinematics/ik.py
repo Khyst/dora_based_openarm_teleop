@@ -126,14 +126,18 @@ def _run(args: argparse.Namespace) -> None:
 
 
         # 팔꿈치 타겟 값 처리 (elbow_right / elbow_left)
-        if eid == "elbow_right" and "right" in kin.setup.sides:
+        if eid == "elbow_right" and "right" in kin.setup.sides and kin.use_elbow:
+            if has_grip_right and grip_right <= 0.5:
+                continue
             values = extract_values(event["value"], "pose")
             if values.size in (3, 7, 8):
                 elbow_pos = values[:3]
                 kin.set_elbow_target("right", elbow_pos)
             continue
 
-        elif eid == "elbow_left" and "left" in kin.setup.sides:
+        elif eid == "elbow_left" and "left" in kin.setup.sides and kin.use_elbow:
+            if has_grip_left and grip_left <= 0.5:
+                continue
             values = extract_values(event["value"], "pose")
             if values.size in (3, 7, 8):
                 elbow_pos = values[:3]

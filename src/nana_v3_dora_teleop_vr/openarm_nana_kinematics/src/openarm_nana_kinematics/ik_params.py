@@ -39,7 +39,7 @@ class IKParams:
     dt: float = 0.004
     max_iters: int = 5
     use_elbow: bool = True
-    elbow_cost: float = 0.5
+    elbow_cost: float = 0.05
     velocity_limits: dict[str, float] | None = None
 
     frame_position_error_limit: float = 0.02

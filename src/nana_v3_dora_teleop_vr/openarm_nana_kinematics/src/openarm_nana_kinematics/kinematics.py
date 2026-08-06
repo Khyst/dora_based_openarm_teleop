@@ -135,6 +135,11 @@ class Kinematics:
         idx = 0 if side == "right" else 1
         self._require_ik()._gripper[idx] = value
 
+    @property
+    def use_elbow(self) -> bool:
+        """Return whether elbow target tracking is enabled in IK."""
+        return self._require_ik()._use_elbow
+
     def _require_ik(self) -> _IKSolver:
         if self._ik is None:
             raise RuntimeError("Kinematics was not initialized with IKParams.")
@@ -438,8 +443,9 @@ class _IKSolver:
                 )
             except mink.exceptions.NoSolutionFound:
                 self._config.update(q=q_before)
-                print("Warning: constrained IK solver failed. Skipping step.")
+                # print("Warning: constrained IK solver failed. Skipping step.")
                 return None
+                
             self._config.integrate_inplace(vel, self._substep_dt)
 
         qpos = self._config.data.qpos

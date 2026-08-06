@@ -46,10 +46,8 @@ nodes:
       tick: quittable-tick-leader/tick
       target_right: webxr/pose_right
       target_left:  webxr/pose_left
-      grip_right:   webxr/trigger_right
-      grip_left:    webxr/trigger_left
-      trigger_right: webxr/trigger_right
-      trigger_left:  webxr/trigger_left
+      grip_right:   webxr/grip_right
+      grip_left:    webxr/grip_left
     outputs:
       - position_left
       - position_right

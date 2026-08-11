@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "README.md",
+                "file": "docs/022_dora_openarm_data_collection_ui_recording_trigger_260812.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "README"
+              "title": "022_dora_openarm_data_collection_ui_recording_trigger_260812"
             }
           }
         ]
@@ -184,17 +184,19 @@
   },
   "active": "758d5175f14a4764",
   "lastOpenFiles": [
+    "docs/023_openarm_driver_joint_limits_and_teleop_config_260813.md",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_ui.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_udp-receiver.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_recorder.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_quittable-tick-leader.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_mujoco-viewer.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_ik.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_hamsa-motion.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_follower-right.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_follower-left.txt",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4",
+    "README.md",
     "docs/022_dora_openarm_data_collection_ui_recording_trigger_260812.md",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/metadata.yaml",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms/left/state.parquet",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms/left",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms/right/state.parquet",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms/right",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset",
     "docs/013_vr_teleop_elbow_ik_enhancement_guide_260805.md",
     "docs/021_pixi_ros2_launch_setup_guide_260811.md",
     "docs/020_nana_v3_description_display_pixi_setup_260811.md",
@@ -227,8 +229,6 @@
     "docs/015_decouple_can_driver_request_state_bottleneck_260713.md",
     "docs/014_update_all_dataflow_yaml_scale_args_260712.md",
     "docs/012_update_jump_threshold_to_5cm_260710.md",
-    "docs/010_teleop_safety_drop_and_reentry_guard_260708.md",
-    "docs/011_ik_reentry_smooth_pose_ramping_guard_260709.md",
     "src/utils/hamsa/docs/tutorial_thumbnail.jpg"
   ]
 }

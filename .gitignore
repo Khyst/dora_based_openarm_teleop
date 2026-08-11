@@ -27,11 +27,15 @@ CMakeCache.txt
 *.o
 *.a
 
+# Dependencies
+node_modules/
+
 # OS & IDE Files
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+.obsidian/
 *.swp
 *~
 

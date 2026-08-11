@@ -4,7 +4,7 @@
 # Joint limits for right and left arms [min, max] in radians
 joint_limits:
   right_arm:
-    - [-1.04721, 1.04721] # joint1 (Shoulder Pitch): -60 deg to +60 deg (안전 마진 확보)
+    - [-1.0472, 1.5708] # joint1 (Shoulder Pitch): -60 deg to +60 deg (안전 마진 확보)
     - [-1.22173, 1.22173] # joint2 (Shoulder Roll) : -60 deg to +90 deg
     - [-1.04719, 1.04719] # joint3 (Shoulder Yaw)  : -60 deg to +60 deg (수화 표현 보장 & 어깨 꺾임 방지)
     - [0.0, 2.0944]       # joint4 (Elbow Pitch)   : 0 deg to +120 deg
@@ -13,7 +13,7 @@ joint_limits:
     - [-1.04719, 1.04719] # joint7 (Wrist Roll)     : -90 deg to +90 deg
     - [-1.047198, 0.4]      # joint8: gripper right
   left_arm:
-    - [-1.04721, 1.04721] # joint1 (Shoulder Pitch): -60 deg to +60 deg (안전 마진 확보)
+    - [-1.0472, 1.5708] # joint1 (Shoulder Pitch): -60 deg to +60 deg (안전 마진 확보)
     - [-1.22173, 1.22173] # joint2 (Shoulder Roll) : -60 deg to +90 deg
     - [-1.04719, 1.04719] # joint3 (Shoulder Yaw)  : -60 deg to +60 deg (수화 표현 보장 & 어깨 꺾임 방지)
     - [0.0, 2.0944]       # joint4 (Elbow Pitch)   : 0 deg to +120 deg
@@ -27,15 +27,27 @@ joint_offsets:
   right_arm: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
   left_arm:  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
+# # Joint delta position limits (rad/s)
+# joint_delta_position_limits:
+#   - 0.7 # J0 (DM8009) 어깨 Pitch: ~28 deg/s
+#   - 0.9 # J1 (DM8009) 어깨 Roll:  ~28 deg/s
+#   - 0.5 # J2 (DM4340) 어깨 Yaw:   ~28 deg/s (어깨 Yaw 급격한 변화 방지)
+#   - 0.8 # J3 (DM4340) 팔꿈치:      ~45 deg/s
+#   - 0.2 # J4 (DM4310) 손목 Yaw:  ~23 deg/s
+#   - 0.2 # J5 (DM4310) 손목 Pitch: ~23 deg/s
+#   - 0.2 # J6 (DM4310) 손목 Roll:   ~23 deg/s
+#   - 0.4 # J7 (DM4310) 그리퍼
+
 # Joint delta position limits (rad/s)
+# 안전을 위해 어깨/팔꿈치는 0.8~1.0 rad/s (~50 deg/s), 손목은 민첩한 수화를 위해 0.8 rad/s 로 상향
 joint_delta_position_limits:
-  - 0.7 # J0 (DM8009) 어깨 Pitch: ~28 deg/s
-  - 0.9 # J1 (DM8009) 어깨 Roll:  ~28 deg/s
-  - 0.5 # J2 (DM4340) 어깨 Yaw:   ~28 deg/s (어깨 Yaw 급격한 변화 방지)
-  - 0.8 # J3 (DM4340) 팔꿈치:      ~45 deg/s
-  - 0.2 # J4 (DM4310) 손목 Yaw:  ~23 deg/s
-  - 0.2 # J5 (DM4310) 손목 Pitch: ~23 deg/s
-  - 0.2 # J6 (DM4310) 손목 Roll:   ~23 deg/s
+  - 0.8 # J0 (DM8009) 어깨 Pitch: ~45 deg/s
+  - 0.8 # J1 (DM8009) 어깨 Roll:  ~45 deg/s
+  - 0.6 # J2 (DM4340) 어깨 Yaw:   ~34 deg/s (어깨 Yaw 급격한 변화 방지)
+  - 1.0 # J3 (DM4340) 팔꿈치:      ~57 deg/s
+  - 0.8 # J4 (DM4310) 손목 Yaw:   ~45 deg/s (수화 추종성 확보)
+  - 0.8 # J5 (DM4310) 손목 Pitch: ~45 deg/s (수화 추종성 확보)
+  - 0.8 # J6 (DM4310) 손목 Roll:  ~45 deg/s (수화 추종성 확보)
   - 0.4 # J7 (DM4310) 그리퍼
 
 # CAN interface
@@ -63,8 +75,8 @@ start:
   moves:
     - name: "a_pose"
       position:
-        right_arm: [0.436332, 0.0, 0.0, 1.39626, 0.0, 0.0, 0.0, 0.0] # Shoulder +30 deg, Elbow +30 deg
-        left_arm:  [-0.436332, 0.0, 0.0, 1.39626, 0.0, 0.0, 0.0, 0.0] # Shoulder -30 deg, Elbow +30 deg
+        right_arm: [0.436332, 0.0, 0.0, 1.39626, 0.0, 0.0, 0.0, 0.0] # Shoulder +80 deg, Elbow +30 deg
+        left_arm:  [-0.436332, 0.0, 0.0, 1.39626, 0.0, 0.0, 0.0, 0.0] # Shoulder -80 deg, Elbow +30 deg
       hz: 50
       duration: 2
 

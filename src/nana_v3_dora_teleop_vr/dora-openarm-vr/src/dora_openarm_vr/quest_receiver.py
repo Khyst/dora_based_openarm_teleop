@@ -104,9 +104,11 @@ _DEFAULT_PORT = 5006
 VALID_OK = 0
 VALID_STALE = 1
 VALID_INVALID = 2
+
 _VALID_NAMES = {VALID_OK: "OK", VALID_STALE: "STALE", VALID_INVALID: "INVALID"}
 
 _R_FRAME = Rotation.from_matrix(_FRAME_ROT)
+
 _IDENTITY_REF = {
     "x": 0.0,
     "y": 0.0,
@@ -160,8 +162,7 @@ class QuestPoseProcessor:
 
         # Unity 좌표계(왼손 좌표계) -> Mujoco, ROS2(오른손 좌표계) 변환
         # - p_ref : Ref(HMD)의 위치 벡터, r_ref : Ref(HMD)dml 회전 행렬
-        p_ref, r_ref = parse_lh_to_rh(ref_raw or _IDENTITY_REF) 
-        
+        p_ref, r_ref = parse_lh_to_rh(ref_raw or _IDENTITY_REF) # 
         active_p_ref = p_ref # HMD 위치 값을 기준 위치 변수로 복사 할당
         active_r_ref_inv = r_ref.inv() # HMD 역회전 회전 객체
 
@@ -177,7 +178,7 @@ class QuestPoseProcessor:
             
             p_out = _R_FRAME.apply(p_rel) + FRAME_OFFSET_NECK # 최종 로봇 기준 3D 목표 위치 획득
 
-            # 어깨 폭 보정을 위한 가슴 중심 기준 X, Y, Z축 스케일링 적용 (Y축 기본 1.15 배로 벌림 감도 상승)
+            # 어깨 폭 보정을 위한 가슴 중심 기준 X, Y, Z축 스케일링 적용 (Y축 기본 N배로 벌림 감도 상승)
             p_out[0] = FRAME_OFFSET_NECK[0] + (p_out[0] - FRAME_OFFSET_NECK[0]) * self.scale_x
             p_out[1] = FRAME_OFFSET_NECK[1] + (p_out[1] - FRAME_OFFSET_NECK[1]) * self.scale_y
             p_out[2] = FRAME_OFFSET_NECK[2] + (p_out[2] - FRAME_OFFSET_NECK[2]) * self.scale_z
@@ -191,6 +192,7 @@ class QuestPoseProcessor:
 
         pose_reference = pose_to_array(p_ref, r_ref) if ref_raw is not None else None
 
+        # 최종 반환되는 값은, 로봇의 가슴 중심 기준 Pose 값 
         return pose_right, pose_left, pose_reference
 
 
@@ -212,6 +214,7 @@ def _run(args: argparse.Namespace) -> None:
     node.send_output("status", pa.array(["ready"]))
 
     for event in node:
+        
         if event["type"] != "INPUT" or event["id"] != "tick":
             continue
 
@@ -225,7 +228,6 @@ def _run(args: argparse.Namespace) -> None:
         if msg is None:
             continue
 
-        # 
         now = time.perf_counter()
 
         # 포즈 추적 유효성 검사 (VR 기기에서 보냄, VALID_STALE: 컨트롤러가 잠시 안 보여 마지막 정상 위치 유지 중, VALID_INVALID: 추적 완전 손실, VALID_OK: 카메라 추적 정상)
@@ -389,30 +391,18 @@ def _run(args: argparse.Namespace) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Meta Quest VR pose receiver (dora node)"
-    )
+    """
+        
+    """
+    parser = argparse.ArgumentParser( description="Meta Quest VR pose receiver (dora node)" )
+
     parser.add_argument("--host", default=_DEFAULT_HOST)
     parser.add_argument("--port", type=int, default=_DEFAULT_PORT)
-    parser.add_argument(
-        "--scale-x",
-        type=float,
-        default=1.0,
-        help="Forward/backward movement scale multiplier",
-    )
-    parser.add_argument(
-        "--scale-y",
-        type=float,
-        default=1.0,
-        help="Left/right arm stretch scale multiplier (default: 1.0)",
-    )
-    parser.add_argument(
-        "--scale-z",
-        type=float,
-        default=1.0,
-        help="Up/down movement scale multiplier",
-    )
+    parser.add_argument("--scale-x", type=float, default=1.0, help="Forward/backward movement scale multiplier",)
+    parser.add_argument("--scale-y", type=float, default=1.0, help="Left/right arm stretch scale multiplier (default: 1.0)",)
+    parser.add_argument("--scale-z", type=float, default=1.0, help="Up/down movement scale multiplier",)
     args = parser.parse_args()
+
     _run(args)
 
 

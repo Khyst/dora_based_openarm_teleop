@@ -27,10 +27,14 @@ class JsonUdpReceiver:
         self._host = host
         self._port = port
         self._buf_size = buf_size
+
         self._lock = threading.Lock()
+        
         self._latest: dict | None = None
         self._recv_ts: collections.deque[int] = collections.deque(maxlen=512)
+
         self._running = True
+
         self._thread = threading.Thread(target=self._loop, daemon=True)
         self._thread.start()
 

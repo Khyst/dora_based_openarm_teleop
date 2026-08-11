@@ -22,7 +22,9 @@ from numpy.typing import ArrayLike
 import openarm_can as oa
 
 from .config import Config, get_default_config
+
 from .base_safety import Checker, CompositeChecker
+
 from .safety import (
     JointPosChecker,
     JointDeltaPosChecker,
@@ -39,7 +41,6 @@ def _create_default_checker(arm_side: str, config: Config) -> CompositeChecker:
             JointDeltaPosChecker(delta_limits),
         ]
     )
-
 
 class SingleArmDriver:
     """Driver for single arm."""

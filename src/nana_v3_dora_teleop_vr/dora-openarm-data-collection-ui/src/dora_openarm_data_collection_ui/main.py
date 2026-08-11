@@ -65,6 +65,8 @@ class State:
     task_title: str = ""
     arm_status_right: str = "stopped"
     arm_status_left: str = "stopped"
+    trigger_pressed_right: bool = False
+    trigger_pressed_left: bool = False
 
 
 state = State()
@@ -88,6 +90,10 @@ CAMERA_STALE_AFTER_S = 1.0
 
 # dora-openarm status inputs, one per arm. The input id matches the State field
 ARM_STATUS_INPUTS = ("arm_status_right", "arm_status_left")
+
+# VR trigger / grip inputs for telemetry & status display
+VR_TRIGGER_INPUTS = ("trigger_right", "trigger_left", "grip_right", "grip_left")
+
 
 # VR packet arrival times (ns) published by udp-receiver as
 # `vr_receive_times` or `vr_recv_ts` (deprecated).
@@ -293,6 +299,8 @@ async def _events(request: Request) -> AsyncIterable[ServerSentEvent]:
                 "task_index": state.task_index,
                 "arm_status_right": state.arm_status_right,
                 "arm_status_left": state.arm_status_left,
+                "trigger_pressed_right": state.trigger_pressed_right,
+                "trigger_pressed_left": state.trigger_pressed_left,
             },
             id=str(state_version),
         )
@@ -348,9 +356,20 @@ def _arm_stop(request: Request):
 
 
 def load_yaml(path):
-    """Load a YAML file."""
-    with open(path) as f:
-        return yaml.safe_load(f)
+    """Load a YAML file safely with fallback."""
+    if path is None or not pathlib.Path(path).exists():
+        return {
+            "location": "Lab",
+            "operator": "User",
+            "tasks": [
+                {
+                    "prompt": "OpenArm Teleop Task",
+                    "description": "Teleoperation data collection episode",
+                }
+            ],
+        }
+    with open(path, encoding="utf-8") as f:
+        return yaml.safe_load(f) or {}
 
 
 async def _main_uvicorn(server):
@@ -387,6 +406,24 @@ async def _main_dora(server):
             if event_id in VR_RECEIVE_TIMES_INPUTS:
                 for ts_ns in event["value"].to_pylist():
                     _update_vr_stats(float(ts_ns) / 1e9)
+                continue
+            if event_id in VR_TRIGGER_INPUTS:
+                val = event["value"]
+                if hasattr(val, "to_pylist"):
+                    py_val = val.to_pylist()[0]
+                elif hasattr(val, "as_py"):
+                    py_val = val[0].as_py()
+                else:
+                    py_val = float(val)
+                is_pressed = bool(py_val > 0.5)
+                if event_id in ("trigger_right", "grip_right"):
+                    if state.trigger_pressed_right != is_pressed:
+                        state.trigger_pressed_right = is_pressed
+                        await _notify_state_changed()
+                elif event_id in ("trigger_left", "grip_left"):
+                    if state.trigger_pressed_left != is_pressed:
+                        state.trigger_pressed_left = is_pressed
+                        await _notify_state_changed()
                 continue
             if event_id not in ("button_a", "button_b"):
                 continue
@@ -459,11 +496,12 @@ def main():
     global port
     port = args.port
     metadata = load_yaml(args.metadata_file)
-    tasks = metadata["tasks"]
+    tasks = metadata.get("tasks", [{"prompt": "OpenArm Teleop Task"}])
     state.task_title = tasks[state.task_index]["prompt"]
 
     node = dora.Node()
     asyncio.run(_main_async())
+
 
 
 if __name__ == "__main__":

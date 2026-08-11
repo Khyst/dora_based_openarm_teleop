@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/013_vr_teleop_elbow_ik_enhancement_guide_260805.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "013_vr_teleop_elbow_ik_enhancement_guide_260805"
+              "title": "README"
             }
           }
         ]
@@ -184,17 +184,20 @@
   },
   "active": "758d5175f14a4764",
   "lastOpenFiles": [
+    "docs/022_dora_openarm_data_collection_ui_recording_trigger_260812.md",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/metadata.yaml",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms/left/state.parquet",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms/left",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms/right/state.parquet",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms/right",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs/arms",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0/obs",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes/0",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset/episodes",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/recordings/dataset",
+    "docs/013_vr_teleop_elbow_ik_enhancement_guide_260805.md",
+    "docs/021_pixi_ros2_launch_setup_guide_260811.md",
     "docs/020_nana_v3_description_display_pixi_setup_260811.md",
-    "log/build_2026-08-11_09-30-51/nana_v3_description/streams.log",
-    "log/build_2026-08-11_09-30-51/nana_v3_description/stdout_stderr.log",
-    "log/build_2026-08-11_09-30-51/nana_v3_description/stdout.log",
-    "log/build_2026-08-11_09-30-51/nana_v3_description/stderr.log",
-    "log/build_2026-08-11_09-30-51/nana_v3_description/command.log",
-    "log/build_2026-08-11_09-30-51/nana_v3_description",
-    "log/build_2026-08-11_09-30-51/events.log",
-    "log/build_2026-08-11_09-30-51/logger_all.log",
-    "log/build_2026-08-11_09-30-51",
-    "log/build_2026-08-11_09-29-53/nana_v3_description/streams.log",
     "docs/014_custom_research_repos_addition_260801.md",
     "src/researches/xr_teleoperate/img/wrist_and_ring_mount.png",
     "src/researches/xr_teleoperate/img/video_cover2.jpg",
@@ -226,9 +229,6 @@
     "docs/012_update_jump_threshold_to_5cm_260710.md",
     "docs/010_teleop_safety_drop_and_reentry_guard_260708.md",
     "docs/011_ik_reentry_smooth_pose_ramping_guard_260709.md",
-    "docs/008_nana_v3_urdf_joint_specifications_260706.md",
-    "docs/007_nana_v3_hardware_offset_correction_260705.md",
-    "docs/006_nana_v3_cell_config_parameters_guide_260704.md",
     "src/utils/hamsa/docs/tutorial_thumbnail.jpg"
   ]
 }

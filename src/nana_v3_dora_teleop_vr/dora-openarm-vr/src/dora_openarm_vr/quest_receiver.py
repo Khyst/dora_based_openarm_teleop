@@ -94,7 +94,8 @@ _FRAME_ROT: np.ndarray = np.array(
 )
 
 # Neutral hand position relative to the arm_origin site (chest level).
-FRAME_OFFSET_NECK: np.ndarray = np.array([-0.085, 0, -0.14], dtype=np.float64)
+# FRAME_OFFSET_NECK: np.ndarray = np.array([-0.085, 0, -0.14], dtype=np.float64)
+FRAME_OFFSET_NECK: np.ndarray = np.array([-0.085, 0, -0.05], dtype=np.float64)
 # ─────────────────────────────────────────────────────────────────────────────
 
 _DEFAULT_HOST = "0.0.0.0"

@@ -204,7 +204,9 @@ def _run(args: argparse.Namespace) -> None:
 
 def main() -> None:
     """Inverse kinematics for OpenArm."""
-    parser = argparse.ArgumentParser( # 파이썬 CLI 파싱의 표준적인 패턴을 따르면서, 
+
+    # dora 노드의 파라미터를 설정하기 위한 argparse 객체를 생성
+    parser = argparse.ArgumentParser(
         description="Mink IK dora node – OpenArm end-effector pose → joint angles"
     )
 

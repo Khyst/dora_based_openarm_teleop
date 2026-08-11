@@ -18,11 +18,12 @@ import argparse
 import dataclasses
 import enum
 import dora
-import openarm_driver
 import os
 import pathlib
 import pyarrow as pa
 import numpy as np
+
+import openarm_driver
 
 
 class ArmStatus(str, enum.Enum):
@@ -63,6 +64,7 @@ def _align(arm, state, new_position, name, threshold, trigger=None):
     # If OpenArm is already aligned, we do nothing.
     if is_aligned(new_position, current_position):
         return True
+
     diff = new_position - state.align_target
     step_move = np.clip(diff, -state.step_limit, state.step_limit)
     state.align_target += step_move
@@ -199,15 +201,14 @@ def main():
     if args.start_on_startup:
         arm = openarm_driver.SingleArmDriver(name, config)
         arm.start()
-        align_state = (
-            AlignState(step_limit=args.align_delta_limit) if args.align else None
-        )
+        align_state = (AlignState(step_limit=args.align_delta_limit) if args.align else None)
         status = ArmStatus.STARTED
         node.send_output("status", pa.array([status]))
 
     else:
         align_state = None
         status = ArmStatus.STOPPED
+
     current_grip = 0.0
 
     for event in node:

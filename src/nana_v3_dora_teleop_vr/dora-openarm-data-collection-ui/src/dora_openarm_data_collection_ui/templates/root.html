@@ -98,6 +98,25 @@
       .arm-badge.stopped { background: #888; }
       .arm-badge.started { background: #ffcc00; }
       .arm-badge.aligned { background: #00ff88; }
+      .trigger-badge {
+        font-size: 14px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        transition: all 0.2s ease;
+      }
+      .trigger-badge.active {
+        background: #00e5ff;
+        color: #0a0a0f;
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+      }
+      .trigger-badge.inactive {
+        background: #222;
+        color: #666;
+        border: 1px solid #444;
+      }
       .big-button.arm-toggle {
         font-size: 18px;
         padding: 12px 28px;
@@ -106,11 +125,11 @@
 
       .big-button {
         font-family: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
-        font-size: 28px;
+        font-size: 24px;
         font-weight: bold;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        padding: 20px 48px;
+        padding: 18px 42px;
         margin: 10px;
         border-radius: 12px;
         cursor: pointer;
@@ -199,9 +218,9 @@
       </div>
 
       {% if state.collecting -%}
-        <div class="status collecting">Collecting</div>
+        <div class="status collecting">🔴 Recording</div>
       {% else -%}
-        <div class="status idle">Idle</div>
+        <div class="status idle">🟢 Idle</div>
       {% endif -%}
     </div>
 
@@ -209,6 +228,15 @@
       <div class="arm-label">Arm</div>
       <div class="arm-badge {{ state.arm_status_left }}">L: {{ state.arm_status_left | upper }}</div>
       <div class="arm-badge {{ state.arm_status_right }}">R: {{ state.arm_status_right | upper }}</div>
+
+      <div class="arm-label" style="margin-left: 16px;">Trigger</div>
+      <div class="trigger-badge {% if state.trigger_pressed_left %}active{% else %}inactive{% endif %}">
+        L: {% if state.trigger_pressed_left %}PULL (MOVE){% else %}OFF{% endif %}
+      </div>
+      <div class="trigger-badge {% if state.trigger_pressed_right %}active{% else %}inactive{% endif %}">
+        R: {% if state.trigger_pressed_right %}PULL (MOVE){% else %}OFF{% endif %}
+      </div>
+
       {% if state.arm_status_right == "stopped" and state.arm_status_left == "stopped" -%}
         <form id="arm-start-form" action="{{ url_for("_arm_start") }}" method="post">
           <input class="big-button start arm-toggle" type="submit" value="Start Arm">
@@ -225,22 +253,22 @@
 
     {% if state.collecting -%}
       <form id="finish-form" action="{{ url_for("_success") }}" method="post">
-        <input class="big-button finish" type="submit" value="Success!">
+        <input class="big-button start" type="submit" value="✅ Save Episode">
       </form>
 
       <form id="fail-form" action="{{ url_for("_fail") }}" method="post">
-        <input class="big-button finish" type="submit" value="Fail!">
+        <input class="big-button finish" type="submit" value="❌ Discard (Fail)">
       </form>
 
       <form id="cancel-form" action="{{ url_for("_cancel") }}" method="post">
-        <input class="big-button finish" type="submit" value="Cancel!">
+        <input class="big-button quit" type="submit" value="⚠️ Cancel Episode">
       </form>
     {% else -%}
       <form id="start-form" action="{{ url_for("_start") }}" method="post">
-        <input class="big-button start" type="submit" value="Start!">
+        <input class="big-button start" type="submit" value="🔴 Start Recording">
       </form>
       <form id="skip-form" action="{{ url_for("_skip") }}" method="post">
-        <input class="big-button start" type="submit" value="Skip task">
+        <input class="big-button quit" type="submit" value="Skip task">
       </form>
     {% endif -%}
 

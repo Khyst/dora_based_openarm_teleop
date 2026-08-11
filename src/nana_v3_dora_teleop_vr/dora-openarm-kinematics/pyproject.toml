@@ -24,7 +24,7 @@ description = "dora-rs nodes for forward and inverse kinematics on OpenArm"
 license = {text = "Apache-2.0"}
 maintainers = [{name = "Enactic, Inc."}]
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "dora-rs>=0.5.0",
     "openarm-control>=0.2.0",

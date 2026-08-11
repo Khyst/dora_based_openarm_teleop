@@ -57,8 +57,8 @@
                   <joint name="openarm_left_joint7" pos="0 0 0" axis="0 -1 0" range="-1.5708 1.5708" actuatorfrcrange="-7 7"/>
                   <geom name="nana_v3_left_link7_collision" pos="0 0 -0.5585" type="mesh" mesh="link7_symp"/>
                   <!-- 2. Left End-Effector Sites -->
-                  <site name="left_ee_control_point" pos="0 0 0.08" quat="0 1 0 0" size="0.01" rgba="0 1 0 1"/>
-                  <body name="nana_v3_left_hand" pos="0 0 0.08">
+                  <site name="left_ee_control_point" pos="0 0 0.18" quat="0 1 0 0" size="0.01" rgba="0 1 0 1"/>
+                  <body name="nana_v3_left_hand" pos="0 0 0.18">
                     <inertial pos="0 0 0" mass="0.05" diaginertia="0.0001 0.0001 0.0001"/>
                     <joint name="openarm_left_finger_joint1" pos="0 0 0" axis="1 0 0" range="-0.7854 0"/>
                     <joint name="openarm_left_finger_joint2" pos="0 0 0" axis="-1 0 0" range="0 0.7854"/>
@@ -102,8 +102,8 @@
                   <joint name="openarm_right_joint7" pos="0 0 0" axis="0 1 0" range="-1.5708 1.5708" actuatorfrcrange="-7 7"/>
                   <geom name="nana_v3_right_link7_collision" pos="0 0 -0.5585" type="mesh" mesh="link7_symp1"/>
                   <!-- 3. Right End-Effector Sites -->
-                  <site name="right_ee_control_point" pos="0 0 0.08" quat="0 1 0 0" size="0.01" rgba="1 0 0 1"/>
-                  <body name="nana_v3_right_hand" pos="0 0 0.08">
+                  <site name="right_ee_control_point" pos="0 0 0.18" quat="0 1 0 0" size="0.01" rgba="1 0 0 1"/>
+                  <body name="nana_v3_right_hand" pos="0 0 0.18">
                     <inertial pos="0 0 0" mass="0.05" diaginertia="0.0001 0.0001 0.0001"/>
                     <joint name="openarm_right_finger_joint1" pos="0 0 0" axis="-1 0 0" range="-0.7854 0"/>
                     <joint name="openarm_right_finger_joint2" pos="0 0 0" axis="1 0 0" range="0 0.7854"/>

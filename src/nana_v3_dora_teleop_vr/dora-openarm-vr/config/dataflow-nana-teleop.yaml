@@ -1,16 +1,39 @@
 nodes:
+  - id: ui
+    build: pip install -e ../../dora-openarm-data-collection-ui
+    path: dora-openarm-data-collection-ui
+    env:
+      METADATA_FILE: "test_metadata.yaml"
+    inputs:
+      tick: dora/timer/secs/1
+      button_a:
+        source: udp-receiver/button_a
+        queue_size: 100
+      button_b:
+        source: udp-receiver/button_b
+        queue_size: 100
+      trigger_right: udp-receiver/trigger_right
+      trigger_left: udp-receiver/trigger_left
+      arm_status_right: follower-right/status
+      arm_status_left: follower-left/status
+    outputs:
+      - command
+      - arm_command
+
   - id: quittable-tick-leader
     build: pip install -e ../../dora-openarm-quitter
     path: dora-openarm-quitter
     inputs:
+      command: ui/command
       tick: dora/timer/millis/2
     outputs:
       - tick
 
+
   - id: udp-receiver
     build: pip install -e ..
     path: dora-openarm-quest-receiver
-    args: "--host 0.0.0.0 --port 5006 --scale-x 1.0 --scale-y 1.15 --scale-z 1.0"
+    args: "--host 0.0.0.0 --port 5006 --scale-x 1.0 --scale-y 1.25 --scale-z 1.0"
     inputs:
       tick: quittable-tick-leader/tick
     outputs:
@@ -34,7 +57,7 @@ nodes:
   - id: ik
     build: pip install -e ../../dora-openarm-kinematics
     path: dora-openarm-ik
-    args: "--xml ../../../nana_v3_description/assets/robot/urdf/nana_v3_corrected.xml --mode bimanual --max-iters 10 --dt 0.02 --damping 1.0 --posture-cost 0.0 --lm-damping 0.1"
+    args: "--xml ../../../nana_v3_description/assets/robot/urdf/nana_v3_corrected.xml --mode bimanual --max-iters 10 --dt 0.02 --damping 1.0 --posture-cost 0.05 --lm-damping 0.1"
     inputs:
       tick: quittable-tick-leader/tick
       target_right: udp-receiver/pose_right
@@ -66,8 +89,9 @@ nodes:
   - id: follower-right
     build: pip install -e ../../dora-openarm
     path: dora-openarm
-    args: "--side right --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../openarm_driver/src/openarm_driver/configs/nana_v3_cell_v3.yaml"
+    args: "--side right --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../openarm_driver/src/openarm_driver/configs/nana_v3_cell_v4.yaml"
     inputs:
+      command: ui/arm_command
       move_position: ik/position_right
       grip: udp-receiver/grip_right
       request_position: quittable-tick-leader/tick
@@ -80,8 +104,9 @@ nodes:
   - id: follower-left
     build: pip install -e ../../dora-openarm
     path: dora-openarm
-    args: "--side left --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../openarm_driver/src/openarm_driver/configs/nana_v3_cell_v3.yaml"
+    args: "--side left --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../openarm_driver/src/openarm_driver/configs/nana_v3_cell_v4.yaml"
     inputs:
+      command: ui/arm_command
       move_position: ik/position_left
       grip: udp-receiver/grip_left
       request_position: quittable-tick-leader/tick
@@ -99,4 +124,18 @@ nodes:
       button_b: udp-receiver/button_b
       button_x: udp-receiver/button_x
       button_y: udp-receiver/button_y
+
+  - id: recorder
+    build: pip install -e ../../dora-openarm-dataset-recorder
+    path: dora-openarm-dataset-recorder
+    env:
+      METADATA_FILE: "test_metadata.yaml"
+      DIRECTORY: "recordings"
+    inputs:
+      command: ui/command
+      arm_right_action: ik/position_right
+      arm_right_observation: follower-right/state
+      arm_left_action: ik/position_left
+      arm_left_observation: follower-left/state
+
 

@@ -142,6 +142,7 @@ def build_pose_output(pose: np.ndarray) -> pa.Array:
 
 
 class QuestPoseProcessor:
+    
     def __init__(
         self, scale_x: float = 1.0, scale_y: float = 1.0, scale_z: float = 1.0
     ) -> None:
@@ -195,9 +196,7 @@ class QuestPoseProcessor:
 def _run(args: argparse.Namespace) -> None:
 
     receiver = JsonUdpReceiver(args.host, args.port)
-    processor = QuestPoseProcessor(
-        scale_x=args.scale_x, scale_y=args.scale_y, scale_z=args.scale_z
-    )
+    processor = QuestPoseProcessor(scale_x=args.scale_x, scale_y=args.scale_y, scale_z=args.scale_z)
 
     smoother_right = OneEuroPoseSmoother(min_cutoff=2.0, beta=0.04, d_cutoff=1.5)
     smoother_left = OneEuroPoseSmoother(min_cutoff=2.0, beta=0.04, d_cutoff=1.5)

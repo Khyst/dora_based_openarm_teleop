@@ -63,8 +63,8 @@ start:
   moves:
     - name: "a_pose"
       position:
-        right_arm: [0.5236, 0.0, 0.0, 0.5236, 0.0, 0.0, 0.0, 0.0] # Shoulder +30 deg, Elbow +30 deg
-        left_arm:  [-0.5236, 0.0, 0.0, 0.5236, 0.0, 0.0, 0.0, 0.0] # Shoulder -30 deg, Elbow +30 deg
+        right_arm: [0.436332, 0.0, 0.0, 1.39626, 0.0, 0.0, 0.0, 0.0] # Shoulder +30 deg, Elbow +30 deg
+        left_arm:  [-0.436332, 0.0, 0.0, 1.39626, 0.0, 0.0, 0.0, 0.0] # Shoulder -30 deg, Elbow +30 deg
       hz: 50
       duration: 2
 

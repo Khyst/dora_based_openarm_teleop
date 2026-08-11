@@ -1,0 +1,21 @@
+[project]
+name = "dora_based_openarm_teleop"
+version = "0.1.0"
+description = "Isolated ROS2 & Dora Teleop Environment"
+channels = ["robostack-humble", "conda-forge"]
+platforms = ["linux-64"]
+
+[dependencies]
+python = ">=3.10"
+ros-humble-ros-core = "*"
+ros-humble-rviz2 = "*"
+ros-humble-robot-state-publisher = "*"
+ros-humble-joint-state-publisher-gui = "*"
+ros-humble-joint-state-publisher = "*"
+ros-humble-xacro = "*"
+ros-humble-ament-cmake = "*"
+colcon-common-extensions = "*"
+
+[tasks]
+build-v3 = "colcon build --packages-select nana_v3_description"
+display-v3 = "bash -c 'source install/setup.bash && ros2 launch nana_v3_description display.launch.py'"

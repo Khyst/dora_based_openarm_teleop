@@ -38,4 +38,6 @@ Thumbs.db
 # CLI Local Workspace & Cache
 .gemini/
 .cache/
+.pixi/
+
 

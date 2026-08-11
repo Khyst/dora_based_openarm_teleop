@@ -37,6 +37,8 @@ rsync -av ${DRY_RUN} \
     --exclude='out' \
     --exclude='.cache' \
     --exclude='.obsidian' \
+    --exclude='.pixi' \
+    --exclude='.gemini' \
     --exclude='.pytest_cache' \
     --exclude='__pycache__' \
     --exclude='*.pyc' \

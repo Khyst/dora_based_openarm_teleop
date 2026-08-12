@@ -1,31 +1,11 @@
 nodes:
-  - id: ui
-    build: pip install -e ../../dora-openarm-data-collection-ui
-    path: dora-openarm-data-collection-ui
-    env:
-      METADATA_FILE: "test_metadata.yaml"
-    inputs:
-      tick: dora/timer/secs/1
-      button_a:
-        source: udp-receiver/button_a
-        queue_size: 100
-      button_b:
-        source: udp-receiver/button_b
-        queue_size: 100
-      trigger_right: udp-receiver/trigger_right
-      trigger_left: udp-receiver/trigger_left
-    outputs:
-      - command
-
   - id: quittable-tick-leader
     build: pip install -e ../../dora-openarm-quitter
     path: dora-openarm-quitter
     inputs:
-      command: ui/command
       tick: dora/timer/millis/2
     outputs:
       - tick
-
 
   - id: udp-receiver
     build: pip install -e ..
@@ -80,25 +60,3 @@ nodes:
       joystick_y:     udp-receiver/joystick_y_left
     outputs:
       - status
-
-  - id: hamsa-motion
-    build: pip install -e ../../dora-openarm-hamsa
-    path: dora-openarm-hamsa
-    inputs:
-      button_a: udp-receiver/button_a
-      button_b: udp-receiver/button_b
-      button_x: udp-receiver/button_x
-      button_y: udp-receiver/button_y
-
-  - id: recorder
-    build: pip install -e ../../dora-openarm-dataset-recorder
-    path: dora-openarm-dataset-recorder
-    env:
-      METADATA_FILE: "test_metadata.yaml"
-      DIRECTORY: "recordings"
-    inputs:
-      command: ui/command
-      arm_right_action: ik/position_right
-      arm_left_action: ik/position_left
-
-

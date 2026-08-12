@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "660f54fa8e385258",
+        "id": "b5ef1444eed0626c",
         "type": "tabs",
         "children": [
           {
-            "id": "758d5175f14a4764",
+            "id": "e553f2f09a840fda",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "docs/022_dora_openarm_data_collection_ui_recording_trigger_260812.md",
+                "file": "tech_docs/99_dora_openarm_teleop_index.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "022_dora_openarm_data_collection_ui_recording_trigger_260812"
+              "title": "99_dora_openarm_teleop_index"
             }
           }
         ]
@@ -163,13 +163,23 @@
               "icon": "lucide-list",
               "title": "개요"
             }
+          },
+          {
+            "id": "6bd4e55487a8375f",
+            "type": "leaf",
+            "state": {
+              "type": "nova-sidebar",
+              "state": {},
+              "icon": "nova-star",
+              "title": "Nova"
+            }
           }
-        ]
+        ],
+        "currentTab": 5
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -179,56 +189,60 @@
       "daily-notes:오늘의 일일 노트 열기": false,
       "templates:템플릿 삽입": false,
       "command-palette:명령어 팔레트 열기": false,
-      "bases:새 베이스 생성하기": false
+      "bases:새 베이스 생성하기": false,
+      "nova:Nova AI": false,
+      "pdf-plus:PDF++: Toggle auto-copy": false,
+      "pdf-plus:PDF++: Toggle auto-focus": false,
+      "pdf-plus:PDF++: Toggle auto-paste": false
     }
   },
-  "active": "758d5175f14a4764",
+  "active": "e553f2f09a840fda",
   "lastOpenFiles": [
-    "docs/024_dora_openarm_kinematics_control_package_260801.md",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics-control",
-    "docs/023_openarm_driver_joint_limits_and_teleop_config_260813.md",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_ui.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_udp-receiver.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_recorder.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_quittable-tick-leader.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_mujoco-viewer.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_ik.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_hamsa-motion.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_follower-right.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_follower-left.txt",
-    "README.md",
+    "docs/025_pandoc_xelatex_nanum_font_setup_260814.md",
+    "docs",
+    "tech_docs/DORA 기반 VR Teleop 시스템 기술 문서.md",
+    "tech_docs/99_dora_openarm_teleop_index.md",
+    "tech_docs/00_nana_openarm_description.md",
+    "dora_based_openarm_teleop_diagram (1).jpg",
+    "tech_docs/01_dora_openarm_vr.md",
+    "tech_docs/05_dora_openarm.md",
+    "tech_docs/04_dora_openarm_mujoco.md",
+    "tech_docs/03_dora_openarm_kinematics_control.md",
+    "tech_docs/02_dora_openarm_kinematics.md",
+    "tech_docs/output.pdf",
+    "tech_docs/full_technical_doc.m",
+    "무제.base",
+    "tech_docs/06_openarm_driver.md",
+    "src/nana_v3_description/assets/robot/urdf/nana_v3_corrected.xml",
+    "src/nana_v3_description/assets/robot/urdf/nana_v3_corrected.urdf",
+    "src/nana_v3_description/assets/robot/urdf/nana_v3.xml",
+    "src/nana_v3_description/assets/robot/urdf/nana_v3.urdf",
+    "src/nana_v3_description/assets/robot/urdf",
+    "src/utils/hamsa_driver/hamsa_driver.egg-info/top_level.txt",
+    "src/utils/hamsa_driver/docs/verify_image.md",
+    "src/utils/hamsa_driver/docs/tutorial_thumbnail.jpg",
+    "src/utils/hamsa_driver/docs/sticky_load.png",
+    "src/utils/hamsa_driver/docs/servo_calibration.md",
+    "src/utils/hamsa_driver/docs/selections_highlighted.png",
+    "src/utils/hamsa_driver/docs/normal_load.png",
+    "src/utils/hamsa_driver/docs/image_recognition.md",
+    "src/utils/hamsa_driver/docs/draw_highlighted.png",
+    "src/utils/hamsa_driver/docs/disk_image.md",
+    "src/utils/hamsa_driver/docs/constant_load.png",
+    "src/utils/hamsa_driver/docs/Attributions.md",
+    "src/utils/hamsa_driver/hamsa_setup_guide.md",
+    "src/utils/hamsa_driver/README.md",
+    "src/utils/openarm_driver/README.md",
+    "src/utils/openarm_driver/CONTRIBUTING.md",
+    "src/utils/openarm_driver/CODE_OF_CONDUCT.md",
+    "docs/025_mujoco_library_overview_and_comparison_260802.md",
+    "dora_based_openarm_teleop_diagram.jpg",
+    "Pasted image 20260812114802.png",
     "docs/022_dora_openarm_data_collection_ui_recording_trigger_260812.md",
+    "docs/024_dora_openarm_kinematics_control_package_260801.md",
+    "docs/023_openarm_driver_joint_limits_and_teleop_config_260813.md",
+    "README.md",
     "docs/013_vr_teleop_elbow_ik_enhancement_guide_260805.md",
-    "docs/021_pixi_ros2_launch_setup_guide_260811.md",
-    "docs/020_nana_v3_description_display_pixi_setup_260811.md",
-    "docs/014_custom_research_repos_addition_260801.md",
-    "src/researches/xr_teleoperate/img/wrist_and_ring_mount.png",
-    "src/researches/xr_teleoperate/img/video_cover2.jpg",
-    "src/researches/xr_teleoperate/img/video_cover.jpg",
-    "src/researches/xr_teleoperate/img/real_right_hand.jpg",
-    "src/researches/xr_teleoperate/img/real_left_hand.jpg",
-    "src/researches/xr_teleoperate/img/real_head.jpg",
-    "src/researches/xr_teleoperate/img/head_camera_mount_install.png",
-    "src/researches/xr_teleoperate/img/head_camera_mount.png",
-    "src/researches/xr_teleoperate/assets/h1_2/README.md",
-    "src/researches/xr_teleoperate/assets/g1/README.md",
-    "src/researches/xr_teleoperate/README_zh-CN.md",
-    "src/researches/xr_teleoperate/README_ja-JP.md",
-    "src/researches/xr_teleoperate/README.md",
-    "src/researches/xr_teleoperate/Device_zh-CN.md",
-    "src/researches/xr_teleoperate/Device.md",
-    "src/researches/xr_teleoperate/CHANGELOG_zh-CN.md",
-    "src/researches/xr_teleoperate/CHANGELOG.md",
-    "docs/OPENARM_CAN_SETUP_GUIDE.md",
-    "docs/011_sign_language_humanoid_teleop_ik_260802.md",
-    "docs/010_ik_parameter_tuning_guide_260801.md",
-    "docs/quest_openarm_teleop_pipeline.png",
-    "docs/MANAGEMENT_GUIDE.md",
-    "docs/009_nana_v3_cell_config_conservative_joint_limits_260707.md",
-    "docs/017_set_hardware_start_pose_to_a_pose_260715.md",
-    "docs/016_tune_align_delta_limit_for_initial_alignment_260714.md",
-    "docs/015_decouple_can_driver_request_state_bottleneck_260713.md",
-    "docs/014_update_all_dataflow_yaml_scale_args_260712.md",
-    "src/utils/hamsa/docs/tutorial_thumbnail.jpg"
+    "src/researches/xr_teleoperate/img/wrist_and_ring_mount.png"
   ]
 }

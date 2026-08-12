@@ -16,6 +16,7 @@ members = [
     "dora-openarm-dataset-recorder",
     "dora-openarm-hamsa",
     "dora-openarm-kinematics",
+    "dora-openarm-kinematics-control",
     "dora-openarm-mujoco",
     "dora-openarm-quitter",
     "dora-openarm-udp-replay",
@@ -163,6 +164,7 @@ dependencies = [
     { name = "dora-openarm-dataset-recorder" },
     { name = "dora-openarm-hamsa" },
     { name = "dora-openarm-kinematics" },
+    { name = "dora-openarm-kinematics-control" },
     { name = "dora-openarm-mujoco" },
     { name = "dora-openarm-quitter" },
     { name = "dora-openarm-udp-replay" },
@@ -180,6 +182,7 @@ requires-dist = [
     { name = "dora-openarm-dataset-recorder", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-dataset-recorder" },
     { name = "dora-openarm-hamsa", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-hamsa" },
     { name = "dora-openarm-kinematics", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics" },
+    { name = "dora-openarm-kinematics-control", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics-control" },
     { name = "dora-openarm-mujoco", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-mujoco" },
     { name = "dora-openarm-quitter", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-quitter" },
     { name = "dora-openarm-udp-replay", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-udp-replay" },
@@ -296,8 +299,8 @@ name = "dora-openarm-kinematics"
 version = "0.2.1"
 source = { editable = "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics" }
 dependencies = [
+    { name = "dora-openarm-kinematics-control" },
     { name = "dora-rs" },
-    { name = "openarm-control" },
     { name = "pyarrow" },
 ]
 
@@ -309,14 +312,50 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "dora-openarm-kinematics-control", editable = "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics-control" },
     { name = "dora-rs", specifier = ">=0.5.0" },
-    { name = "openarm-control", specifier = ">=0.2.0" },
     { name = "pyarrow" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "dora-rs-cli", specifier = ">=0.5.0" },
+    { name = "ruff", specifier = "==0.14.11" },
+]
+
+[[package]]
+name = "dora-openarm-kinematics-control"
+version = "0.2.0"
+source = { editable = "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics-control" }
+dependencies = [
+    { name = "daqp" },
+    { name = "mink" },
+    { name = "mujoco" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "openarm-mujoco" },
+    { name = "pyyaml" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "daqp", specifier = "==0.7.2" },
+    { name = "mink", specifier = ">=1.1.0" },
+    { name = "mujoco", specifier = ">=3.6.0" },
+    { name = "numpy" },
+    { name = "openarm-mujoco" },
+    { name = "pyyaml" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest" },
     { name = "ruff", specifier = "==0.14.11" },
 ]
 
@@ -1101,21 +1140,6 @@ name = "openarm-can"
 version = "1.2.9"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/5f/50/6a86ea825a18e62a69fa6c974c1a01d8a6f877fe9850f262ef09a72cab87/openarm_can-1.2.9.tar.gz", hash = "sha256:6c30c191bcd803cc23d49426c24c51520ef6a93f39973a7539d7cd1df4bc52f7", size = 355801, upload-time = "2026-05-18T01:23:20.885Z" }
-
-[[package]]
-name = "openarm-control"
-version = "0.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "daqp" },
-    { name = "mink" },
-    { name = "mujoco" },
-    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "numpy", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "openarm-mujoco" },
-    { name = "pyyaml" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/21/16/5b23d535ce34a2051298cd21af019bd0e70378efe9abe0dd36a6bd254896/openarm_control-0.2.0.tar.gz", hash = "sha256:7f945d88596dfe6def88ca7d2a348da457c4b659ac314f7cef7a05298ff01269", size = 13965, upload-time = "2026-07-28T02:11:54.801Z" }
 
 [[package]]
 name = "openarm-driver"

@@ -184,6 +184,8 @@
   },
   "active": "758d5175f14a4764",
   "lastOpenFiles": [
+    "docs/024_dora_openarm_kinematics_control_package_260801.md",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics-control",
     "docs/023_openarm_driver_joint_limits_and_teleop_config_260813.md",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_ui.txt",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_udp-receiver.txt",
@@ -194,7 +196,6 @@
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_hamsa-motion.txt",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_follower-right.txt",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4/log_follower-left.txt",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/out/019fefee-f806-7b86-a327-ae91cdcb1cc4",
     "README.md",
     "docs/022_dora_openarm_data_collection_ui_recording_trigger_260812.md",
     "docs/013_vr_teleop_elbow_ik_enhancement_guide_260805.md",
@@ -228,7 +229,6 @@
     "docs/016_tune_align_delta_limit_for_initial_alignment_260714.md",
     "docs/015_decouple_can_driver_request_state_bottleneck_260713.md",
     "docs/014_update_all_dataflow_yaml_scale_args_260712.md",
-    "docs/012_update_jump_threshold_to_5cm_260710.md",
     "src/utils/hamsa/docs/tutorial_thumbnail.jpg"
   ]
 }

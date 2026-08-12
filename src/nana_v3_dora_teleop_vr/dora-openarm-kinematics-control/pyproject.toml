@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dora-openarm-kinematics-control"
+version = "0.2.0"
+authors = [{name = "Enactic, Inc."}]
+description = "Kinematics and control utilities for OpenArm (customized for dora_teleop_vr)"
+license = {text = "Apache-2.0"}
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "daqp==0.7.2",
+    "mink>=1.1.0",
+    "mujoco>=3.6.0",
+    "numpy",
+    "openarm-mujoco",
+    "pyyaml",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff == 0.14.11",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff.lint]
+extend-select = [
+  "D",   # pydocstyle
+  "UP",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"!src/**.py" = ["D"]

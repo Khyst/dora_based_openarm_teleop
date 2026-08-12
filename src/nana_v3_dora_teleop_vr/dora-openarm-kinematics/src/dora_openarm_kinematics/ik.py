@@ -41,7 +41,7 @@ import dora
 import numpy as np
 import pyarrow as pa
 
-from openarm_control import (
+from dora_openarm_kinematics_control import (
     Kinematics,
     register_common_args,
     register_ik_args,

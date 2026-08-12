@@ -35,7 +35,7 @@ import dora
 import numpy as np
 import pyarrow as pa
 
-from openarm_control import Kinematics, register_common_args, setup_from_args
+from dora_openarm_kinematics_control import Kinematics, register_common_args, setup_from_args
 
 _POSE_STRUCT_TYPE = pa.struct({"pose": pa.list_(pa.float32())})
 

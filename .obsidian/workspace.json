@@ -198,6 +198,9 @@
   },
   "active": "e553f2f09a840fda",
   "lastOpenFiles": [
+    "docs/026_tech_docs_gitlab_readme_index_and_relative_links_260815.md",
+    "tech_docs/README.md",
+    "tech_docs/dora_based_openarm_teleop_diagram.jpg",
     "docs/025_pandoc_xelatex_nanum_font_setup_260814.md",
     "docs",
     "tech_docs/DORA 기반 VR Teleop 시스템 기술 문서.md",
@@ -240,9 +243,6 @@
     "Pasted image 20260812114802.png",
     "docs/022_dora_openarm_data_collection_ui_recording_trigger_260812.md",
     "docs/024_dora_openarm_kinematics_control_package_260801.md",
-    "docs/023_openarm_driver_joint_limits_and_teleop_config_260813.md",
-    "README.md",
-    "docs/013_vr_teleop_elbow_ik_enhancement_guide_260805.md",
-    "src/researches/xr_teleoperate/img/wrist_and_ring_mount.png"
+    "docs/023_openarm_driver_joint_limits_and_teleop_config_260813.md"
   ]
 }

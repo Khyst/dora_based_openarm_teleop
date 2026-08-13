@@ -4,21 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "b5ef1444eed0626c",
+        "id": "b1e19035abd1724b",
         "type": "tabs",
         "children": [
           {
-            "id": "e553f2f09a840fda",
+            "id": "a5b12fc30d413506",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "tech_docs/99_dora_openarm_teleop_index.md",
+                "file": "tech_docs/README.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "99_dora_openarm_teleop_index"
+              "title": "README"
             }
           }
         ]
@@ -196,26 +196,29 @@
       "pdf-plus:PDF++: Toggle auto-paste": false
     }
   },
-  "active": "e553f2f09a840fda",
+  "active": "a5b12fc30d413506",
   "lastOpenFiles": [
-    "docs/026_tech_docs_gitlab_readme_index_and_relative_links_260815.md",
+    "docs/027_tech_docs_refactoring_and_index_section5_improvement_260801.md",
+    "tech_docs/02_dora_openarm_kinematics.md",
+    "tech_docs/05_dora_openarm.md",
     "tech_docs/README.md",
+    "tech_docs/README.md",
+    "tech_docs/99_dora_openarm_teleop_index.md",
+    "tech_docs/00_nana_openarm_description.md",
+    "tech_docs/07_hamsa_driver.md",
+    "tech_docs/06_openarm_driver.md",
     "tech_docs/dora_based_openarm_teleop_diagram.jpg",
+    "tech_docs/03_dora_openarm_kinematics_control.md",
+    "docs/026_tech_docs_gitlab_readme_index_and_relative_links_260815.md",
     "docs/025_pandoc_xelatex_nanum_font_setup_260814.md",
     "docs",
     "tech_docs/DORA 기반 VR Teleop 시스템 기술 문서.md",
-    "tech_docs/99_dora_openarm_teleop_index.md",
-    "tech_docs/00_nana_openarm_description.md",
     "dora_based_openarm_teleop_diagram (1).jpg",
     "tech_docs/01_dora_openarm_vr.md",
-    "tech_docs/05_dora_openarm.md",
     "tech_docs/04_dora_openarm_mujoco.md",
-    "tech_docs/03_dora_openarm_kinematics_control.md",
-    "tech_docs/02_dora_openarm_kinematics.md",
     "tech_docs/output.pdf",
     "tech_docs/full_technical_doc.m",
     "무제.base",
-    "tech_docs/06_openarm_driver.md",
     "src/nana_v3_description/assets/robot/urdf/nana_v3_corrected.xml",
     "src/nana_v3_description/assets/robot/urdf/nana_v3_corrected.urdf",
     "src/nana_v3_description/assets/robot/urdf/nana_v3.xml",
@@ -240,9 +243,6 @@
     "src/utils/openarm_driver/CODE_OF_CONDUCT.md",
     "docs/025_mujoco_library_overview_and_comparison_260802.md",
     "dora_based_openarm_teleop_diagram.jpg",
-    "Pasted image 20260812114802.png",
-    "docs/022_dora_openarm_data_collection_ui_recording_trigger_260812.md",
-    "docs/024_dora_openarm_kinematics_control_package_260801.md",
-    "docs/023_openarm_driver_joint_limits_and_teleop_config_260813.md"
+    "Pasted image 20260812114802.png"
   ]
 }

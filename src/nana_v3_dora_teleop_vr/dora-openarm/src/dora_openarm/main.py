@@ -126,54 +126,63 @@ def extract_values(value: pa.Array, key: str) -> np.ndarray:
 def main():
     """Move to the given position and output the current position."""
     parser = argparse.ArgumentParser(description="Control OpenArm")
+    
     parser.add_argument(
         "--side",
         choices=["right", "left"],
         default="right",
         help="right or left",
     )
+    
     parser.add_argument(
         "--config",
         default=None,
         help="The configuration file for this OpenArm",
         type=pathlib.Path,
     )
+    
     parser.add_argument(
         "--align-trigger",
         choices=["gripper"],
         default=None,
         help="Alignment trigger: gripper (default: None)",
     )
+    
     parser.add_argument(
         "--align-threshold",
         default=0.1,
         help="Alignment threshold [rad] (default: 0.1)",
         type=float,
     )
+    
     parser.add_argument(
         "--align-delta-limit",
         default=0.001,
         help="Maximum joint delta per alignment command [rad] (default: 0.001).",
         type=float,
     )
+    
     parser.add_argument(
         "--align",
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Align to incoming position commands after start (default: enabled).",
     )
+    
     parser.add_argument(
         "--stop",
         action=argparse.BooleanOptionalAction,
         default=_env_flag("STOP", True),
         help="Stop the arm on exit.",
     )
+    
     parser.add_argument(
         "--refresh-every-request",
         action=argparse.BooleanOptionalAction,
         default=_env_flag("REFRESH", True),
         help="Refresh OpenArm on every request to make it more accurate.",
     )
+    
     parser.add_argument(
         "--start-on-startup",
         action=argparse.BooleanOptionalAction,
@@ -220,7 +229,9 @@ def main():
         
 
         if event_id == "command": # 로봇 드라이버 세션을 외부에서 start, stop 시키도록 하는 목적의 제어 명령
+            
             command = event["value"][0].as_py()
+
             if command == "start":                
                 if arm is not None:
                     arm.stop()  # Stop the existing session before replacing it
@@ -235,6 +246,7 @@ def main():
                 )
                 status = ArmStatus.STARTED
                 node.send_output("status", pa.array([status]))
+                
             elif command == "stop":
                 status = ArmStatus.STOPPED
                 node.send_output("status", pa.array([ArmStatus.STOPPED]))

@@ -1,4 +1,3 @@
-
 # DORA 기반 VR Teleop 시스템 기술 문서
 ---
 
@@ -9,14 +8,12 @@
 - [2. 아키텍처 구성](#2-아키텍처-구성)
 - [3. 아키텍처 컴포넌트 별 세부 설명](#3-아키텍처-컴포넌트-별-세부-설명)
 - [4. 파라미터 요약](#4-파라미터-요약)
-- [5. 발생한 문제 점 및 적용 기술](#5-발생한-문제-점-및-적용-기술)
+- [5. 발생한 문제점 및 적용 기술](#5-발생한-문제점-및-적용-기술)
 - [6. 부록](#6-부록)
 
 
 ### 0. 사용된 프레임워크
 ---
-> 프로젝트에 사용된 대표적인 Framework 
-
 #### DORA.rs
 ---
 ROS2와 같은 **미들웨어용 프레임워크**로서, 데이터 처리 속도 및 통신 속도 향상을 위해 아래 기법들을 적용
@@ -98,7 +95,7 @@ Google DeepMind가 오픈소스로 공개하고 있는 대표적인 High-perform
 #### dora-openarm-kinematics
 ---
 - **역할**: mink QP 솔버 기반 역운동학(IK) 및 순운동학(FK) 연산 노드.
-- **주요 기능**:  Target Pose를 수신하여 `dora_openarm_kinematics_control`을 통해 MuJoCo 모델 기반 다자유도(양팔 14-DOF) 관절 각도(Joint Angles)를 실시간 연산.
+- **주요 기능**: Target Pose를 수신하여 `dora_openarm_kinematics_control`을 통해 MuJoCo 모델 기반 다자유도(양팔 14-DOF) 관절 각도(Joint Angles)를 실시간 연산.
 
 #### dora-openarm-mujoco
 ---
@@ -263,3 +260,50 @@ stop:
 | **`align_threshold`** |    `0.05` (rad)    | IK 목표 각도와 실제 관절 각도 간 얼라인먼트 수렴 판정 임계치       |
 | **`step_limit`**      | `0.001` (rad/step) | 얼라인먼트 보간 진행 시 스텝당 관절 최대 이동 허용량 (급격한 튀김 방지) |
 | **`trigger`**         |    `"gripper"`     | 안전 얼라인먼트 개시 트리거 모드 (그리퍼 작동 감지 시 제어 개시)     |
+
+### 5. 발생한 문제점 및 적용 기술
+---
+#### 1) VR 트래킹 노이즈 및 신체 비율/작업 공간(Workspace) 차이 문제
+---
+- **문제점**: Meta Quest 3 VR 헤드셋 및 컨트롤러의 원시 데이터는 수부 미세 떨림(Jittering), 순간적인 트래킹 단절/가림(Occlusion), 그리고 사람과 로봇 간 상체 신체 비율 및 가동 공간 차이로 인해 관절 명령 튀김 및 포즈 왜곡 현상이 발생함.
+- **적용 및 해결 기술 (`dora-openarm-vr`)**:
+  - **좌표계 및 작업 공간 매핑 (Workspace Mapping)**: Unity 왼손 좌표계를 MuJoCo 오른손 좌표계로 변환 후, HMD 시점 기준 상대 포즈($\mathbf{p}_{\text{rel}}$)에 사람-로봇 신체 비율 스케일링($1.3\times$) 및 NANA v3 가슴 원점(`arm_origin` site) 기준 $90^\circ$ 회전 정렬($\mathbf{R}_{\text{fix}}$)을 적용하여 작업 공간 왜곡을 보정함.
+  - **One Euro Filter 적응형 스무딩**: 정지 상태에서는 미세 떨림을 완전 제거(`min_cutoff=1.0 Hz`)하고, 고속 이동 시 반응 지연을 최소화(`beta=0.005`)하는 속도 감응형 차단 주파수 필터링 적용.
+  - **트래킹 유효성 상태 기계 (Validity Logic)**: 트래킹 단절 코드(`STALE`/`INVALID`) 발생 시 직전 포즈 보존 및 재연결 시 스무더 초기화를 수행하여 센서 재복구 시 급격한 위치 튀김(Jump)을 차단함.
+
+#### 2) mink QP 기반 다중 제약 차분 역운동학(Differential IK) 최적화
+---
+- **문제점**: 7-DOF 여유 자유도로 인한 관절 기괴 꺾임, 미사용 상체 관절(몸통/머리)의 의도치 않은 흔들림, 물리적 가동 범위 초과 및 관절 펴짐 시 특이점(Singularity) 근처 역행렬 수치 폭발 문제 발생.
+- **적용 및 해결 기술 (`dora-openarm-kinematics` & `dora-openarm-kinematics-control`)**:
+  - **다중 태스크 & 제약조건 구속 (DAQP QP Solver)**:
+    - **Soft Objectives (Tasks)**: End-Effector 6D 타겟 포즈 추종 (`FrameTask`) 및 7-DOF 여유 자유도 내 중립 홈 포즈 유지 (`PostureTask`).
+    - **Hard Inequality Limits**: 관절 물리 가동 범위 및 속도 한계 절대 초과 불가 구속 (`ConfigurationLimit`).
+    - **Hard Equality Constraints**: 미사용 관절 속도를 0으로 엄격히 고정 (`DofFreezingTask`).
+  - **Reach Threshold 가중치 적응 변환**: EE 타겟 거리가 임계치(`0.35m`)를 초과하면 `posture_cost`를 `0.05`에서 `0.001`로 자동으로 낮추어 자세 구속을 해제하고 먼 거리까지 팔을 유연하게 끝까지 펼칠 수 있도록 구현.
+  - **수치 특이점 감쇄 (Tikhonov & LM Damping)**: Global Damping 계수(`0.3`) 및 Levenberg-Marquardt 계수(`0.1`)를 적용하여 관절 특이점 근처에서 관절 속도가 무한대로 발산하는 수치 불안정성을 차단.
+
+#### 3) Teleop 시작 시 목표-실제 관절 오차로 인한 하드웨어 제어 위험 및 안전 얼라인먼트
+---
+- **문제점**: 텔레옵 개시 또는 재연결 시, VR 컨트롤러 기반 IK 목표 관절 각도($\mathbf{q}_{\text{target}}$)와 실제 모터 인코더 각도($\mathbf{q}_{\text{current}}$) 간 갭이 클 경우, 초기 제어 명령이 과도하여 하드웨어 파손 및 급격한 모터 튀김(Jerking) 위험이 발생함.
+- **적용 및 해결 기술 (`dora-openarm`)**:
+  - **`ArmStatus` 3단계 제어 상태 기계**: `STOPPED` $\to$ `STARTED` $\to$ `ALIGNED` 상태로 세분화하여 제어 전환 관리.
+  - **안전 얼라인먼트 수치 보간 (`_align`)**: 관절 오차가 정합 임계치 이내로 좁혀지기 전까지는 IK 목표각으로 직접 제어하지 않고, 스텝당 허용 이동량을 `step_limit` (`0.001 rad/step`, 250Hz 루프 기준 초당 약 $0.057^\circ$ 제한)으로 클리핑하여 부드럽게 점진 추종하도록 보간 처리.
+  - **자동 1:1 직결 전환**: 모든 관절 오차가 `align_threshold` (`0.05 rad`) 이내로 수렴하면 `ALIGNED` 상태로 자동 전환되어 1:1 실시간 직결 텔레옵 구동 개시.
+
+#### 4) 특이점 회피 및 하드웨어 보호를 위한 시작(A-Pose) 및 종료(Attention Zero Pose) 시퀀스
+---
+- **문제점**: 관절이 일직선으로 완전히 펴진 완전 차렷 자세(Joint All Zero)는 역운동학 자코비안 행렬의 특이점(Singularity)에 해당하여 초기화 직후 IK 연산 실패 및 과도한 관절 가속을 유발함.
+- **적용 및 해결 기술 (`openarm_driver` & `nana_v3_cell_v4.yaml`)**:
+  - **Start Registration Pose (A-Pose)**: 구동 개시 시 어깨와 팔꿈치를 부드럽게 굽힌 A-Pose로 먼저 안전하게 이동한 후 IK 텔레옵 제어를 시작하여, 초기 연산 상태를 관절 가동 범위 중앙 부근의 안정 영역에 위치시킴.
+  - **Attention Zero Pose (안전 정지 모션)**: 텔레옵 구동 종료 시 자중 및 기계적 간섭을 최소화하는 안전 차렷 자세로 정밀 복귀시킨 후 하드웨어 모터 구동을 정상 종료.
+
+#### 5) 하드웨어 CAN-FD 통신 버스 분리 및 실시간 IK 피드백 동기화 (Hardware Sync Loop)
+---
+- **문제점**: 양팔 14축 데이터 통신 병목으로 인한 레이턴시 및 실제 물리 로봇과 IK 내부 시뮬레이션 모델(`mink.Configuration`) 간 위치 드리프트(Drift) 누적.
+- **적용 및 해결 기술 (`openarm_driver` & `dora-openarm-kinematics`)**:
+  - **실시간 피드백 동기화 (`sync`)**: 실제 모터 인코더 피드백 각도(`position`)를 IK 노드로 실시간 수신하여 `mink.Configuration`을 동기화시킴으로써 모터 실측치와 모델 간 누적 오차를 제거.
+
+### 6. 부록
+---
+- [dora_openarm_vr](https://github.com/enactic/dora-openarm-vr)
+- [Open-Television](https://github.com/OpenTeleVision/TeleVision)

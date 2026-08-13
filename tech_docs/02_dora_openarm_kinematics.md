@@ -1,7 +1,7 @@
 
 ## 1. 개요 및 모듈 목적
 ---
-VR 수신기(`dora-openarm-vr`)가 전송한 End-Effector Target Pose를 통해, NANA v3 로봇의 14-DOF 양팔 관절 각도(Joint Angles)를 실시간 차분 역운동학(Differential IK) 기반으로 구해내는 `dora-openarm-kinematics` 노드를 정리합니다.
+VR 수신기(`dora-openarm-vr`)가 전송한 End-Effector Target Pose를 통해, NANA v3 로봇의 14-DOF 양팔 관절 각도(Joint Angles)를 실시간으로 구해내기 위한 차분 역운동학 백엔드에 대한 Wrapper 역할인  `dora-openarm-kinematics` 노드를 정리합니다.
 
 - **실행 노드명**: `dora-openarm-ik` (차분 역운동학), `dora-openarm-fk` (순운동학)
 - **라이브러리 백엔드**: `dora_openarm_kinematics_control`

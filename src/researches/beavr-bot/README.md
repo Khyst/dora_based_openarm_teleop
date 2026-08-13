@@ -104,7 +104,7 @@ except ImportError: print('An error occurred'); sys.exit(1)"
 ## Documentation
 
 Full documentation lives in the [`docs`](docs) directory. Start with
-[`docs/README.md`](docs/README.md) for an overview of the available guides,
+[`docs/README.md`](src/researches/beavr-bot/docs/README.md) for an overview of the available guides,
 including detailed explanations of the teleoperation and LeRobot stacks.
 
 ## Additional Features

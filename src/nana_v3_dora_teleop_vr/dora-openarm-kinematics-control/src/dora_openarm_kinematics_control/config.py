@@ -29,7 +29,6 @@ _DEFAULT_FRAME_RIGHT = "right_ee_control_point"
 _DEFAULT_FRAME_TYPE_RIGHT = "site"
 _DEFAULT_FRAME_LEFT = "left_ee_control_point"
 _DEFAULT_FRAME_TYPE_LEFT = "site"
-
 _DEFAULT_ORIGIN_FRAME = "arm_origin"
 _DEFAULT_ORIGIN_FRAME_TYPE = "site"
 
@@ -68,14 +67,14 @@ class ArmSetup:
 
     def __init__(
         self,
-        model: mujoco.MjModel,
-        data: mujoco.MjData,
+        model: mujoco.MjModel, # XML(MJCF) 파일이 메모리에 로드된 후 컴파일 완룓뢴 로봇 및 환경의 불변(Immutable) 정보 (model.nv, model.nq 등)
+        data: mujoco.MjData, # 시간이 흐름에 따라 또는 관절 각도가 바뀜에 따라 변화하는 가변(Mutable) 정보와 순온둥학(FK) 계산 결과를 담고 있는 정보 (qpos, qvel, qacc 등)
         joint_resolver: JointResolver,
-        sides: list[str],
-        frame_ids: dict[str, int],
-        frame_types: dict[str, str],
-        origin_id: int | None = None,
-        origin_type: str = "site",
+        sides: list[str], # 한팔만 제어 하고 싶은 경우 ex. ['left'] or ['right'], 혹은 양팔 모두 제어하고 싶은 경우에 사용 ['right', 'left']
+        frame_ids: dict[str, int], # 각 팔(side)별로 말단 장치(EE)로 지정된 MuJoCo 객체의 내부 ID
+        frame_types: dict[str, str], # 각 팔별의 EE 프레임이 MuJoCo의 어떤 객체 타입(Object Type)인지 명시함
+        origin_id: int | None = None, # 모든 FK/IK 포즈 계산의 기준점이 되는 원점 좌표계(Origin Frame)의 MuJoCo ID
+        origin_type: str = "site", # 모든 FK/IK 포즈 계산의 기준점이 되는 원점 좌표계(Origin Frame)의 객체 타입(Object Type)
     ) -> None:
         """Initialize."""
         self.model = model

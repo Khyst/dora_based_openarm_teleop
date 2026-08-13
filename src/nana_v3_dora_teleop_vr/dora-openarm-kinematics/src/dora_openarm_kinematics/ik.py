@@ -51,7 +51,6 @@ from dora_openarm_kinematics_control import (
 
 _QPOS_STRUCT_TYPE = pa.struct({"qpos": pa.list_(pa.float32())})
 
-
 def build_qpos_output(qpos: np.ndarray) -> pa.Array:
     """Wrap joint angles as a length-1 StructArray: [{"qpos": [...]}]."""
     return pa.array([{"qpos": qpos}], type=_QPOS_STRUCT_TYPE) # dora-rs 통신을 위해 pa.array 사용, 그 안에는 구조체(struct), 그 안에는 qpos라는 key와 qpos 배열을 넣음.
@@ -97,6 +96,7 @@ def _run(args: argparse.Namespace) -> None:
 
         if eid == "position_right":
             values = extract_values(event["value"], "qpos")
+
             if values.shape == (8,):
                 current_qpos_16[:8] = values
                 has_pos_right = True
@@ -104,10 +104,12 @@ def _run(args: argparse.Namespace) -> None:
                 # 양쪽 피드백이 다 모였거나 갱신되면 동기화
                 if has_pos_left or "left" not in kin.setup.sides:
                     kin.sync(current_qpos_16)
+
             continue
 
         elif eid == "position_left":
             values = extract_values(event["value"], "qpos")
+
             if values.shape == (8,):
                 current_qpos_16[8:16] = values
                 has_pos_left = True
@@ -115,6 +117,7 @@ def _run(args: argparse.Namespace) -> None:
                 # 양쪽 피드백이 다 모였거나 갱신되면 동기화
                 if has_pos_right or "right" not in kin.setup.sides:
                     kin.sync(current_qpos_16)
+
             continue
 
         # 기존 16차원 단일 position 처리 (유지)
@@ -198,9 +201,9 @@ def _run(args: argparse.Namespace) -> None:
             continue
 
         ts = {"timestamp": time.time_ns()} # 타임스탬프 생성
+        
         node.send_output("position_right", build_qpos_output(result[:8]), ts) # 계산된 joint 각도를 output으로 전달
         node.send_output("position_left", build_qpos_output(result[8:16]), ts) # 계산된 joint 각도를 output으로 전달
-
 
 def main() -> None:
     """Inverse kinematics for OpenArm."""
@@ -219,7 +222,6 @@ def main() -> None:
 
     # 수집된 파라미터들을 기반으로 실제 로직을 실행
     _run(args)
-
 
 if __name__ == "__main__":
     main()

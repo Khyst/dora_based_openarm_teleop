@@ -35,7 +35,7 @@ else
     echo "[2/3] CLI11 C++ dependency is available."
 fi
 
-# 3. Synchronize Python workspace (8 sub-packages)
+# 3. Synchronize Python workspace (9 sub-packages)
 echo "[3/3] Synchronizing all workspace packages with uv sync..."
 cd "$ROOT_DIR"
 uv sync

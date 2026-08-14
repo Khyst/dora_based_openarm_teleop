@@ -143,6 +143,69 @@ def build_pose_output(pose: np.ndarray) -> pa.Array:
     """Wrap a pose array as a length-1 StructArray: [{"pose": [...]}]."""
     return pa.array([{"pose": pose}], type=_POSE_STRUCT_TYPE)
 
+class VRStateLogger:
+    """터미널에서 VR 포즈 및 입력 상태를 대시보드 형태로 가독성 있게 로깅하기 위한 헬퍼 클래스"""
+
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    CYAN = "\033[36m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    RED = "\033[31m"
+    MAGENTA = "\033[35m"
+
+    @classmethod
+    def format_pose(cls, pose_arr: np.ndarray | None) -> str:
+        if pose_arr is None:
+            return f"{cls.RED}None{cls.RESET}"
+        pos = f"Pos({pose_arr[0]:6.3f}, {pose_arr[1]:6.3f}, {pose_arr[2]:6.3f})"
+        rot = f"Quat({pose_arr[3]:5.2f}, {pose_arr[4]:5.2f}, {pose_arr[5]:5.2f}, {pose_arr[6]:5.2f})"
+        grip = f" Grip({np.rad2deg(pose_arr[7]):5.1f}°)" if len(pose_arr) == 8 else ""
+        return f"{cls.CYAN}{pos}{cls.RESET} | {cls.MAGENTA}{rot}{cls.RESET}{grip}"
+
+    @classmethod
+    def print_dashboard(
+        cls,
+        v_overall: int,
+        v_left: int,
+        v_right: int,
+        pose_left: np.ndarray | None,
+        pose_right: np.ndarray | None,
+        msg: dict,
+    ):
+        def get_v_str(val):
+            name = _VALID_NAMES.get(val, "UNKNOWN")
+            if val == VALID_OK:
+                return f"{cls.GREEN}{name}{cls.RESET}"
+            elif val == VALID_STALE:
+                return f"{cls.YELLOW}{name}{cls.RESET}"
+            return f"{cls.RED}{name}{cls.RESET}"
+
+        btn_a = f"{cls.GREEN}A{cls.RESET}" if msg.get("a") else "a"
+        btn_b = f"{cls.GREEN}B{cls.RESET}" if msg.get("b") else "b"
+        btn_x = f"{cls.GREEN}X{cls.RESET}" if msg.get("x") else "x"
+        btn_y = f"{cls.GREEN}Y{cls.RESET}" if msg.get("y") else "y"
+
+        lt, rt = msg.get("lt", 0.0), msg.get("rt", 0.0)
+        lg, rg = msg.get("lg", 0.0), msg.get("rg", 0.0)
+        lsx, lsy = msg.get("lsx", 0.0), msg.get("lsy", 0.0)
+        rsx, rsy = msg.get("rsx", 0.0), msg.get("rsy", 0.0)
+
+        print("\033[H\033[J", end="")  # 화면 덮어쓰기
+
+        print(f"{cls.BOLD}=================== Quest Teleop Monitor ==================={cls.RESET}")
+        print(f" Status    : Overall[{get_v_str(v_overall)}] | Left[{get_v_str(v_left)}] | Right[{get_v_str(v_right)}]")
+        print(f"------------------------------------------------------------")
+        print(f" {cls.BOLD}[LEFT ARM]{cls.RESET}")
+        print(f"  - Pose   : {cls.format_pose(pose_left)}")
+        print(f"  - Analog : Trigger={lt:.2f} | Grip={lg:.2f} | Stick=({lsx:+.2f}, {lsy:+.2f})")
+        print(f"  - Button : [{btn_x}] [{btn_y}]")
+        print(f"------------------------------------------------------------")
+        print(f" {cls.BOLD}[RIGHT ARM]{cls.RESET}")
+        print(f"  - Pose   : {cls.format_pose(pose_right)}")
+        print(f"  - Analog : Trigger={rt:.2f} | Grip={rg:.2f} | Stick=({rsx:+.2f}, {rsy:+.2f})")
+        print(f"  - Button : [{btn_a}] [{btn_b}]")
+        print(f"================================================------------")
 
 class QuestPoseProcessor:
     
@@ -209,6 +272,9 @@ def _run(args: argparse.Namespace) -> None:
     prev_v_left = VALID_OK
     prev_v_overall = VALID_OK
     prev_v_reference = VALID_OK
+
+    last_log_time = 0.0 # 디버깅 정보 기록 시간 기록용 변수
+    LOG_INTERVAL = 0.1  # 10Hz (0.1초 마다 출력)
 
     node = dora.Node()
     node.send_output("status", pa.array(["ready"]))
@@ -283,6 +349,7 @@ def _run(args: argparse.Namespace) -> None:
 
         ts = {"timestamp": time.time_ns()}
 
+        pose_right_with_gripper = None
         if pose_right is not None and ("rg" in msg or "rt" in msg):
             """
                 pose_with_gripper (길이 8의 float32 np.ndarray):
@@ -302,9 +369,10 @@ def _run(args: argparse.Namespace) -> None:
             """
             grip_val = float(msg.get("rg", msg.get("rt", 0.0)))
             gripper_angle = _map_trigger_to_gripper(grip_val, "right")
-            pose_with_gripper = np.concatenate([pose_right, [gripper_angle]], axis=0)
-            node.send_output("pose_right", build_pose_output(pose_with_gripper), ts)
+            pose_right_with_gripper = np.concatenate([pose_right, [gripper_angle]], axis=0)
+            node.send_output("pose_right", build_pose_output(pose_right_with_gripper), ts)
 
+        pose_left_with_gripper = None
         if pose_left is not None and ("lg" in msg or "lt" in msg):
             """
                 pose_with_gripper (길이 8의 float32 np.ndarray):
@@ -324,8 +392,8 @@ def _run(args: argparse.Namespace) -> None:
             """
             grip_val = float(msg.get("lg", msg.get("lt", 0.0)))
             gripper_angle = _map_trigger_to_gripper(grip_val, "left")
-            pose_with_gripper = np.concatenate([pose_left, [gripper_angle]], axis=0)
-            node.send_output("pose_left", build_pose_output(pose_with_gripper), ts) # 시간 동기화를 위해 ns 단위의 timestamp도 보냄 (혹은 지연 시간(Latency) 측정 및 모니터링, 그리고 AI 학습 데이터 수집을 위한 시계열 축으로도 사용 가능)
+            pose_left_with_gripper = np.concatenate([pose_left, [gripper_angle]], axis=0)
+            node.send_output("pose_left", build_pose_output(pose_left_with_gripper), ts) # 시간 동기화를 위해 ns 단위의 timestamp도 보냄 (혹은 지연 시간(Latency) 측정 및 모니터링, 그리고 AI 학습 데이터 수집을 위한 시계열 축으로도 사용 가능)
 
         if pose_reference is not None:
             node.send_output("pose_reference", build_pose_output(pose_reference), ts)
@@ -338,6 +406,7 @@ def _run(args: argparse.Namespace) -> None:
             node.send_output(
                 "trigger_left", pa.array([msg["lt"]], type=pa.float32()), ts
             )
+
         if "rg" in msg:
             node.send_output(
                 "grip_right", pa.array([float(msg["rg"])], type=pa.float32()), ts
@@ -346,6 +415,7 @@ def _run(args: argparse.Namespace) -> None:
             node.send_output(
                 "grip_left", pa.array([float(msg["lg"])], type=pa.float32()), ts
             )
+
         if "lsx" in msg:
             node.send_output(
                 "joystick_x_left",
@@ -370,6 +440,7 @@ def _run(args: argparse.Namespace) -> None:
                 pa.array([float(msg["rsy"])], type=pa.float32()),
                 ts,
             )
+
         if "a" in msg:
             node.send_output(
                 "button_a", pa.array([bool(msg["a"])], type=pa.bool_()), ts
@@ -387,6 +458,21 @@ def _run(args: argparse.Namespace) -> None:
                 "button_y", pa.array([bool(msg["y"])], type=pa.bool_()), ts
             )
 
+        # ─────────────────────────────────────────────────────────────────
+        # [Check quest driver received info] (--debug-value 플래그가 설정되어 있을 때만 모니터링 대시보드 출력)
+        if args.debug_value and (now - last_log_time >= LOG_INTERVAL):
+            VRStateLogger.print_dashboard(
+                v_overall=v_overall,
+                v_left=v_left,
+                v_right=v_right,
+                pose_left=pose_left_with_gripper if pose_left_with_gripper is not None else pose_left,
+                pose_right=pose_right_with_gripper if pose_right_with_gripper is not None else pose_right,
+                msg=msg,
+            )
+            last_log_time = now
+        # ─────────────────────────────────────────────────────────────────
+
+
     receiver.close()
 
 
@@ -401,6 +487,7 @@ def main() -> None:
     parser.add_argument("--scale-x", type=float, default=1.0, help="Forward/backward movement scale multiplier",)
     parser.add_argument("--scale-y", type=float, default=1.0, help="Left/right arm stretch scale multiplier (default: 1.0)",)
     parser.add_argument("--scale-z", type=float, default=1.0, help="Up/down movement scale multiplier",)
+    parser.add_argument("--debug-value", action="store_true", help="Enable terminal dashboard monitoring for Quest driver inputs and poses")
     args = parser.parse_args()
 
     _run(args)

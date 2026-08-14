@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenArm Command Center Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Three.js & STLLoader from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: rgba(23, 32, 51, 0.85);
+      --card-border: rgba(51, 65, 85, 0.6);
+      --card-border-active: #3b82f6;
+      --primary-blue: #3b82f6;
+      --primary-blue-hover: #2563eb;
+      --accent-sky: #0ea5e9;
+      --status-green: #22c55e;
+      --status-red: #ef4444;
+      --status-yellow: #f59e0b;
+      --text-main: #f8fafc;
+      --text-sub: #cbd5e1;
+      --text-dim: #64748b;
+      --font-mono: "JetBrains Mono", monospace;
+      --font-main: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Header Bar */
+    header {
+      position: relative;
+      z-index: 10;
+      height: 56px;
+      background: #0f172a;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+    }
+
+    .logo-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-box h1 {
+      font-family: var(--font-main);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-main);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-box .badge-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--primary-blue);
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    .info-badge {
+      background: rgba(30, 41, 59, 0.7);
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      color: var(--text-sub);
+    }
+
+    .info-badge span {
+      color: var(--accent-sky);
+      font-weight: 600;
+    }
+
+    /* Main Content Grid Layout */
+    main {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+    }
+
+    /* 3D Viewport Container */
+    .viewport-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #070a12;
+    }
+
+    #three-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* 3D Floating Status Badge */
+    .floating-status-badge {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 22px;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+      user-select: none;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .floating-status-badge.idle {
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid var(--status-green);
+      color: var(--status-green);
+    }
+
+    .floating-status-badge.recording {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--status-red);
+      color: #ffffff;
+    }
+
+    .record-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .idle .record-dot {
+      background: var(--status-green);
+    }
+
+    .recording .record-dot {
+      background: var(--status-red);
+    }
+
+    /* Viewport Overlay Controls */
+    .viewport-overlay-controls {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .tf-btn {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--card-border);
+      color: var(--text-sub);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+
+    .tf-btn:hover {
+      border-color: var(--primary-blue);
+      color: var(--text-main);
+      background: rgba(30, 41, 59, 0.9);
+    }
+
+    .tf-btn.off {
+      color: var(--text-dim);
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    /* Control Toast Overlay (Top-Right Popup Notifications) */
+    .top-right-toast-container {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .top-right-toast {
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--status-green);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      transform: translateX(120%);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .top-right-toast.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .top-right-toast.recording-alert {
+      border-left-color: var(--status-red);
+    }
+
+    .top-right-toast.waypoint-alert {
+      border-left-color: var(--status-green);
+    }
+
+    /* Right 5-Tier Data Panel Stack */
+    .data-panel-stack {
+      background: rgba(15, 23, 42, 0.95);
+      border-left: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .panel-card {
+      background: rgba(23, 32, 51, 0.75);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .panel-title {
+      font-family: var(--font-main);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    /* Panel 1: Joint States */
+    .joint-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .joint-column {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .joint-col-header {
+      font-family: var(--font-main);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .joint-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .joint-name {
+      color: #f1f5f9;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .joint-val {
+      color: var(--status-green);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    /* Panel 2: Tracked Poses */
+    .pose-block {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 8px 10px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .pose-target {
+      font-family: var(--font-main);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-sky);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      letter-spacing: 0.3px;
+    }
+
+    .pose-coords {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .coord-item span {
+      color: var(--text-dim);
+    }
+
+    .coord-item strong {
+      color: var(--text-main);
+      margin-left: 2px;
+    }
+
+    /* Panel 3: Button States */
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .btn-badge {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+      padding: 9px 0;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      background: rgba(15, 23, 42, 0.7);
+      color: var(--text-dim);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-badge.active {
+      background: rgba(59, 130, 246, 0.25);
+      border-color: var(--primary-blue);
+      color: #ffffff;
+    }
+
+    /* Panel 4: Trigger Display */
+    .trigger-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .trigger-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .trigger-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .trigger-label span:last-child {
+      color: var(--status-green);
+      font-weight: 600;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 7px;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary-blue);
+      border-radius: 4px;
+      transition: width 0.08s ease-out;
+    }
+
+    /* Panel 5: Control Action Buttons */
+    .control-action-btn {
+      width: 100%;
+      padding: 10px;
+      font-family: var(--font-main);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .rec-start-btn {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--status-red);
+      color: #ffffff;
+    }
+
+    .rec-start-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .rec-stop-btn {
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid var(--status-yellow);
+      color: var(--status-yellow);
+    }
+
+    .rec-stop-btn:hover {
+      background: rgba(245, 158, 11, 0.3);
+    }
+
+    .waypoint-btn {
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid var(--primary-blue);
+      color: var(--text-main);
+    }
+
+    .waypoint-btn:hover {
+      background: rgba(59, 130, 246, 0.25);
+    }
+
+    .replay-btn {
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid var(--status-green);
+      color: var(--status-green);
+    }
+
+    .replay-btn:hover {
+      background: rgba(34, 197, 94, 0.22);
+    }
+
+    .replay-btn.playing {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--status-yellow);
+      color: var(--status-yellow);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(51, 65, 85, 0.8);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Top Header -->
+  <header>
+    <div class="logo-box">
+      <span class="badge-dot"></span>
+      <h1>OpenArm Teleoperation Command Center</h1>
+    </div>
+
+    <div class="header-info">
+      <div class="info-badge">Episode: <span id="header-episode">{{ state.episode_number }}</span></div>
+      <div class="info-badge">Task #<span id="header-task-idx">{{ state.task_index }}</span>: <span
+          id="header-task-title">{{ state.task_title }}</span></div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main>
+    <!-- 3D Viewport -->
+    <div class="viewport-container">
+      <div class="viewport-overlay-controls">
+        <button id="tf-toggle-btn" class="tf-btn" onclick="toggleTFFrames()">
+          TF Axes: ON (<span style="color:#ef4444;">X</span>, <span style="color:#22c55e;">Y</span>, <span
+            style="color:#3b82f6;">Z</span>)
+        </button>
+        <button id="labels-toggle-btn" class="tf-btn" onclick="toggleJointLabels()">
+          Joint Names: ON
+        </button>
+      </div>
+
+      <div id="floating-status"
+        class="floating-status-badge {% if state.collecting %}recording{% else %}idle{% endif %}">
+        <span class="record-dot"></span>
+        <span id="status-text">{% if state.collecting %}🔴 RECORDING (Waypoints: {{ state.waypoints_count }}){% else
+          %}🟢 IDLE{% endif %}</span>
+      </div>
+
+      <div id="top-right-toast-container" class="top-right-toast-container"></div>
+      <canvas id="three-canvas"></canvas>
+    </div>
+
+    <!-- Right 5-Tier Data Panel Stack -->
+    <div class="data-panel-stack">
+
+      <!-- Panel 1: Joint States -->
+      <div class="panel-card">
+        <div class="panel-title">
+          Panel 1: Joint States
+          <span style="font-size: 10px; color: var(--text-dim);">Rad / Deg</span>
+        </div>
+        <div class="joint-grid">
+          <!-- Left Arm -->
+          <div class="joint-column">
+            <div class="joint-col-header">Left Arm (7-DOF)</div>
+            <div class="joint-item"><span class="joint-name">J1</span><span class="joint-val" id="j-l-0">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J2</span><span class="joint-val" id="j-l-1">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J3</span><span class="joint-val" id="j-l-2">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J4</span><span class="joint-val" id="j-l-3">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J5</span><span class="joint-val" id="j-l-4">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J6</span><span class="joint-val" id="j-l-5">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J7</span><span class="joint-val" id="j-l-6">0.00 rad</span>
+            </div>
+          </div>
+
+          <!-- Right Arm -->
+          <div class="joint-column">
+            <div class="joint-col-header">Right Arm (7-DOF)</div>
+            <div class="joint-item"><span class="joint-name">J1</span><span class="joint-val" id="j-r-0">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J2</span><span class="joint-val" id="j-r-1">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J3</span><span class="joint-val" id="j-r-2">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J4</span><span class="joint-val" id="j-r-3">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J5</span><span class="joint-val" id="j-r-4">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J6</span><span class="joint-val" id="j-r-5">0.00 rad</span>
+            </div>
+            <div class="joint-item"><span class="joint-name">J7</span><span class="joint-val" id="j-r-6">0.00 rad</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Tracked Pose -->
+      <div class="panel-card">
+        <div class="panel-title">
+          Panel 2: Tracked Pose
+          <span style="font-size: 10px; color: var(--text-dim);">XYZ / RPY</span>
+        </div>
+
+        <div class="pose-block">
+          <div class="pose-target">HMD (Head Unit)</div>
+          <div class="pose-coords">
+            <div class="coord-item"><span>X:</span><strong id="hmd-x">0.00</strong></div>
+            <div class="coord-item"><span>Y:</span><strong id="hmd-y">0.00</strong></div>
+            <div class="coord-item"><span>Z:</span><strong id="hmd-z">0.00</strong></div>
+            <div class="coord-item"><span>R:</span><strong id="hmd-r">0°</strong></div>
+            <div class="coord-item"><span>P:</span><strong id="hmd-p">0°</strong></div>
+            <div class="coord-item"><span>Y:</span><strong id="hmd-yw">0°</strong></div>
+          </div>
+        </div>
+
+        <div class="pose-block">
+          <div class="pose-target" style="color: var(--status-green);">Controller Left</div>
+          <div class="pose-coords">
+            <div class="coord-item"><span>X:</span><strong id="ctrl-l-x">0.00</strong></div>
+            <div class="coord-item"><span>Y:</span><strong id="ctrl-l-y">0.00</strong></div>
+            <div class="coord-item"><span>Z:</span><strong id="ctrl-l-z">0.00</strong></div>
+            <div class="coord-item"><span>R:</span><strong id="ctrl-l-r">0°</strong></div>
+            <div class="coord-item"><span>P:</span><strong id="ctrl-l-p">0°</strong></div>
+            <div class="coord-item"><span>Y:</span><strong id="ctrl-l-yw">0°</strong></div>
+          </div>
+        </div>
+
+        <div class="pose-block">
+          <div class="pose-target" style="color: var(--primary-blue);">Controller Right</div>
+          <div class="pose-coords">
+            <div class="coord-item"><span>X:</span><strong id="ctrl-r-x">0.00</strong></div>
+            <div class="coord-item"><span>Y:</span><strong id="ctrl-r-y">0.00</strong></div>
+            <div class="coord-item"><span>Z:</span><strong id="ctrl-r-z">0.00</strong></div>
+            <div class="coord-item"><span>R:</span><strong id="ctrl-r-r">0°</strong></div>
+            <div class="coord-item"><span>P:</span><strong id="ctrl-r-p">0°</strong></div>
+            <div class="coord-item"><span>Y:</span><strong id="ctrl-r-yw">0°</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Button States -->
+      <div class="panel-card">
+        <div class="panel-title">
+          Panel 3: Button States
+          <span style="font-size: 10px; color: var(--text-dim);">X/A: Mode | Y/B: Waypoint</span>
+        </div>
+        <div class="button-grid">
+          <div id="btn-a" class="btn-badge" onclick="onBtnClick('a')">A</div>
+          <div id="btn-b" class="btn-badge" onclick="onBtnClick('b')">B</div>
+          <div id="btn-x" class="btn-badge" onclick="onBtnClick('x')">X</div>
+          <div id="btn-y" class="btn-badge" onclick="onBtnClick('y')">Y</div>
+        </div>
+      </div>
+
+      <!-- Panel 4: Trigger Display -->
+      <div class="panel-card">
+        <div class="panel-title">
+          Panel 4: Trigger Display
+          <span style="font-size: 10px; color: var(--text-dim);">Pressure Ratio %</span>
+        </div>
+        <div class="trigger-stack">
+          <!-- Left Trigger -->
+          <div class="trigger-row">
+            <div class="trigger-label"><span>Index Trigger (Left)</span><span id="trig-l-val">0%</span></div>
+            <div class="progress-bar-bg">
+              <div id="trig-l-bar" class="progress-bar-fill"></div>
+            </div>
+          </div>
+          <!-- Left Grip -->
+          <div class="trigger-row">
+            <div class="trigger-label"><span>Grip Trigger (Left)</span><span id="grip-l-val">0%</span></div>
+            <div class="progress-bar-bg">
+              <div id="grip-l-bar" class="progress-bar-fill"></div>
+            </div>
+          </div>
+          <!-- Right Trigger -->
+          <div class="trigger-row">
+            <div class="trigger-label"><span>Index Trigger (Right)</span><span id="trig-r-val">0%</span></div>
+            <div class="progress-bar-bg">
+              <div id="trig-r-bar" class="progress-bar-fill"></div>
+            </div>
+          </div>
+          <!-- Right Grip -->
+          <div class="trigger-row">
+            <div class="trigger-label"><span>Grip Trigger (Right)</span><span id="grip-r-val">0%</span></div>
+            <div class="progress-bar-bg">
+              <div id="grip-r-bar" class="progress-bar-fill"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 5: Trajectory Recording & Motion Replay Panel -->
+      <div class="panel-card" style="border-color: var(--primary-blue);">
+        <div class="panel-title">
+          Panel 5: Trajectory Control & Motion Replay
+          <span style="font-size: 10px; color: var(--text-dim);">Controls</span>
+        </div>
+
+        <!-- Section A: Recording Start / Stop Controls -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <button id="rec-control-btn" class="control-action-btn rec-start-btn" onclick="toggleRecordingMode()">
+            🔴 START RECORDING
+          </button>
+
+          <button id="waypoint-control-btn" class="control-action-btn waypoint-btn" onclick="captureWaypoint()">
+            📌 CAPTURE WAYPOINT
+          </button>
+        </div>
+
+        <!-- Divider -->
+        <div style="border-bottom: 1px solid var(--card-border); margin: 2px 0;"></div>
+
+        <!-- Section B: Motion Replay Controls -->
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 11px;">
+            <span style="color: var(--text-dim);">Replay Motion:</span>
+            <span id="replay-progress-text" style="color: var(--accent-sky); font-weight: 600;">No Trajectory</span>
+          </div>
+
+          <div class="progress-bar-bg">
+            <div id="replay-progress-bar" class="progress-bar-fill" style="background: var(--status-green); width: 0%;">
+            </div>
+          </div>
+
+          <button id="replay-control-btn" class="control-action-btn replay-btn" onclick="toggleReplayMotion()">
+            ▶️ REPLAY RECORDED MOTION
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // ==========================================
+    // SECTION 2: Precision Coordinate Conversion
+    // ROS / MuJoCo Frame: Right-Handed, Z-Up (+X Forward, +Y Left, +Z Up)
+    // Three.js Standard Frame: Right-Handed, Y-Up (+X Right, +Y Up, +Z Out of Screen)
+    // ==========================================
+    function convertRobotToThreeJS(pose) {
+      if (!pose) {
+        return {
+          position: new THREE.Vector3(0, 0, 0),
+          quaternion: new THREE.Quaternion(0, 0, 0, 1)
+        };
+      }
+
+      const x_robot = pose.x !== undefined ? pose.x : (pose.position ? pose.position.x : 0);
+      const y_robot = pose.y !== undefined ? pose.y : (pose.position ? pose.position.y : 0);
+      const z_robot = pose.z !== undefined ? pose.z : (pose.position ? pose.position.z : 0);
+
+      const x_three = x_robot;
+      const y_three = z_robot;
+      const z_three = -y_robot;
+
+      const qx_robot = pose.qx !== undefined ? pose.qx : (pose.orientation ? pose.orientation.x : 0);
+      const qy_robot = pose.qy !== undefined ? pose.qy : (pose.orientation ? pose.orientation.y : 0);
+      const qz_robot = pose.qz !== undefined ? pose.qz : (pose.orientation ? pose.orientation.z : 0);
+      const qw_robot = pose.qw !== undefined ? pose.qw : (pose.orientation ? pose.orientation.w : 1);
+
+      const qx_three = qx_robot;
+      const qy_three = qz_robot;
+      const qz_three = -qy_robot;
+      const qw_three = qw_robot;
+
+      return {
+        position: new THREE.Vector3(x_three, y_three, z_three),
+        quaternion: new THREE.Quaternion(qx_three, qy_three, qz_three, qw_three)
+      };
+    }
+
+    function quaternionToRPY(q) {
+      const euler = new THREE.Euler().setFromQuaternion(q, 'YXZ');
+      return {
+        roll: Math.round(THREE.MathUtils.radToDeg(euler.z)),
+        pitch: Math.round(THREE.MathUtils.radToDeg(euler.x)),
+        yaw: Math.round(THREE.MathUtils.radToDeg(euler.y))
+      };
+    }
+
+    // ==========================================
+    // State & Telemetry Storage
+    // ==========================================
+    let isRecording = {{ 'true' if state.collecting else 'false' }};
+    let currentEpisode = {{ state.episode_number }};
+    let showTFFrames = true;
+    let showJointLabels = true;
+
+    let waypoints = [];
+    let lastRecordedTrajectory = [];
+    let isReplaying = false;
+    let replayIndex = 0;
+    let replayTimer = null;
+
+    let tfHelpersList = [];
+    let jointLabelsList = [];
+
+    let telemetry = {
+      joint_states: {
+        left: [0, 0, 0, 0, 0, 0, 0],
+        right: [0, 0, 0, 0, 0, 0, 0]
+      },
+      tracked_poses: {
+        hmd: { x: 0, y: 1.5, z: 0, qx: 0, qy: 0, qz: 0, qw: 1 },
+        controller_l: { x: -0.25, y: 1.0, z: 0.3, qx: 0, qy: 0, qz: 0, qw: 1 },
+        controller_r: { x: 0.25, y: 1.0, z: 0.3, qx: 0, qy: 0, qz: 0, qw: 1 }
+      },
+      button_states: { a: false, b: false, x: false, y: false },
+      trigger_states: { trigger_r: 0, grip_r: 0, trigger_l: 0, grip_l: 0 }
+    };
+
+    // ==========================================
+    // THREE.JS 3D Viewport Initialization
+    // ==========================================
+    const canvas = document.getElementById('three-canvas');
+    const viewportContainer = canvas.parentElement;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x070a12);
+
+    const camera = new THREE.PerspectiveCamera(
+      50,
+      viewportContainer.clientWidth / viewportContainer.clientHeight,
+      0.1,
+      100
+    );
+    camera.position.set(0, 1.4, 2.4);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+    renderer.setSize(viewportContainer.clientWidth, viewportContainer.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(0, 0.8, 0);
+
+    // ==========================================
+    // REALISTIC INDUSTRIAL STUDIO LIGHTING SETUP
+    // ==========================================
+    const hemiLight = new THREE.HemisphereLight(0xf8fafc, 0x1e293b, 1.8);
+    scene.add(hemiLight);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    keyLight.position.set(3, 8, 5);
+    keyLight.castShadow = true;
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0x94a3b8, 1.0);
+    fillLight.position.set(-4, 6, 3);
+    scene.add(fillLight);
+
+    const pointLight = new THREE.PointLight(0xffffff, 1.2, 10);
+    pointLight.position.set(0, 1.6, 2.0);
+    scene.add(pointLight);
+
+    // Studio Floor Grid
+    const gridHelper = new THREE.GridHelper(10, 20, 0x334155, 0x1e293b);
+    gridHelper.position.y = 0;
+    scene.add(gridHelper);
+
+    // Helper function to create TF Frame axes (X: Red, Y: Green, Z: Blue)
+    function createTFFrameHelper(size = 0.15) {
+      const axes = new THREE.AxesHelper(size);
+      axes.renderOrder = 999;
+      if (axes.material) {
+        axes.material.depthTest = false;
+        axes.material.transparent = true;
+        axes.material.opacity = 0.95;
+      }
+      tfHelpersList.push(axes);
+      return axes;
+    }
+
+    // Helper function to create 3D Text Sprite Labels for Joint Names
+    function createTextSprite(text, textColor = "#38bdf8") {
+      const spriteCanvas = document.createElement('canvas');
+      spriteCanvas.width = 512;
+      spriteCanvas.height = 128;
+      const ctx = spriteCanvas.getContext('2d');
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.strokeStyle = textColor;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(8, 8, 496, 112, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.font = 'bold 42px "JetBrains Mono", "Inter", sans-serif';
+      ctx.fillStyle = textColor;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, 256, 64);
+
+      const texture = new THREE.CanvasTexture(spriteCanvas);
+      const spriteMaterial = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        depthTest: false
+      });
+      const sprite = new THREE.Sprite(spriteMaterial);
+      sprite.scale.set(0.35, 0.088, 1);
+      sprite.position.set(0, 0.09, 0);
+      sprite.renderOrder = 1000;
+
+      jointLabelsList.push(sprite);
+      return sprite;
+    }
+
+    function toggleTFFrames() {
+      showTFFrames = !showTFFrames;
+      const btn = document.getElementById('tf-toggle-btn');
+      if (showTFFrames) {
+        btn.className = 'tf-btn';
+        btn.innerHTML = 'TF Axes: ON (<span style="color:#ef4444;">X</span>, <span style="color:#22c55e;">Y</span>, <span style="color:#3b82f6;">Z</span>)';
+      } else {
+        btn.className = 'tf-btn off';
+        btn.innerHTML = 'TF Axes: OFF';
+      }
+
+      tfHelpersList.forEach(axes => {
+        axes.visible = showTFFrames;
+      });
+    }
+
+    function toggleJointLabels() {
+      showJointLabels = !showJointLabels;
+      const btn = document.getElementById('labels-toggle-btn');
+      if (showJointLabels) {
+        btn.className = 'tf-btn';
+        btn.textContent = 'Joint Names: ON';
+      } else {
+        btn.className = 'tf-btn off';
+        btn.textContent = 'Joint Names: OFF';
+      }
+
+      jointLabelsList.forEach(lbl => {
+        lbl.visible = showJointLabels;
+      });
+    }
+
+    // ==========================================
+    // DIRECT MUJOCO XML (nana_v3_corrected.xml) PARSER & BUILDER
+    // ==========================================
+    const robotRootGroup = new THREE.Group();
+    // Map ROS Z-Up frame (+X forward, +Y left, +Z up) to Three.js Y-Up frame
+    robotRootGroup.rotation.x = -Math.PI / 2;
+    scene.add(robotRootGroup);
+
+    // Attach Base Body TF Frame
+    const baseTF = createTFFrameHelper(0.24);
+    robotRootGroup.add(baseTF);
+    const baseLabel = createTextSprite("body_link0", "#f8fafc");
+    robotRootGroup.add(baseLabel);
+
+    let robotJointControls = {};
+
+    // Realistic Industrial Materials
+    const bodyMaterial = new THREE.MeshStandardMaterial({
+      color: 0x475569,       // Matte Slate Steel
+      metalness: 0.4,
+      roughness: 0.4,
+      side: THREE.DoubleSide
+    });
+    const leftArmMaterial = new THREE.MeshStandardMaterial({
+      color: 0x059669,       // Industrial Emerald Slate
+      metalness: 0.3,
+      roughness: 0.4,
+      side: THREE.DoubleSide
+    });
+    const rightArmMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,       // Industrial Cobalt Blue
+      metalness: 0.3,
+      roughness: 0.4,
+      side: THREE.DoubleSide
+    });
+
+    async function loadMuJoCoXMLRobot(xmlUrl) {
+      try {
+        const response = await fetch(xmlUrl);
+        const xmlText = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+        const meshAssets = {};
+        const assetNode = xmlDoc.querySelector("asset");
+        if (assetNode) {
+          assetNode.querySelectorAll("mesh").forEach((mNode) => {
+            const name = mNode.getAttribute("name");
+            const file = mNode.getAttribute("file");
+            const scaleStr = mNode.getAttribute("scale") || "0.001 0.001 0.001";
+            const scaleArr = scaleStr.trim().split(/\s+/).map(Number);
+
+            meshAssets[name] = {
+              url: `/nana_v3_description/assets/robot/mesh/${file}`,
+              scale: scaleArr
+            };
+          });
+        }
+
+        const stlLoader = new THREE.STLLoader();
+        const jointsMap = {};
+
+        function parsePos(str) {
+          if (!str) return new THREE.Vector3(0, 0, 0);
+          const [x, y, z] = str.trim().split(/\s+/).map(Number);
+          return new THREE.Vector3(x, y, z);
+        }
+
+        function parseQuat(str) {
+          if (!str) return new THREE.Quaternion(0, 0, 0, 1);
+          const [w, x, y, z] = str.trim().split(/\s+/).map(Number);
+          return new THREE.Quaternion(x, y, z, w);
+        }
+
+        function parseAxis(str) {
+          if (!str) return new THREE.Vector3(0, 0, 1);
+          const [x, y, z] = str.trim().split(/\s+/).map(Number);
+          return new THREE.Vector3(x, y, z);
+        }
+
+        const worldbodyNode = xmlDoc.querySelector("worldbody");
+        if (!worldbodyNode) return null;
+
+        function parseGeoms(bodyNode, parentThreeObj, mat) {
+          bodyNode.querySelectorAll(":scope > geom").forEach((gNode) => {
+            const meshName = gNode.getAttribute("mesh");
+            const gPos = parsePos(gNode.getAttribute("pos"));
+            const gQuat = parseQuat(gNode.getAttribute("quat"));
+
+            if (meshName && meshAssets[meshName]) {
+              const asset = meshAssets[meshName];
+              stlLoader.load(asset.url, (geom) => {
+                geom.computeVertexNormals();
+                geom.scale(...asset.scale);
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.copy(gPos);
+                mesh.quaternion.copy(gQuat);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                parentThreeObj.add(mesh);
+              });
+            }
+          });
+        }
+
+        function parseBodyNode(bodyNode, parentThreeObj) {
+          const bName = bodyNode.getAttribute("name") || "";
+          const bPos = parsePos(bodyNode.getAttribute("pos"));
+          const bQuat = parseQuat(bodyNode.getAttribute("quat"));
+
+          const bodyGroup = new THREE.Group();
+          bodyGroup.position.copy(bPos);
+          bodyGroup.quaternion.copy(bQuat);
+          parentThreeObj.add(bodyGroup);
+
+          // Attach Joint TF Coordinate Axis Helper
+          const jointTF = createTFFrameHelper(0.14);
+          bodyGroup.add(jointTF);
+
+          // Attach Joint Name Text Sprite Label
+          if (bName) {
+            const displayLabel = bName.replace("nana_v3_", "");
+            const labelColor = bName.includes("left") ? "#34d399" : (bName.includes("right") ? "#38bdf8" : "#cbd5e1");
+            const labelSprite = createTextSprite(displayLabel, labelColor);
+            bodyGroup.add(labelSprite);
+          }
+
+          let mat = bodyMaterial;
+          if (bName.includes("left")) mat = leftArmMaterial;
+          else if (bName.includes("right")) mat = rightArmMaterial;
+
+          const jointNode = bodyNode.querySelector(":scope > joint");
+          if (jointNode) {
+            const jName = jointNode.getAttribute("name");
+            const jAxis = parseAxis(jointNode.getAttribute("axis"));
+            const baseQuat = bQuat.clone();
+
+            const controlObj = {
+              group: bodyGroup,
+              baseQuat: baseQuat,
+              axis: jAxis,
+              setValue: (val) => {
+                const rotQuat = new THREE.Quaternion().setFromAxisAngle(jAxis, val);
+                bodyGroup.quaternion.copy(baseQuat).multiply(rotQuat);
+              }
+            };
+
+            jointsMap[jName] = controlObj;
+            const aliasName = jName.replace("openarm_", "nana_v3_");
+            jointsMap[aliasName] = controlObj;
+          }
+
+          parseGeoms(bodyNode, bodyGroup, mat);
+
+          bodyNode.querySelectorAll(":scope > body").forEach((childBody) => {
+            parseBodyNode(childBody, bodyGroup);
+          });
+        }
+
+        parseGeoms(worldbodyNode, robotRootGroup, bodyMaterial);
+
+        worldbodyNode.querySelectorAll(":scope > body").forEach((childBody) => {
+          parseBodyNode(childBody, robotRootGroup);
+        });
+
+        console.log("[OpenArm Web UI] DIRECT MuJoCo XML Loaded successfully!", jointsMap);
+        robotJointControls = jointsMap;
+      } catch (err) {
+        console.error("[OpenArm Web UI] Error direct loading MuJoCo XML:", err);
+      }
+    }
+
+    // Directly load and parse nana_v3_corrected.xml into Three.js
+    loadMuJoCoXMLRobot('/nana_v3_description/assets/robot/urdf/nana_v3_corrected.xml');
+
+    function parsePoseStats(pose) {
+      if (!pose) return { x: 0, y: 0, z: 0, r: 0, p: 0, yw: 0 };
+      const x = pose.x !== undefined ? pose.x : (pose.position ? pose.position.x : 0);
+      const y = pose.y !== undefined ? pose.y : (pose.position ? pose.position.y : 0);
+      const z = pose.z !== undefined ? pose.z : (pose.position ? pose.position.z : 0);
+
+      const qx = pose.qx !== undefined ? pose.qx : (pose.orientation ? pose.orientation.x : 0);
+      const qy = pose.qy !== undefined ? pose.qy : (pose.orientation ? pose.orientation.y : 0);
+      const qz = pose.qz !== undefined ? pose.qz : (pose.orientation ? pose.orientation.z : 0);
+      const qw = pose.qw !== undefined ? pose.qw : (pose.orientation ? pose.orientation.w : 1);
+
+      const q = new THREE.Quaternion(qx, qy, qz, qw);
+      const rpy = quaternionToRPY(q);
+      return { x, y, z, r: rpy.roll, p: rpy.pitch, yw: rpy.yaw };
+    }
+
+    // ==========================================
+    // UI Update Functions
+    // ==========================================
+    function showToast(msg) {
+      const container = document.getElementById('top-right-toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const isAlert = msg.includes("🔴") || msg.includes("⚠️");
+      toast.className = `top-right-toast ${isAlert ? 'recording-alert' : 'waypoint-alert'}`;
+      toast.innerHTML = `<span>${msg}</span>`;
+
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+      });
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          if (toast.parentElement) toast.parentElement.removeChild(toast);
+        }, 300);
+      }, 2200);
+    }
+
+    function updateStatusBadge() {
+      const badge = document.getElementById('floating-status');
+      const text = document.getElementById('status-text');
+
+      // Update Panel 5 Recording Button state
+      const recBtn = document.getElementById('rec-control-btn');
+
+      if (isRecording) {
+        badge.className = 'floating-status-badge recording';
+        text.textContent = `🔴 RECORDING (Waypoints: ${waypoints.length})`;
+        if (recBtn) {
+          recBtn.className = 'control-action-btn rec-stop-btn';
+          recBtn.textContent = `⏹️ STOP & SAVE (${waypoints.length} waypoints)`;
+        }
+      } else {
+        badge.className = 'floating-status-badge idle';
+        text.textContent = '🟢 IDLE';
+        if (recBtn) {
+          recBtn.className = 'control-action-btn rec-start-btn';
+          recBtn.textContent = '🔴 START RECORDING';
+        }
+      }
+    }
+
+    function updateReplayUI() {
+      const replayBtn = document.getElementById('replay-control-btn');
+      const progressText = document.getElementById('replay-progress-text');
+      const progressBar = document.getElementById('replay-progress-bar');
+
+      const total = lastRecordedTrajectory.length;
+
+      if (total === 0) {
+        if (progressText) progressText.textContent = "No Trajectory";
+        if (progressBar) progressBar.style.width = "0%";
+        if (replayBtn) {
+          replayBtn.className = 'control-action-btn replay-btn';
+          replayBtn.textContent = '▶️ REPLAY RECORDED MOTION';
+        }
+        return;
+      }
+
+      if (isReplaying) {
+        const pct = Math.round((replayIndex / total) * 100);
+        if (progressText) progressText.textContent = `Playing #${replayIndex}/${total} (${pct}%)`;
+        if (progressBar) progressBar.style.width = `${pct}%`;
+        if (replayBtn) {
+          replayBtn.className = 'control-action-btn replay-btn playing';
+          replayBtn.textContent = '⏸️ PAUSE REPLAY';
+        }
+      } else {
+        if (progressText) progressText.textContent = `Ready (${total} waypoints)`;
+        if (progressBar) progressBar.style.width = "100%";
+        if (replayBtn) {
+          replayBtn.className = 'control-action-btn replay-btn';
+          replayBtn.textContent = '▶️ REPLAY RECORDED MOTION';
+        }
+      }
+    }
+
+    function updateUIPanels() {
+      // Panel 1: Joint States
+      if (telemetry.joint_states) {
+        const lJoints = telemetry.joint_states.left || [0, 0, 0, 0, 0, 0, 0];
+        const rJoints = telemetry.joint_states.right || [0, 0, 0, 0, 0, 0, 0];
+
+        for (let i = 0; i < 7; i++) {
+          const lVal = lJoints[i] || 0;
+          const rVal = rJoints[i] || 0;
+
+          const elL = document.getElementById(`j-l-${i}`);
+          if (elL) elL.textContent = `${lVal.toFixed(2)} rad (${Math.round(THREE.MathUtils.radToDeg(lVal))}°)`;
+
+          const elR = document.getElementById(`j-r-${i}`);
+          if (elR) elR.textContent = `${rVal.toFixed(2)} rad (${Math.round(THREE.MathUtils.radToDeg(rVal))}°)`;
+
+          // Update 3D Robot Kinematic Joint Values directly parsed from MuJoCo XML
+          const openarmL = `openarm_left_joint${i + 1}`;
+          const openarmR = `openarm_right_joint${i + 1}`;
+
+          if (robotJointControls[openarmL]) robotJointControls[openarmL].setValue(lVal);
+          if (robotJointControls[openarmR]) robotJointControls[openarmR].setValue(rVal);
+        }
+      }
+
+      // Panel 2: Tracked Poses
+      if (telemetry.tracked_poses) {
+        // HMD Text Stats
+        const hmdStats = parsePoseStats(telemetry.tracked_poses.hmd);
+        document.getElementById('hmd-x').textContent = hmdStats.x.toFixed(2);
+        document.getElementById('hmd-y').textContent = hmdStats.y.toFixed(2);
+        document.getElementById('hmd-z').textContent = hmdStats.z.toFixed(2);
+        document.getElementById('hmd-r').textContent = `${hmdStats.r}°`;
+        document.getElementById('hmd-p').textContent = `${hmdStats.p}°`;
+        document.getElementById('hmd-yw').textContent = `${hmdStats.yw}°`;
+
+        // Controller Left Text Stats
+        const ctrlLStats = parsePoseStats(telemetry.tracked_poses.controller_l);
+        document.getElementById('ctrl-l-x').textContent = ctrlLStats.x.toFixed(2);
+        document.getElementById('ctrl-l-y').textContent = ctrlLStats.y.toFixed(2);
+        document.getElementById('ctrl-l-z').textContent = ctrlLStats.z.toFixed(2);
+        document.getElementById('ctrl-l-r').textContent = `${ctrlLStats.r}°`;
+        document.getElementById('ctrl-l-p').textContent = `${ctrlLStats.p}°`;
+        document.getElementById('ctrl-l-yw').textContent = `${ctrlLStats.yw}°`;
+
+        // Controller Right Text Stats
+        const ctrlRStats = parsePoseStats(telemetry.tracked_poses.controller_r);
+        document.getElementById('ctrl-r-x').textContent = ctrlRStats.x.toFixed(2);
+        document.getElementById('ctrl-r-y').textContent = ctrlRStats.y.toFixed(2);
+        document.getElementById('ctrl-r-z').textContent = ctrlRStats.z.toFixed(2);
+        document.getElementById('ctrl-r-r').textContent = `${ctrlRStats.r}°`;
+        document.getElementById('ctrl-r-p').textContent = `${ctrlRStats.p}°`;
+        document.getElementById('ctrl-r-yw').textContent = `${ctrlRStats.yw}°`;
+      }
+
+      // Panel 3: Button States
+      if (telemetry.button_states) {
+        ['a', 'b', 'x', 'y'].forEach(btn => {
+          const el = document.getElementById(`btn-${btn}`);
+          if (el) {
+            if (telemetry.button_states[btn]) {
+              el.classList.add('active');
+            } else {
+              el.classList.remove('active');
+            }
+          }
+        });
+      }
+
+      // Panel 4: Trigger Display
+      if (telemetry.trigger_states) {
+        const rawTrL = Number(telemetry.trigger_states.trigger_l || 0);
+        const rawGrL = Number(telemetry.trigger_states.grip_l || 0);
+        const rawTrR = Number(telemetry.trigger_states.trigger_r || 0);
+        const rawGrR = Number(telemetry.trigger_states.grip_r || 0);
+
+        const trL = Math.max(0, Math.min(100, Math.round(rawTrL * 100)));
+        const grL = Math.max(0, Math.min(100, Math.round(rawGrL * 100)));
+        const trR = Math.max(0, Math.min(100, Math.round(rawTrR * 100)));
+        const grR = Math.max(0, Math.min(100, Math.round(rawGrR * 100)));
+
+        document.getElementById('trig-l-val').textContent = `${trL}%`;
+        document.getElementById('trig-l-bar').style.width = `${trL}%`;
+
+        document.getElementById('grip-l-val').textContent = `${grL}%`;
+        document.getElementById('grip-l-bar').style.width = `${grL}%`;
+
+        document.getElementById('trig-r-val').textContent = `${trR}%`;
+        document.getElementById('trig-r-bar').style.width = `${trR}%`;
+
+        document.getElementById('grip-r-val').textContent = `${grR}%`;
+        document.getElementById('grip-r-bar').style.width = `${grR}%`;
+      }
+    }
+
+    // ==========================================
+    // SECTION 1: Core Recording, Waypoint & Replay Logic
+    // ==========================================
+    function toggleRecordingMode() {
+      if (!isRecording) {
+        // START Recording Mode
+        if (isReplaying) stopReplayMotion();
+        isRecording = true;
+        waypoints = [];
+        updateStatusBadge();
+        showToast("🔴 Recording Mode Activated");
+
+        fetch('/start', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' }
+        }).catch(err => console.error("Start recording error:", err));
+      } else {
+        // END Recording Mode & Submit Dataset
+        isRecording = false;
+        lastRecordedTrajectory = JSON.parse(JSON.stringify(waypoints));
+        updateStatusBadge();
+        updateReplayUI();
+
+        const dataset = {
+          episode_number: currentEpisode,
+          waypoints_count: waypoints.length,
+          trajectories: waypoints
+        };
+
+        showToast(`✅ Trajectory Saved! (${waypoints.length} waypoints)`);
+
+        fetch('/success', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(dataset)
+        }).then(res => res.json()).then(data => {
+          if (data.episode_number) {
+            currentEpisode = data.episode_number;
+            document.getElementById('header-episode').textContent = currentEpisode;
+          }
+        }).catch(err => console.error("Submit dataset error:", err));
+
+        waypoints = [];
+      }
+    }
+
+    function captureWaypoint() {
+      if (!isRecording) {
+        showToast("⚠️ Recording Mode is inactive");
+        return;
+      }
+
+      const now = Date.now() / 1000.0;
+      const wayPoint = {
+        timestamp: now,
+        joint_states: JSON.parse(JSON.stringify(telemetry.joint_states)),
+        pose_hmd: JSON.parse(JSON.stringify(telemetry.tracked_poses.hmd)),
+        pose_controller_r: JSON.parse(JSON.stringify(telemetry.tracked_poses.controller_r)),
+        pose_controller_l: JSON.parse(JSON.stringify(telemetry.tracked_poses.controller_l))
+      };
+      waypoints.push(wayPoint);
+      lastRecordedTrajectory = JSON.parse(JSON.stringify(waypoints));
+      updateStatusBadge();
+      updateReplayUI();
+      showToast(`📌 Waypoint #${waypoints.length} Captured!`);
+
+      // 2. Trigger POST /waypoint to backend
+      fetch('/waypoint', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' }
+      }).catch(err => console.error("/waypoint error:", err));
+    }
+
+    // Feature: Replay Motion of Last Recorded Trajectory
+    function toggleReplayMotion() {
+      if (!lastRecordedTrajectory || lastRecordedTrajectory.length === 0) {
+        showToast("⚠️ No recorded trajectory available to replay!");
+        return;
+      }
+
+      if (isRecording) {
+        showToast("⚠️ Stop recording before playing back motion!");
+        return;
+      }
+
+      if (isReplaying) {
+        stopReplayMotion();
+      } else {
+        startReplayMotion();
+      }
+    }
+
+    function startReplayMotion() {
+      isReplaying = true;
+      replayIndex = 0;
+      updateReplayUI();
+      showToast("▶️ Playing Back Recorded Motion...");
+
+      replayTimer = setInterval(() => {
+        if (!isReplaying || !lastRecordedTrajectory || replayIndex >= lastRecordedTrajectory.length) {
+          stopReplayMotion();
+          showToast("✅ Motion Playback Finished!");
+          return;
+        }
+
+        const frame = lastRecordedTrajectory[replayIndex];
+        if (frame && frame.joint_states) {
+          telemetry.joint_states = frame.joint_states;
+          if (frame.pose_hmd) telemetry.tracked_poses.hmd = frame.pose_hmd;
+          if (frame.pose_controller_r) telemetry.tracked_poses.controller_r = frame.pose_controller_r;
+          if (frame.pose_controller_l) telemetry.tracked_poses.controller_l = frame.pose_controller_l;
+          if (frame.triggers) {
+            telemetry.trigger_states = {
+              trigger_r: frame.triggers.right || 0,
+              grip_r: frame.triggers.grip_right || 0,
+              trigger_l: frame.triggers.left || 0,
+              grip_l: frame.triggers.grip_left || 0
+            };
+          }
+          updateUIPanels();
+        }
+
+        replayIndex++;
+        updateReplayUI();
+      }, 50); // 20 FPS playback
+    }
+
+    function stopReplayMotion() {
+      isReplaying = false;
+      if (replayTimer) clearInterval(replayTimer);
+      replayTimer = null;
+      updateReplayUI();
+    }
+
+    function onBtnClick(btn) {
+      const btnKey = btn.toLowerCase();
+      if (['a', 'b', 'x', 'y'].includes(btnKey)) {
+        // 1. Visually highlight button badge
+        const el = document.getElementById(`btn-${btnKey}`);
+        if (el) {
+          el.classList.add('active');
+          setTimeout(() => el.classList.remove('active'), 300);
+        }
+
+        // 2. Execute Unified Actions (Button A/X -> /start or /success, Button B/Y -> /waypoint)
+        if (btnKey === 'a' || btnKey === 'x') {
+          toggleRecordingMode();
+        } else if (btnKey === 'b' || btnKey === 'y') {
+          captureWaypoint();
+        }
+      }
+    }
+
+    // Keyboard Listeners for A, B, X, Y
+    document.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      const k = e.key.toLowerCase();
+      if (['a', 'b', 'x', 'y'].includes(k)) {
+        onBtnClick(k);
+      }
+    });
+
+    // ==========================================
+    // SECTION 4: Unified SSE Communication Integration
+    // ==========================================
+    let prevCollectingState = isRecording;
+    let prevWaypointsCount = 0;
+
+    const eventSource = new EventSource('/events');
+    eventSource.onmessage = (e) => {
+      try {
+        if (isReplaying) return;
+
+        const data = JSON.parse(e.data);
+
+        // 1. Synchronize Recording State (Start / Stop)
+        if (data.collecting !== undefined) {
+          const newCollecting = !!data.collecting;
+          if (newCollecting !== prevCollectingState) {
+            if (newCollecting) {
+              // Started Recording
+              isRecording = true;
+              waypoints = [];
+              showToast("🔴 Recording Mode Activated");
+            } else {
+              // Stopped Recording
+              isRecording = false;
+              lastRecordedTrajectory = JSON.parse(JSON.stringify(waypoints));
+              showToast(`✅ Trajectory Saved! (${waypoints.length} waypoints)`);
+              updateReplayUI();
+            }
+            prevCollectingState = newCollecting;
+          }
+        }
+
+        // 2. Synchronize Waypoints Count
+        if (data.waypoints_count !== undefined) {
+          const newCount = Number(data.waypoints_count);
+          if (newCount > prevWaypointsCount && isRecording) {
+            if (waypoints.length < newCount) {
+              const now = Date.now() / 1000.0;
+              const wayPoint = {
+                timestamp: now,
+                joint_states: JSON.parse(JSON.stringify(telemetry.joint_states)),
+                pose_hmd: JSON.parse(JSON.stringify(telemetry.tracked_poses.hmd)),
+                pose_controller_r: JSON.parse(JSON.stringify(telemetry.tracked_poses.controller_r)),
+                pose_controller_l: JSON.parse(JSON.stringify(telemetry.tracked_poses.controller_l))
+              };
+              waypoints.push(wayPoint);
+              lastRecordedTrajectory = JSON.parse(JSON.stringify(waypoints));
+              showToast(`📌 Waypoint #${waypoints.length} Captured!`);
+              updateReplayUI();
+            }
+            prevWaypointsCount = newCount;
+          }
+        }
+
+        if (data.episode_number !== undefined) {
+          currentEpisode = data.episode_number;
+          document.getElementById('header-episode').textContent = currentEpisode;
+        }
+        if (data.task_index !== undefined) document.getElementById('header-task-idx').textContent = data.task_index;
+        if (data.task_title !== undefined) document.getElementById('header-task-title').textContent = data.task_title;
+
+        if (data.joint_states) telemetry.joint_states = data.joint_states;
+        if (data.tracked_poses) telemetry.tracked_poses = data.tracked_poses;
+
+        // Update Panel 3 Button active states
+        if (data.button_states) {
+          ['a', 'b', 'x', 'y'].forEach(btn => {
+            const isPressed = !!data.button_states[btn];
+            telemetry.button_states[btn] = isPressed;
+            const el = document.getElementById(`btn-${btn}`);
+            if (el) {
+              if (isPressed) el.classList.add('active');
+              else el.classList.remove('active');
+            }
+          });
+        }
+
+        if (data.trigger_states) telemetry.trigger_states = data.trigger_states;
+
+        updateStatusBadge();
+        updateUIPanels();
+      } catch (err) {
+        console.error("SSE parse error:", err);
+      }
+    };
+
+    // Three.js Render Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Window Resize Handler
+    window.addEventListener('resize', () => {
+      const w = viewportContainer.clientWidth;
+      const h = viewportContainer.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+  </script>
+
+</body>
+
+</html>

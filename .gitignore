@@ -43,5 +43,6 @@ Thumbs.db
 .gemini/
 .cache/
 .pixi/
-
-
+# Teleop Recorded Data
+vr_data/
+**/vr_data/

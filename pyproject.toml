@@ -14,6 +14,7 @@ dependencies = [
     "dora-openarm-quitter",
     "dora-openarm",
     "dora-openarm-dataset-recorder",
+    "dora-openarm-foxglove",
     "openarm-driver",
     "hamsa_driver",
 ]
@@ -27,6 +28,7 @@ members = [
     "src/nana_v3_dora_teleop_vr/dora-openarm-quitter",
     "src/nana_v3_dora_teleop_vr/dora-openarm",
     "src/nana_v3_dora_teleop_vr/dora-openarm-dataset-recorder",
+    "src/nana_v3_dora_teleop_vr/dora-openarm-foxglove",
     "src/utils/openarm_driver",
     "src/utils/hamsa_driver",
 ]
@@ -39,5 +41,6 @@ dora-openarm-mujoco = { workspace = true }
 dora-openarm-quitter = { workspace = true }
 dora-openarm = { workspace = true }
 dora-openarm-dataset-recorder = { workspace = true }
+dora-openarm-foxglove = { workspace = true }
 openarm-driver = { workspace = true }
 hamsa_driver = { workspace = true }

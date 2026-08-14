@@ -48,21 +48,15 @@ nodes:
       - position_right
       - status
 
-  - id: foxglove-visualizer
-    build: pip install -e ../../dora-openarm-foxglove
-    path: dora-openarm-foxglove
-    args: "--host 0.0.0.0 --port 8765"
+  - id: mujoco-viewer
+    build: pip install -e ../../dora-openarm-mujoco
+    path: dora-openarm-mujoco
+    args: "--xml ../../../nana_v3_description/assets/robot/urdf/nana_v3_corrected.xml --keyframe home --viewer --debug-frames"
     inputs:
       position_left:  ik/position_left
       position_right: ik/position_right
       pose_right:     udp-receiver/pose_right
       pose_left:      udp-receiver/pose_left
-      pose_reference: udp-receiver/pose_reference
-      trigger_right:  udp-receiver/trigger_right
-      trigger_left:   udp-receiver/trigger_left
-      button_a:       udp-receiver/button_a
-      button_b:       udp-receiver/button_b
-      button_x:       udp-receiver/button_x
-      button_y:       udp-receiver/button_y
+      joystick_y:     udp-receiver/joystick_y_left
     outputs:
       - status

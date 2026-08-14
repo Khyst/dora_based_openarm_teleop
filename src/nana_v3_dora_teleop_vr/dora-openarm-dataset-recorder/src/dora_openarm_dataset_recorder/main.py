@@ -43,10 +43,12 @@ class Episode:
     right_actions: ArrayLike = field(default_factory=list)
     right_observation_timestamps: ArrayLike = field(default_factory=list)
     right_observations: ArrayLike = field(default_factory=list)
+
     left_action_timestamps: ArrayLike = field(default_factory=list)
     left_actions: ArrayLike = field(default_factory=list)
     left_observation_timestamps: ArrayLike = field(default_factory=list)
     left_observations: ArrayLike = field(default_factory=list)
+    
     elevation_action_timestamps: ArrayLike = field(default_factory=list)
     elevation_actions: ArrayLike = field(default_factory=list)
     elevation_observation_timestamps: ArrayLike = field(default_factory=list)

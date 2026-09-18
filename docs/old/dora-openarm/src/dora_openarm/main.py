@@ -14,20 +14,16 @@
 
 """Node to control OpenArm."""
 
-import os
-import enum
-import dora
-import pathlib
-import logging
 import argparse
 import dataclasses
-import numpy as np
+import enum
+import dora
+import os
+import pathlib
 import pyarrow as pa
+import numpy as np
 
 import openarm_driver
-from .hand_can import HandCanController
-
-logger = logging.getLogger(__name__)
 
 
 class ArmStatus(str, enum.Enum):
@@ -48,31 +44,28 @@ class AlignState:
 
 def _align(arm, state, new_position, name, threshold, trigger=None):
     """Safety: Align OpenArm with the position."""
-    current_position = np.array(arm.fetch_position(), dtype=np.float32)
-    num_joints = len(current_position)
-    target_position = np.asarray(new_position[:num_joints], dtype=np.float32)
-
     if trigger == "gripper":  # Check if gripper is active (threshold ~ -10 deg)
-        if len(new_position) > num_joints:
-            gripper_position = new_position[-1]  # Last value is gripper's position
-            if name == "right_arm":
-                is_gripping = gripper_position > np.deg2rad(-5)
-            elif name == "left_arm":
-                is_gripping = gripper_position < np.deg2rad(5)
-            if not is_gripping:
-                return False
+        gripper_position = new_position[-1]  # Last value is gripper's position
+        if name == "right_arm":
+            is_gripping = gripper_position > np.deg2rad(-5)
+        elif name == "left_arm":
+            is_gripping = gripper_position < np.deg2rad(5)
+        if not is_gripping:
+            return False
+
+    current_position = np.array(arm.fetch_position(), dtype=np.float32)
 
     if state.align_target is None:
         state.align_target = current_position.copy()
 
-    def is_aligned(pos1, pos2):
-        return np.all(np.abs(pos1[:num_joints] - pos2[:num_joints]) < threshold)
+    def is_aligned(position1, position2):
+        return np.all(np.abs(position1[:-1] - position2[:-1]) < threshold)
 
     # If OpenArm is already aligned, we do nothing.
-    if is_aligned(target_position, current_position):
+    if is_aligned(new_position, current_position):
         return True
 
-    diff = target_position - state.align_target
+    diff = new_position - state.align_target
     step_move = np.clip(diff, -state.step_limit, state.step_limit)
     state.align_target += step_move
 
@@ -80,41 +73,6 @@ def _align(arm, state, new_position, name, threshold, trigger=None):
 
     # Check the physical position on the next command after the arm has moved.
     return False
-
-
-def _send_safe_position(arm, new_position):
-    """Safety wrapper: clip position delta to joint_delta_position_limits to prevent RuntimeError."""
-    if arm is None:
-        return
-    current_pos = np.asarray(arm.fetch_position(), dtype=np.float32)
-    num_joints = len(current_pos)
-    target_pos = np.asarray(new_position[:num_joints], dtype=np.float32)
-
-    if hasattr(arm, "last_command") and arm.last_command is not None:
-        delta_limits = np.asarray(arm.config.get_joint_delta_position_limits(), dtype=np.float32)
-        if len(delta_limits) > num_joints:
-            delta_limits = delta_limits[:num_joints]
-        last_cmd = np.asarray(arm.last_command[:num_joints], dtype=np.float32) if len(arm.last_command) > num_joints else arm.last_command
-        diff = target_pos - last_cmd
-        clipped_diff = np.clip(diff, -delta_limits, delta_limits)
-        target_pos = last_cmd + clipped_diff
-    arm.send_position(target_pos)
-
-
-def _to_float_scalar(val) -> float:
-    """Safely extract a float scalar from PyArrow Array, NumPy array, or Python scalar."""
-    if hasattr(val, "to_pylist"):
-        lst = val.to_pylist()
-        return float(lst[0]) if lst else 0.0
-    elif hasattr(val, "as_py"):
-        return float(val.as_py())
-    elif isinstance(val, (list, tuple, np.ndarray)):
-        return float(val[0])
-    elif hasattr(val, "__getitem__"):
-        item = val[0]
-        return float(item.as_py()) if hasattr(item, "as_py") else float(item)
-    else:
-        return float(val)
 
 
 def _env_flag(name, default=False):
@@ -168,72 +126,70 @@ def extract_values(value: pa.Array, key: str) -> np.ndarray:
 def main():
     """Move to the given position and output the current position."""
     parser = argparse.ArgumentParser(description="Control OpenArm")
+    
     parser.add_argument(
         "--side",
         choices=["right", "left"],
         default="right",
         help="right or left",
     )
+    
     parser.add_argument(
         "--config",
         default=None,
         help="The configuration file for this OpenArm",
         type=pathlib.Path,
     )
+    
     parser.add_argument(
         "--align-trigger",
         choices=["gripper"],
         default=None,
         help="Alignment trigger: gripper (default: None)",
     )
+    
     parser.add_argument(
         "--align-threshold",
         default=0.1,
         help="Alignment threshold [rad] (default: 0.1)",
         type=float,
     )
+    
     parser.add_argument(
         "--align-delta-limit",
         default=0.001,
         help="Maximum joint delta per alignment command [rad] (default: 0.001).",
         type=float,
     )
+    
     parser.add_argument(
         "--align",
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Align to incoming position commands after start (default: enabled).",
     )
+    
     parser.add_argument(
         "--stop",
         action=argparse.BooleanOptionalAction,
         default=_env_flag("STOP", True),
         help="Stop the arm on exit.",
     )
+    
     parser.add_argument(
         "--refresh-every-request",
         action=argparse.BooleanOptionalAction,
         default=_env_flag("REFRESH", True),
         help="Refresh OpenArm on every request to make it more accurate.",
     )
+    
     parser.add_argument(
         "--start-on-startup",
         action=argparse.BooleanOptionalAction,
         default=False,
         help="Start the arm on startup.",
     )
-    parser.add_argument(
-        "--hand-can-interface",
-        default=None,
-        help="CAN interface for dexterous hand control (e.g. can0).",
-        type=str,
-    )
-    parser.add_argument(
-        "--hand-can",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Enable CAN FD dexterous hand control via trigger input (default: enabled).",
-    )
+
     args = parser.parse_args()
 
     if args.align_delta_limit <= 0.0:
@@ -241,22 +197,15 @@ def main():
 
     node = dora.Node()
 
-    arm = None
     name = f"{args.side}_arm"
-    align_threshold = args.align_threshold
-    ready_status = ArmStatus.ALIGNED if args.align else ArmStatus.STARTED
 
     config = openarm_driver.Config(args.config)
 
-    hand_can_interface = args.hand_can_interface
-    if hand_can_interface is None and args.side == "right" and args.hand_can:
-        hand_can_interface = "can0"
+    align_threshold = args.align_threshold
 
-    hand_controller = (
-        HandCanController(interface=hand_can_interface, enabled=True)
-        if (args.hand_can and hand_can_interface)
-        else None
-    )
+    arm = None
+
+    ready_status = ArmStatus.ALIGNED if args.align else ArmStatus.STARTED
 
     if args.start_on_startup:
         arm = openarm_driver.SingleArmDriver(name, config)
@@ -270,7 +219,6 @@ def main():
         status = ArmStatus.STOPPED
 
     current_grip = 0.0
-    current_trigger = 0.0
 
     for event in node:
         
@@ -279,6 +227,7 @@ def main():
 
         event_id = event["id"]
         
+
         if event_id == "command": # 로봇 드라이버 세션을 외부에서 start, stop 시키도록 하는 목적의 제어 명령
             
             command = event["value"][0].as_py()
@@ -319,10 +268,11 @@ def main():
             node.send_output("state", build_state_output(state))
 
         elif event_id == "grip":
-            current_grip = _to_float_scalar(event["value"])
-
-        elif event_id == "trigger":
-            current_trigger = _to_float_scalar(event["value"])
+            val = event["value"]
+            if hasattr(val, "as_py"):
+                current_grip = float(val[0].as_py())
+            else:
+                current_grip = float(val[0])
 
         elif event_id == "move_position":
             if status is ArmStatus.STOPPED:
@@ -339,14 +289,18 @@ def main():
             else:
                 new_position = np.array(value, dtype=np.float32)
 
-            # Process CAN FD hand trigger together in move_position
-            if hand_controller is not None:
-                trig_val = new_position[-1] if len(new_position) > 7 else current_trigger
-                hand_controller.send_trigger(trig_val)
-
             if args.align_trigger == "gripper":
-                # Check Grip trigger (from Side Grip 'grip' input > 0.5)
-                is_gripping = current_grip > 0.5
+                # Check Grip trigger (from 'grip' input > 0.5 or gripper angle)
+                if current_grip > 0.0:
+                    is_gripping = current_grip > 0.5
+                else:
+                    gripper_position = new_position[-1]
+                    if name == "right_arm":
+                        is_gripping = gripper_position > np.deg2rad(-5)
+                    elif name == "left_arm":
+                        is_gripping = gripper_position < np.deg2rad(5)
+                    else:
+                        is_gripping = True
 
                 if not is_gripping:
                     # Grip handle released: Disengage live tracking & revert to STARTED
@@ -357,7 +311,7 @@ def main():
                     continue
 
             if status is ready_status:
-                _send_safe_position(arm, new_position)
+                arm.send_position(new_position)
 
             elif status is ArmStatus.STARTED:
                 is_aligned = _align(
@@ -369,7 +323,7 @@ def main():
                     trigger=args.align_trigger,
                 )
                 if is_aligned:
-                    _send_safe_position(arm, new_position)
+                    arm.send_position(new_position)
                     status = ArmStatus.ALIGNED
                     node.send_output("status", pa.array([ArmStatus.ALIGNED]))
 
@@ -378,9 +332,6 @@ def main():
             arm.stop()
         else:
             arm.move_to_start_position()
-
-    if hand_controller is not None:
-        hand_controller.close()
 
 
 if __name__ == "__main__":

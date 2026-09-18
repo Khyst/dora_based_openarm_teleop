@@ -96,35 +96,32 @@ def _run(args: argparse.Namespace) -> None:
 
         if eid == "position_right":
             values = extract_values(event["value"], "qpos")
+            current_qpos_16[: len(values)] = values
+            has_pos_right = True
 
-            if values.shape == (8,):
-                current_qpos_16[:8] = values
-                has_pos_right = True
-
-                # 양쪽 피드백이 다 모였거나 갱신되면 동기화
-                if has_pos_left or "left" not in kin.setup.sides:
-                    kin.sync(current_qpos_16)
-
+            # 양쪽 피드백이 다 모였거나 갱신되면 동기화
+            if has_pos_left or "left" not in kin.setup.sides:
+                kin.sync(current_qpos_16)
             continue
 
         elif eid == "position_left":
             values = extract_values(event["value"], "qpos")
+            current_qpos_16[8 : 8 + len(values)] = values
+            has_pos_left = True
 
-            if values.shape == (8,):
-                current_qpos_16[8:16] = values
-                has_pos_left = True
-
-                # 양쪽 피드백이 다 모였거나 갱신되면 동기화
-                if has_pos_right or "right" not in kin.setup.sides:
-                    kin.sync(current_qpos_16)
-
+            # 양쪽 피드백이 다 모였거나 갱신되면 동기화
+            if has_pos_right or "right" not in kin.setup.sides:
+                kin.sync(current_qpos_16)
             continue
 
         # 기존 16차원 단일 position 처리 (유지)
         elif eid == "position":
+
             values = extract_values(event["value"], "qpos")
+
             if values.shape == (16,):
                 kin.sync(values)
+
             continue
 
 
@@ -148,44 +145,18 @@ def _run(args: argparse.Namespace) -> None:
             if has_grip_right and grip_right <= 0.5:
                 continue  
 
-            # 타겟 값을 받아오는 처리
             values = extract_values(event["value"], "pose")
-
-            # 타겟 값의 형태가 올바르지 않으면 건너뜀
-            if values.shape != (8,):
-                print(
-                    f"Warning: expected target_right[8], got {values.shape}. Skipping."
-                )
-                continue
-
-            # 타겟 값에서 포즈와 그립 값을 추출
-            pose = values[:7]
-            gripper_angle = values[7]
-
-            kin.set_target("right", pose) # IK 엔진에 타겟 값을 전달 (x,y,z,qw,qx,qy,qz)
-            kin.set_gripper("right", gripper_angle) # 그립 값을 IK 엔진에 전달
+            kin.set_target("right", values[:7])
+            kin.set_gripper("right", values[7])
 
         elif eid == "target_left" and "left" in kin.setup.sides:
             # 그립 버튼이 눌려있지 않으면 타겟 업데이트를 건너뜀
             if has_grip_left and grip_left <= 0.5:
                 continue  
 
-            # 타겟 값을 받아오는 처리
             values = extract_values(event["value"], "pose")
-
-            # 타겟 값의 형태가 올바르지 않으면 건너뜀
-            if values.shape != (8,):
-                print(
-                    f"Warning: expected target_left[8], got {values.shape}. Skipping."
-                )
-                continue
-
-            # 타겟 값에서 포즈와 그립 값을 추출
-            pose = values[:7]
-            gripper_angle = values[7]
-
-            kin.set_target("left", pose) # IK 엔진에 타겟 값을 전달 (x,y,z,qw,qx,qy,qz)
-            kin.set_gripper("left", gripper_angle) # 그립 값을 IK 엔진에 전달
+            kin.set_target("left", values[:7])
+            kin.set_gripper("left", values[7])
 
         else:
             continue

@@ -110,33 +110,30 @@ VR(Meta Quest 3)로 수신받은 위치 데이터를 **MuJoCo 시뮬레이터** 
 
 ---
 
-### 2. VR 텔레메트리 녹화 & 재생 가이드 (Record & Playback Mode)
+## 🎮 VR 컨트롤러 조종 및 5손가락 로봇 손 제어 가이드 (Meta Quest 3)
 
-Meta Quest 3 헤드셋이 연결된 상태에서 수신되는 조종 데이터를 녹화(Record)하고, 추후 VR 기기 연결 없이도 ROS 2 Bag 처럼 재생(Replay)하여 동일한 동작을 테스트할 수 있습니다.
+Meta Quest 3 VR 컨트롤러를 이용한 텔레오퍼레이션 조종 방식 및 5손가락 CAN FD 로봇 손 제어 방식은 다음과 같습니다:
 
-#### 1) 녹화 (Record Mode)
-- **시뮬레이션 조종 & 녹화**:
-  ```bash
-  ./scripts/run_sim_record.sh
-  ```
-  *(수신 데이터는 `recordings/vr_sim_session.jsonl` 파일로 저장됩니다.)*
+### 1. VR 컨트롤러 버튼 제어 방식
+- **Side Grip 버튼 (중지 버튼 부근, `rg` / `lg`)**: 
+  - **로봇 팔 Teleop 시작 / 종료 (Deadman Safety Switch / Clutch)**
+  - Side Grip 버튼을 누르고 있는 동안에만 실시간으로 로봇 팔 위치 추종(`ALIGNED` 상태)이 활성화됩니다.
+  - Side Grip 버튼을 떼면 로봇 팔은 현재 위치에서 추종을 멈추고 대기 상태(`STARTED`)로 안전하게 전환됩니다.
 
-- **실물 로봇 조종 & 녹화**:
-  ```bash
-  ./scripts/run_real_record.sh
-  ```
-  *(수신 데이터는 `recordings/vr_real_session.jsonl` 파일로 저장됩니다.)*
+- **Index Trigger 버튼 (검지 버튼 부근, `rt` / `lt`)**:
+  - **5손가락 CAN FD 로봇 손 개폐 제어 (5단계 양자화)**
+  - 트리거 눌림 정도(0.0 ~ 1.0)가 **총 5단계 레벨 (`0%`, `25%`, `50%`, `75%`, `100%`)** 로 양자화(Discretization)되어 핸드의 쥐었다 폈다 동작을 제어합니다.
+  - 레벨 단계 이동 시 프레임(Tick) 단위로 인접 레벨을 순차 이동하여 튀는 느낌(Jerk) 없이 미끄러지듯 부드럽게 5손가락 손을 조작합니다.
 
-#### 2) 재생 (Playback / Test Mode - VR 헤드셋 불필요)
-Meta Quest 3 헤드셋 연결 없이 녹화된 세션 데이터를 재생하여 시뮬레이터 또는 실물 로봇의 동작 및 IK를 재연 테스트합니다.
-- **시뮬레이션 상에서 녹화본 재생**:
-  ```bash
-  ./scripts/run_sim_play.sh
-  ```
-- **실물 로봇 상에서 녹화본 재생**:
-  ```bash
-  ./scripts/run_real_play.sh
-  ```
+### 2. CAN FD 5손가락 핸드 제어 통신 구조 (`HandCanController`)
+- **인터페이스**: `can0` (SocketCAN FD)
+- **CAN ID**: `0x008`
+- **프레임 구조**:
+  - Header (6 bytes): `0x00 0x32 0x32 0x32 0x32 0x32` (토크/전류 설정)
+  - Fingers (5 bytes): `[val_int] * 5` (5개 손가락 위치: 0x00 ~ 0x64)
+  - Tail (2 bytes): `0x00 0xC8` (속도 / 동작 파라미터)
+- **7관절 OpenArm 하드웨어 결합**:
+  - 팔 7개 관절 모터는 OpenArm CAN 드라이버(`nana_v3_cell_v5.yaml`)로 제어되며, 5손가락 로봇 손은 `follower-right` 노드에서 동기화된 `move_position` 주기에 맞춰 CAN FD 프레임으로 정밀 제어됩니다.
 
 ---
 
@@ -184,16 +181,6 @@ openarm-can-cli -i can0 monitor --id 1,2,3
   ```bash
   openarm-can-cli -i can0 show_param
   ```
-
----
-
-## ✋ Hamsa 로봇 손 VR 버튼 제어 (Hamsa Motion)
-
-VR 컨트롤러의 버튼 입력으로 Hamsa 로봇 손의 동작을 토글 방식으로 조작합니다:
-- **Button A**: 오른쪽 손 (Right Grip $\leftrightarrow$ Right Release)
-- **Button X**: 왼쪽 손 (Left Grip $\leftrightarrow$ Left Release)
-- **Button B**: 오른쪽 손 (Right Scissor $\leftrightarrow$ Right Release)
-- **Button Y**: 왼쪽 손 (Left Scissor $\leftrightarrow$ Left Release)
 
 ---
 

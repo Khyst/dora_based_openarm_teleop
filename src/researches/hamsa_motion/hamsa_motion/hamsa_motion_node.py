@@ -97,7 +97,6 @@ class HamsaMotionNode(Node):
         self.init_single_hand(left)
 
     def init_single_hand(self, hand_obj):
-        
         # hand_obj.wiggle_pinky(0.5, 1000)
         # hand_obj.wiggle_ring(0.5, 1000)
         # hand_obj.wiggle_middle(0.5, 1000)

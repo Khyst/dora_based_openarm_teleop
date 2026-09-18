@@ -18,17 +18,28 @@ nodes:
       button_y:
         source: udp-receiver/button_y
         queue_size: 100
-      trigger_right: udp-receiver/trigger_right
-      trigger_left: udp-receiver/trigger_left
-      grip_right: udp-receiver/grip_right
-      grip_left: udp-receiver/grip_left
-      pose_right: udp-receiver/pose_right
-      pose_left: udp-receiver/pose_left
-      pose_reference: udp-receiver/pose_reference
-      position_left: ik/position_left
-      position_right: ik/position_right
-      arm_status_right: follower-right/status
-      arm_status_left: follower-left/status
+      trigger_right: 
+        udp-receiver/trigger_right
+      trigger_left: 
+        udp-receiver/trigger_left
+      grip_right: 
+        udp-receiver/grip_right
+      grip_left: 
+        udp-receiver/grip_left
+      pose_right: 
+        udp-receiver/pose_right
+      pose_left: 
+        udp-receiver/pose_left
+      pose_reference: 
+        udp-receiver/pose_reference
+      position_left: 
+        ik/position_left
+      position_right: 
+        ik/position_right
+      arm_status_right: 
+        follower-right/status
+      arm_status_left: 
+        follower-left/status
     outputs:
       - command
 
@@ -48,13 +59,13 @@ nodes:
     inputs:
       tick: quittable-tick-leader/tick
     outputs:
-      - pose_right
-      - trigger_right
-      - grip_right
       - pose_left
+      - pose_right
       - pose_reference
-      - trigger_left
+      - grip_right
       - grip_left
+      - trigger_left
+      - trigger_right
       - joystick_x_left
       - joystick_y_left
       - joystick_x_right
@@ -77,8 +88,10 @@ nodes:
       grip_left:    udp-receiver/grip_left
       trigger_right: udp-receiver/trigger_right
       trigger_left:  udp-receiver/trigger_left
+
       position_right: follower-right/position
       position_left: follower-left/position
+      
     outputs:
       - position_left
       - position_right
@@ -87,10 +100,11 @@ nodes:
   - id: follower-right
     build: pip install -e ../../dora-openarm
     path: dora-openarm
-    args: "--side right --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../../utils/openarm_driver/src/openarm_driver/configs/nana_v3_cell_v4.yaml"
+    args: "--side right --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --hand-can-interface can0 --config ../../../utils/openarm_driver/src/openarm_driver/configs/nana_v3_cell_v5.yaml"
     inputs:
       move_position: ik/position_right
       grip: udp-receiver/grip_right
+      trigger: udp-receiver/trigger_right
       request_position: quittable-tick-leader/tick
       request_state: quittable-tick-leader/tick
     outputs:
@@ -101,10 +115,11 @@ nodes:
   - id: follower-left
     build: pip install -e ../../dora-openarm
     path: dora-openarm
-    args: "--side left --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../../utils/openarm_driver/src/openarm_driver/configs/nana_v3_cell_v4.yaml"
+    args: "--side left --align-trigger gripper --align-delta-limit 0.0002 --start-on-startup --config ../../../utils/openarm_driver/src/openarm_driver/configs/nana_v3_cell_v5.yaml"
     inputs:
       move_position: ik/position_left
       grip: udp-receiver/grip_left
+      trigger: udp-receiver/trigger_left
       request_position: quittable-tick-leader/tick
       request_state: quittable-tick-leader/tick
     outputs:

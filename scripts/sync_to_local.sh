@@ -42,6 +42,7 @@ rsync -av ${DRY_RUN} \
     --exclude='.pytest_cache' \
     --exclude='__pycache__' \
     --exclude='*.pyc' \
+    --exclude='*.egg-info' \
     "${SOURCE_DIR}/" "${TARGET_DIR}/"
 
 echo "✅ Sync from Main Repo to Local Repo completed successfully!"

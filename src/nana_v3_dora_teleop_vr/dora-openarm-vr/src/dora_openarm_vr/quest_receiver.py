@@ -59,28 +59,22 @@ Meta Quest UDP pose receiver — specification
   Downstream IK interprets targets in the same frame.
 """
 
-import argparse
 import time
 
 import dora
+import argparse
 import numpy as np
 import pyarrow as pa
+
 from scipy.spatial.transform import Rotation
 
 from .smoothing import OneEuroPoseSmoother
 from .udp_receiver import JsonUdpReceiver
 
 
-def _map_trigger_to_gripper(trigger: float, side: str) -> float:
-    """Map a trigger value (0.0–1.0) to a calibrated gripper angle in radians."""
-    trigger = float(np.clip(trigger, 0.0, 1.0))
-    if side == "right":
-        open_deg, closed_deg = -45.0, 10.0
-    elif side == "left":
-        open_deg, closed_deg = 45.0, -10.0
-    else:
-        raise ValueError(f"Unsupported gripper side: {side!r}")
-    return float(np.deg2rad(open_deg + trigger * (closed_deg - open_deg)))
+def _discretize_trigger(val: float) -> float:
+    """Discretize trigger input [0.0, 1.0] into 5 levels (0.0, 0.25, 0.5, 0.75, 1.0)."""
+    return round(float(np.clip(val, 0.0, 1.0)) * 4.0) / 4.0
 
 
 # ── Frame alignment — edit here to tune ──────────────────────────────────────
@@ -98,27 +92,18 @@ _FRAME_ROT: np.ndarray = np.array(
 FRAME_OFFSET_NECK: np.ndarray = np.array([-0.085, 0, -0.05], dtype=np.float64)
 # ─────────────────────────────────────────────────────────────────────────────
 
-_DEFAULT_HOST = "0.0.0.0"
-_DEFAULT_PORT = 5006
+_DEFAULT_HOST = "0.0.0.0" # Default Host IP for UDP server (listening on all available interfaces)
+_DEFAULT_PORT = 5006 # Default UDP Port for receiving VR data
 
-VALID_OK = 0
-VALID_STALE = 1
-VALID_INVALID = 2
+VALID_OK = 0 # VALID_OK: 컨트롤러가 카메라 추적 정상
+VALID_STALE = 1 # VALID_STALE: 컨트롤러가 잠시 안 보여 마지막 정상 위치 유지 중
+VALID_INVALID = 2 # VALID_INVALID: 추적 완전 손실
+_VALID_NAMES = {VALID_OK: "OK", VALID_STALE: "STALE", VALID_INVALID: "INVALID"} # To match with the enum values used in the other Dora nodes
 
-_VALID_NAMES = {VALID_OK: "OK", VALID_STALE: "STALE", VALID_INVALID: "INVALID"}
+_R_FRAME = Rotation.from_matrix(_FRAME_ROT) # Rotation matrix for frame alignment (LH to RH conversion)
+_POSE_STRUCT_TYPE = pa.struct({"pose": pa.list_(pa.float32())})
 
-_R_FRAME = Rotation.from_matrix(_FRAME_ROT)
-
-_IDENTITY_REF = {
-    "x": 0.0,
-    "y": 0.0,
-    "z": 0.0,
-    "qx": 0.0,
-    "qy": 0.0,
-    "qz": 0.0,
-    "qw": 1.0,
-}
-
+LOG_INTERVAL = 0.1  # 10Hz (0.1초 마다 출력)
 
 def parse_lh_to_rh(c: dict) -> tuple[np.ndarray, Rotation]:
     """Convert a Unity left-handed pose dict to a right-handed (position, Rotation) pair.
@@ -136,12 +121,10 @@ def pose_to_array(pos: np.ndarray, rot: Rotation) -> np.ndarray:
     return np.array([pos[0], pos[1], pos[2], q[3], q[0], q[1], q[2]], dtype=np.float32)
 
 
-_POSE_STRUCT_TYPE = pa.struct({"pose": pa.list_(pa.float32())})
-
-
 def build_pose_output(pose: np.ndarray) -> pa.Array:
     """Wrap a pose array as a length-1 StructArray: [{"pose": [...]}]."""
     return pa.array([{"pose": pose}], type=_POSE_STRUCT_TYPE)
+
 
 class VRStateLogger:
     """터미널에서 VR 포즈 및 입력 상태를 대시보드 형태로 가독성 있게 로깅하기 위한 헬퍼 클래스"""
@@ -207,6 +190,7 @@ class VRStateLogger:
         print(f"  - Button : [{btn_a}] [{btn_b}]")
         print(f"================================================------------")
 
+
 class QuestPoseProcessor:
     
     def __init__(
@@ -219,15 +203,23 @@ class QuestPoseProcessor:
     def process(
         self, msg: dict
     ) -> tuple[np.ndarray | None, np.ndarray | None, np.ndarray | None]:
+        
         ref_raw = msg.get("rf") # HMD 기준점 
-        right_raw = msg.get("rc") # 왼손 컨트롤러
-        left_raw = msg.get("lc") # 오른손 컨트롤러 
+        right_raw = msg.get("rc") # 오른손 컨트롤러
+        left_raw = msg.get("lc") # 왼손 컨트롤러 
 
         # Unity 좌표계(왼손 좌표계) -> Mujoco, ROS2(오른손 좌표계) 변환
-        # - p_ref : Ref(HMD)의 위치 벡터, r_ref : Ref(HMD)dml 회전 행렬
-        p_ref, r_ref = parse_lh_to_rh(ref_raw or _IDENTITY_REF) # 
+        # p_ref : Ref(HMD)의 위치 벡터, r_ref : Ref(HMD)의 회전 행렬
+        
+        if ref_raw is None:
+            """
+                기준 점 값이 들어오지 않은 경우 차단하기
+            """
+            return None, None, None
+        
+        p_ref, r_ref = parse_lh_to_rh(ref_raw)
         active_p_ref = p_ref # HMD 위치 값을 기준 위치 변수로 복사 할당
-        active_r_ref_inv = r_ref.inv() # HMD 역회전 회전 객체
+        active_r_ref_inv = r_ref.inv() # HMD 역회전 회전 객체 (Why?: 역행렬은 HMD(헤드셋) 기준 컨트롤러의 상대 위치, 상대 회전량을 계산하기 위함)
 
         # 손목 컨트롤러 방향과 로봇 그리퍼 축 방향을 정렬하기 위한 90도 회전 객체 생성 (z축 90도 오일러 각도)
         r_fix = Rotation.from_euler("z", 90, degrees=True)
@@ -272,9 +264,7 @@ def _run(args: argparse.Namespace) -> None:
     prev_v_left = VALID_OK
     prev_v_overall = VALID_OK
     prev_v_reference = VALID_OK
-
     last_log_time = 0.0 # 디버깅 정보 기록 시간 기록용 변수
-    LOG_INTERVAL = 0.1  # 10Hz (0.1초 마다 출력)
 
     node = dora.Node()
     node.send_output("status", pa.array(["ready"]))
@@ -282,12 +272,16 @@ def _run(args: argparse.Namespace) -> None:
     for event in node:
         
         if event["type"] != "INPUT" or event["id"] != "tick":
+            """
+                매번 쏟아지는 모든 종류의 이벤트(Event) 중에서, 
+                Dora의 'tick'이라는 이름의 'INPUT' 타입 이벤트만 "필터링"하여 아래 로직을 수행
+            """
             continue
 
         recv_ts = receiver.drain_recv_timestamps()
 
         if recv_ts:
-            node.send_output("vr_receive_times", pa.array(recv_ts, type=pa.int64()))
+            node.send_output("vr_receive_times", pa.array(recv_ts, type=pa.int64())) # VR 기기에서 데이터를 수신한 실제 타임스탬프. 이를 통해 수신 지연 시간 등을 파악할 수 있음.
 
         msg = receiver.latest()
 
@@ -296,7 +290,7 @@ def _run(args: argparse.Namespace) -> None:
 
         now = time.perf_counter()
 
-        # 포즈 추적 유효성 검사 (VR 기기에서 보냄, VALID_STALE: 컨트롤러가 잠시 안 보여 마지막 정상 위치 유지 중, VALID_INVALID: 추적 완전 손실, VALID_OK: 카메라 추적 정상)
+        # 포즈 추적 유효성 검사 
         v_overall = int(msg["v"]) if "v" in msg else VALID_OK # (전체)
         v_right = int(msg["vr"]) if "vr" in msg else VALID_OK # (오른손)
         v_left = int(msg["vl"]) if "vl" in msg else VALID_OK # (왼손)
@@ -305,7 +299,7 @@ def _run(args: argparse.Namespace) -> None:
         if v_overall != prev_v_overall: # 전체
             """
                 추적 상태가 변화했을 떄만, 하단 로그를 출력
-                [receiver] validity: OK → STALE (L=OK, R=STALE)
+                예시: [receiver] validity: OK → STALE (L=OK, R=STALE)
             """
             print(
                 f"[receiver] validity: {_VALID_NAMES[prev_v_overall]} → {_VALID_NAMES[v_overall]} "
@@ -349,64 +343,63 @@ def _run(args: argparse.Namespace) -> None:
 
         ts = {"timestamp": time.time_ns()}
 
-        pose_right_with_gripper = None
-        if pose_right is not None and ("rg" in msg or "rt" in msg):
+        pose_right_with_hand = None
+        if pose_right is not None and ("rg" in msg):            
             """
-                pose_with_gripper (길이 8의 float32 np.ndarray):
-                [x, y, z, qw, qx, qy, qz, gripper_angle]
+                dora node로 부터 쏟아지는 모든 메세지들은 (timestamp를 포함해서) send_output으로 내보내진다
+                이 노드에서 내보내는 데이터: 
+                - "pose_right : {"pose": {"x": 0.0, "y": 0.0, "z": 0.0, "qw": 1.0, "qx": 0.0, "qy": 0.0, "qz": 0.0}, "gripper": 0.0} (로봇 오른손 로봇 팔 기준 좌표계와 회전, + "gripper": 0.0~1.0)
+                - "pose_left" : {"pose": {"x": 0.0, "y": 0.0, "z": 0.0, "qw": 1.0, "qx": 0.0, "qy": 0.0, "qz": 0.0}, "gripper": 0.0} (로봇 왼손 로봇 팔 기준 좌표계와 회전, + "gripper": 0.0~1.0)
+                - "pose_reference" : {"pose": {"x": 0.0, "y": 0.0, "z": 0.0, "qw": 1.0, "qx": 0.0, "qy": 0.0, "qz": 0.0}} (로봇의 가슴 부근 좌표계와 회전)
 
-                - Pose 기준 (x, y, z, qw, qx, qy, qz):
-                  Unity 오른손 좌표계를 오른손 좌표계(MuJoCo)로 변환 후, 헤드셋(HMD) 리셋 위치 기준의 
-                  상대 변화량을 로봇의 가슴 원점 프레임(`arm_origin` site) 및 기본 오프셋(`FRAME_OFFSET_NECK`)에 
-                  투영한 최종 위치 및 회전 값.
+                Pose 데이터 설명 :
+                * 헤드셋(HMD) 리셋 위치 기준에 대하여 Unity 오른손 좌표계를 오른손 좌표계(MuJoCo)로 변환 후
+                * 상대 변화량을 로봇의 가슴 원점 프레임(`arm_origin` site) 및 기본 오프셋(`FRAME_OFFSET_NECK`)에 투영한 최종 위치 및 회전 값.
 
-                - Gripper Angle 기준 (gripper_angle):
-                  VR 컨트롤러의 트리거 입력 값(rg/rt, 0.0~1.0)을 로봇 우측 그리퍼의 
-                  열림/닫힘 보정 각도범위(-45° ~ 10°)로 선형 매핑하여 라디안(rad)으로 변환한 값.
-
-                예시 데이터:
-                np.array([-0.085, 0.20, -0.14, 1.0, 0.0, 0.0, 0.0, -0.785398], dtype=np.float32)
+                Gripper 데이터 설명
+                * VR 컨트롤러의 트리거 입력 값(rg/rt, 0.0~1.0)을 로봇 우측 그리퍼의 
             """
-            grip_val = float(msg.get("rg", msg.get("rt", 0.0)))
-            gripper_angle = _map_trigger_to_gripper(grip_val, "right")
-            pose_right_with_gripper = np.concatenate([pose_right, [gripper_angle]], axis=0)
-            node.send_output("pose_right", build_pose_output(pose_right_with_gripper), ts)
 
-        pose_left_with_gripper = None
-        if pose_left is not None and ("lg" in msg or "lt" in msg):
+            trigger_val = _discretize_trigger(msg.get("rt", 0.0))
+            pose_right_with_hand = np.concatenate([pose_right, [trigger_val]], axis=0)
+            node.send_output("pose_right", build_pose_output(pose_right_with_hand), ts)
+
+        pose_left_with_hand = None
+        if pose_left is not None and ("lg" in msg):
             """
-                pose_with_gripper (길이 8의 float32 np.ndarray):
-                [x, y, z, qw, qx, qy, qz, gripper_angle]
+                dora node로 부터 쏟아지는 모든 메세지들은 (timestamp를 포함해서) send_output으로 내보내진다
+                이 노드에서 내보내는 데이터: 
+                - "pose_right : {"pose": {"x": 0.0, "y": 0.0, "z": 0.0, "qw": 1.0, "qx": 0.0, "qy": 0.0, "qz": 0.0}, "gripper": 0.0} (로봇 오른손 로봇 팔 기준 좌표계와 회전, + "gripper": 0.0~1.0)
+                - "pose_left" : {"pose": {"x": 0.0, "y": 0.0, "z": 0.0, "qw": 1.0, "qx": 0.0, "qy": 0.0, "qz": 0.0}, "gripper": 0.0} (로봇 왼손 로봇 팔 기준 좌표계와 회전, + "gripper": 0.0~1.0)
+                - "pose_reference" : {"pose": {"x": 0.0, "y": 0.0, "z": 0.0, "qw": 1.0, "qx": 0.0, "qy": 0.0, "qz": 0.0}} (로봇의 가슴 부근 좌표계와 회전)
 
-                - Pose 기준 (x, y, z, qw, qx, qy, qz):
-                  Unity 왼손 좌표계를 오른손 좌표계(MuJoCo)로 변환 후, 헤드셋(HMD) 리셋 위치 기준의 
-                  상대 변화량을 로봇의 가슴 원점 프레임(`arm_origin` site) 및 기본 오프셋(`FRAME_OFFSET_NECK`)에 
-                  투영한 최종 위치 및 회전 값.
+                Pose 데이터 설명 :
+                * 헤드셋(HMD) 리셋 위치 기준에 대하여 Unity 오른손 좌표계를 오른손 좌표계(MuJoCo)로 변환 후
+                * 상대 변화량을 로봇의 가슴 원점 프레임(`arm_origin` site) 및 기본 오프셋(`FRAME_OFFSET_NECK`)에 투영한 최종 위치 및 회전 값.
 
-                - Gripper Angle 기준 (gripper_angle):
-                  VR 컨트롤러의 트리거 입력 값(lg/lt, 0.0~1.0)을 로봇 좌측 그리퍼의 
-                  열림/닫힘 보정 각도범위(45° ~ -10°)로 선형 매핑하여 라디안(rad)으로 변환한 값.
-
-                예시 데이터:
-                np.array([-0.085, -0.20, -0.14, 1.0, 0.0, 0.0, 0.0, 0.785398], dtype=np.float32)
+                Gripper 데이터 설명
+                * VR 컨트롤러의 트리거 입력 값(rg/rt, 0.0~1.0)을 로봇 우측 그리퍼의 
             """
-            grip_val = float(msg.get("lg", msg.get("lt", 0.0)))
-            gripper_angle = _map_trigger_to_gripper(grip_val, "left")
-            pose_left_with_gripper = np.concatenate([pose_left, [gripper_angle]], axis=0)
-            node.send_output("pose_left", build_pose_output(pose_left_with_gripper), ts) # 시간 동기화를 위해 ns 단위의 timestamp도 보냄 (혹은 지연 시간(Latency) 측정 및 모니터링, 그리고 AI 학습 데이터 수집을 위한 시계열 축으로도 사용 가능)
+            trigger_val = _discretize_trigger(msg.get("lt", 0.0))
+            pose_left_with_hand = np.concatenate([pose_left, [trigger_val]], axis=0)
+            node.send_output("pose_left", build_pose_output(pose_left_with_hand), ts)
 
         if pose_reference is not None:
             node.send_output("pose_reference", build_pose_output(pose_reference), ts)
 
+        # 트리거 토글 관련 (검지 손가락 부분), 트리거의 눌림 정도에 따라 핸드의 Curl 값으로 제어 매핑
         if "rt" in msg:
+            rt_level = _discretize_trigger(msg["rt"])
             node.send_output(
-                "trigger_right", pa.array([msg["rt"]], type=pa.float32()), ts
+                "trigger_right", pa.array([rt_level], type=pa.float32()), ts
             )
         if "lt" in msg:
+            lt_level = _discretize_trigger(msg["lt"])
             node.send_output(
-                "trigger_left", pa.array([msg["lt"]], type=pa.float32()), ts
+                "trigger_left", pa.array([lt_level], type=pa.float32()), ts
             )
 
+        # 그리퍼 토글 관련 (중지 손가락 부분), VR Teleop 사용에 대한 트리거
         if "rg" in msg:
             node.send_output(
                 "grip_right", pa.array([float(msg["rg"])], type=pa.float32()), ts
@@ -416,6 +409,7 @@ def _run(args: argparse.Namespace) -> None:
                 "grip_left", pa.array([float(msg["lg"])], type=pa.float32()), ts
             )
 
+        # 조이스틱 토글 관련 (엄지 손가락 부분)
         if "lsx" in msg:
             node.send_output(
                 "joystick_x_left",
@@ -441,6 +435,7 @@ def _run(args: argparse.Namespace) -> None:
                 ts,
             )
 
+        # 버튼 토글 관련 (가장 아랫단 4개의 버튼, 혹은 방향 버튼)
         if "a" in msg:
             node.send_output(
                 "button_a", pa.array([bool(msg["a"])], type=pa.bool_()), ts
@@ -458,27 +453,25 @@ def _run(args: argparse.Namespace) -> None:
                 "button_y", pa.array([bool(msg["y"])], type=pa.bool_()), ts
             )
 
-        # ─────────────────────────────────────────────────────────────────
         # [Check quest driver received info] (--debug-value 플래그가 설정되어 있을 때만 모니터링 대시보드 출력)
+        # 특정 주기로 트리거, 조이스틱, 버튼 입력 정보와 헤드셋/컨트롤러의 자세 정보를 터미널에 모니터링 
         if args.debug_value and (now - last_log_time >= LOG_INTERVAL):
             VRStateLogger.print_dashboard(
                 v_overall=v_overall,
                 v_left=v_left,
                 v_right=v_right,
-                pose_left=pose_left_with_gripper if pose_left_with_gripper is not None else pose_left,
-                pose_right=pose_right_with_gripper if pose_right_with_gripper is not None else pose_right,
+                pose_left=pose_left_with_hand if pose_left_with_hand is not None else pose_left,
+                pose_right=pose_right_with_hand if pose_right_with_hand is not None else pose_right,
                 msg=msg,
             )
             last_log_time = now
-        # ─────────────────────────────────────────────────────────────────
-
 
     receiver.close()
 
 
 def main() -> None:
     """
-        
+        dora_openarm_vr의 메인 entrypoint
     """
     parser = argparse.ArgumentParser( description="Meta Quest VR pose receiver (dora node)" )
 

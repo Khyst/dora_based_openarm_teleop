@@ -136,14 +136,16 @@ CAMERA_INPUTS = (
     "camera_head_right",
     "camera_ceiling",
 )
+
 CAMERA_TIMESTAMP_WINDOW = 60
 CAMERA_STALE_AFTER_S = 1.0
+
 ARM_STATUS_INPUTS = ("arm_status_right", "arm_status_left")
 VR_TRIGGER_INPUTS = ("trigger_right", "trigger_left", "grip_right", "grip_left")
 VR_RECEIVE_TIMES_INPUTS = ("vr_receive_times", "vr_recv_ts")
+
 VR_TIMESTAMP_WINDOW = 120
 VR_STALE_AFTER_S = 1.0
-
 
 @dataclasses.dataclass
 class CameraStats:
@@ -212,7 +214,7 @@ def _update_vr_stats(ts_s: float) -> None:
 
 async def _notify_state_changed() -> None:
     global state_version
-    async with _state_changed:
+    async with _state_changed: # Why? thread-safe
         state_version += 1
         _state_changed.notify_all()
 
@@ -748,11 +750,14 @@ async def _main_uvicorn(server):
 
 
 async def _main_dora(server):
+
     _command_arm_start()
+
     last_values = {}
 
     while state.running:
-        if node.is_empty():
+        
+        if node.is_empty(): # Why?: If there is no event, it will wait for 0.001 seconds and continue.
             await asyncio.sleep(0.001)
             continue
         
@@ -762,13 +767,17 @@ async def _main_dora(server):
             state.running = False
         
         elif event["type"] == "INPUT":
+
             event_id = event["id"]
+
             val = event["value"]
 
             try:
                 if event_id == "tick":
-                    if state.collecting:
+                    
+                    if state.collecting: # 상태 관리
                         recorded_trajectory.append(_get_current_teleop_snapshot())
+
                     continue
 
                 if event_id in CAMERA_INPUTS:
@@ -776,6 +785,7 @@ async def _main_dora(server):
                         event_id,
                         _event_ts_to_seconds(event["metadata"].get("timestamp")),
                     )
+
                     continue
 
                 if event_id in ARM_STATUS_INPUTS:
@@ -783,12 +793,14 @@ async def _main_dora(server):
                     if getattr(state, event_id) != str_val:
                         setattr(state, event_id, str_val)
                         await _notify_state_changed()
+
                     continue
 
                 if event_id in VR_RECEIVE_TIMES_INPUTS:
                     if hasattr(val, "to_pylist"):
                         for ts_ns in val.to_pylist():
                             _update_vr_stats(float(ts_ns) / 1e9)
+
                     continue
 
                 if event_id in VR_TRIGGER_INPUTS:
@@ -797,35 +809,44 @@ async def _main_dora(server):
                     if event_id == "trigger_right":
                         state.trigger_states["trigger_r"] = flt_val
                         state.trigger_pressed_right = bool(flt_val > 0.5)
+
                     elif event_id == "grip_right":
                         state.trigger_states["grip_r"] = flt_val
+
                     elif event_id == "trigger_left":
                         state.trigger_states["trigger_l"] = flt_val
                         state.trigger_pressed_left = bool(flt_val > 0.5)
+
                     elif event_id == "grip_left":
                         state.trigger_states["grip_l"] = flt_val
 
                     await _notify_state_changed()
+
                     continue
 
                 if event_id in ("pose_right", "pose_left", "pose_reference", "pose_hmd"):
                     parsed = _parse_pose(val)
+
                     if parsed:
                         key = "controller_r" if event_id == "pose_right" else ("controller_l" if event_id == "pose_left" else "hmd")
                         state.tracked_poses[key] = parsed
                         await _notify_state_changed()
+
                     continue
 
                 if event_id in ("position_left", "position_right"):
                     arr = _parse_float_array(val)
+
                     if arr:
                         side = "left" if "left" in event_id else "right"
                         state.joint_states[side] = arr
                         await _notify_state_changed()
+
                     continue
 
                 if event_id in ("button_a", "button_b", "button_x", "button_y"):
                     btn_val = _parse_bool_scalar(val, False)
+
                     btn_name = event_id.replace("button_", "")
                     state.button_states[btn_name] = btn_val
 
@@ -846,7 +867,9 @@ async def _main_dora(server):
                                 recorded_waypoints.append(_get_current_teleop_snapshot())
 
                     await _notify_state_changed()
+
                     continue
+
             except Exception as e:
                 print(f"[dora-openarm-web-ui] Error processing event {event_id}: {e}")
 
@@ -854,46 +877,58 @@ async def _main_dora(server):
 
 
 async def _main_async():
+
     config = uvicorn.Config(app, host="0.0.0.0", port=port, log_level="info")
+
     server = uvicorn.Server(config)
 
     task_uvicorn = asyncio.create_task(_main_uvicorn(server))
+
     task_dora = asyncio.create_task(_main_dora(server))
 
     await task_uvicorn
+
     state.running = False
+
     await task_dora
 
 
 def main():
+
     global node, tasks, auto_open, port, vr_data_dir, record_type
 
     parser = argparse.ArgumentParser(description="Three.js 3D Web UI & Trajectory Recording for OpenArm")
+
     parser.add_argument(
         "--metadata-file",
         default=os.getenv("METADATA_FILE"),
         help="Metadata file path",
         type=pathlib.Path,
     )
+
     parser.add_argument(
         "--auto-open",
         action=argparse.BooleanOptionalAction,
         default=os.getenv("AUTO_OPEN", "") == "yes",
         help="Open browser automatically",
     )
+
     default_port = 8000
+
     parser.add_argument(
         "--port",
         default=int(os.getenv("PORT", default_port)),
         help=f"Web server port (default {default_port})",
         type=int,
     )
+
     parser.add_argument(
         "--vr-data-dir",
         default=os.getenv("VR_DATA_DIR"),
         help="Directory path to save vr_data recorded episodes (default: nana_v3_individual/vr_data)",
         type=pathlib.Path,
     )
+
     parser.add_argument(
         "--record-type",
         choices=["trajectory", "trajectories", "waypoint", "waypoints"],
@@ -903,30 +938,41 @@ def main():
     )
 
     args = parser.parse_args()
+
     auto_open = args.auto_open
+
     port = args.port
+
     if args.vr_data_dir:
         vr_data_dir = args.vr_data_dir.resolve()
 
     raw_type = str(args.record_type or "waypoint").strip().lower()
+
     if "trajectory" in raw_type or "trajectories" in raw_type:
         record_type = "trajectory"
     else:
         record_type = "waypoint"
+        
     state.record_type = record_type
+
     print(f"[dora-openarm-web-ui] Dataset Recording Type: {record_type.upper()}")
 
     metadata = load_yaml(args.metadata_file)
+
     tasks = metadata.get("tasks", [{"prompt": "OpenArm Teleop Task"}])
+
     state.task_title = tasks[state.task_index].get("prompt", "OpenArm Teleop Task")
 
     try:
         node = dora.Node()
+
     except Exception as e:
+
         print(f"[dora-openarm-web-ui] Running without Dora environment ({e})")
 
     asyncio.run(_main_async())
 
 
 if __name__ == "__main__":
+    
     main()

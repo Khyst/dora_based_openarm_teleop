@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "tech_docs/DORA 기반 VR Teleop 시스템 기술 문서.md",
+                "file": "tech_docs/05_dora_openarm.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DORA 기반 VR Teleop 시스템 기술 문서"
+              "title": "05_dora_openarm"
             }
           }
         ],
@@ -213,6 +213,7 @@
   },
   "active": "abea2057b8c530b6",
   "lastOpenFiles": [
+    "tech_docs/DORA 기반 VR Teleop 시스템 기술 문서.md",
     "docs/029_dora_openarm_foxglove_setup_and_dual_visualizer_pipeline_260803.md",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop-sim-mujoco.yaml",
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop-sim-foxglove.yaml",
@@ -234,7 +235,6 @@
     "tech_docs/00_nana_openarm_description.md",
     "tech_docs/02_dora_openarm_kinematics.md",
     "tech_docs/01_dora_openarm_vr.md",
-    "tech_docs/DORA 기반 VR Teleop 시스템 기술 문서.md",
     "tech_docs/README.md",
     "docs/027_tech_docs_refactoring_and_index_section5_improvement_260801.md",
     "tech_docs/07_hamsa_driver.md",
@@ -243,7 +243,6 @@
     "tech_docs/03_dora_openarm_kinematics_control.md",
     "docs/026_tech_docs_gitlab_readme_index_and_relative_links_260815.md",
     "docs/025_pandoc_xelatex_nanum_font_setup_260814.md",
-    "tech_docs/DORA 기반 VR Teleop 시스템 기술 문서.md",
     "dora_based_openarm_teleop_diagram (1).jpg",
     "tech_docs/04_dora_openarm_mujoco.md",
     "src/utils/hamsa_driver/docs/verify_image.md",

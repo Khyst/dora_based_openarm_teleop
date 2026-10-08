@@ -1109,6 +1109,8 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.85;
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -1116,26 +1118,26 @@
     controls.target.set(0, 0.8, 0);
 
     // ==========================================
-    // REALISTIC INDUSTRIAL STUDIO LIGHTING SETUP
+    // LIGHTING SETUP (light-theme balanced)
     // ==========================================
-    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xdde3ec, 1.8);
+    // Hemisphere: soft sky/ground fill, low intensity
+    const hemiLight = new THREE.HemisphereLight(0xdce8f5, 0xc8d8c8, 0.5);
     scene.add(hemiLight);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+    // Ambient: very soft base fill so shadows aren't pitch black
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    // Key light: main directional from upper-front-right
+    const keyLight = new THREE.DirectionalLight(0xfff8f0, 0.9);
     keyLight.position.set(3, 8, 5);
     keyLight.castShadow = true;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0xcbd5e1, 1.0);
-    fillLight.position.set(-4, 6, 3);
+    // Fill light: soft blue-grey from the left
+    const fillLight = new THREE.DirectionalLight(0xd0dce8, 0.35);
+    fillLight.position.set(-4, 4, 3);
     scene.add(fillLight);
-
-    const pointLight = new THREE.PointLight(0xffffff, 1.2, 10);
-    pointLight.position.set(0, 1.6, 2.0);
-    scene.add(pointLight);
 
     // Studio Floor Grid
     const gridHelper = new THREE.GridHelper(10, 20, 0x94a3b8, 0xcbd5e1);
@@ -1239,23 +1241,23 @@
 
     let robotJointControls = {};
 
-    // Natural Industrial Materials (light theme friendly)
+    // Materials — metalness=0, high roughness: colors stay vivid under light theme
     const bodyMaterial = new THREE.MeshStandardMaterial({
-      color: 0x8a9bb0,       // Natural cool grey
-      metalness: 0.45,
-      roughness: 0.55,
+      color: 0x7a8fa8,       // Cool slate grey
+      metalness: 0.0,
+      roughness: 0.80,
       side: THREE.DoubleSide
     });
     const leftArmMaterial = new THREE.MeshStandardMaterial({
-      color: 0x5c9e7a,       // Natural muted green
-      metalness: 0.30,
-      roughness: 0.50,
+      color: 0x4a8c68,       // Muted forest green
+      metalness: 0.0,
+      roughness: 0.75,
       side: THREE.DoubleSide
     });
     const rightArmMaterial = new THREE.MeshStandardMaterial({
-      color: 0x5b85b8,       // Natural muted blue
-      metalness: 0.30,
-      roughness: 0.50,
+      color: 0x4472a8,       // Muted steel blue
+      metalness: 0.0,
+      roughness: 0.75,
       side: THREE.DoubleSide
     });
 

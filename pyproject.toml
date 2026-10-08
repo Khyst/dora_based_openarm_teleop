@@ -10,11 +10,8 @@ dependencies = [
     "dora-openarm-vr",
     "dora-openarm-kinematics",
     "dora-openarm-kinematics-control",
-    "dora-openarm-mujoco",
     "dora-openarm-quitter",
     "dora-openarm",
-    "dora-openarm-dataset-recorder",
-    "dora-openarm-foxglove",
     "dora-openarm-web-ui",
     "openarm-driver",
     "hamsa_driver",
@@ -25,11 +22,8 @@ members = [
     "src/nana_v3_dora_teleop_vr/dora-openarm-vr",
     "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics",
     "src/nana_v3_dora_teleop_vr/dora-openarm-kinematics-control",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-mujoco",
     "src/nana_v3_dora_teleop_vr/dora-openarm-quitter",
     "src/nana_v3_dora_teleop_vr/dora-openarm",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-dataset-recorder",
-    "src/nana_v3_dora_teleop_vr/dora-openarm-foxglove",
     "src/nana_v3_dora_teleop_vr/dora-openarm-web-ui",
     "src/utils/openarm_driver",
     "src/utils/hamsa_driver",
@@ -39,11 +33,8 @@ members = [
 dora-openarm-vr = { workspace = true }
 dora-openarm-kinematics = { workspace = true }
 dora-openarm-kinematics-control = { workspace = true }
-dora-openarm-mujoco = { workspace = true }
 dora-openarm-quitter = { workspace = true }
 dora-openarm = { workspace = true }
-dora-openarm-dataset-recorder = { workspace = true }
-dora-openarm-foxglove = { workspace = true }
 dora-openarm-web-ui = { workspace = true }
 openarm-driver = { workspace = true }
 hamsa_driver = { workspace = true }

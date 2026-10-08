@@ -48,7 +48,7 @@
 
   <worldbody>
     <!-- Teleop Origin Frame -->
-    <site name="arm_origin" pos="0 0 1.16" size="0.02" rgba="1 0.8 0 1" group="4"/>
+    <site name="arm_origin" pos="0 0 1.22" size="0.02" rgba="1 0.8 0 1" group="4"/>
 
     <!-- Base Body Frame -->
     <geom name="nana_v3_body_link0_collision" type="mesh" mesh="body_link0_symp"/>
@@ -123,6 +123,7 @@
                         <inertial pos="5.66071e-05 -0.0104246 0.0713712" quat="0.973407 -0.228997 -0.00214604 -0.0058434" mass="0.565977" diaginertia="0.00166126 0.0015558 0.00130543"/>
                         <joint name="openarm_left_joint7" pos="0 0 0" axis="0 -1 0" range="-1.5708 1.5708" actuatorfrcrange="-7 7"/>
                         <geom name="nana_v3_left_link7_collision" pos="0 0 -0.5585" type="mesh" mesh="link7_symp"/>
+                        
                         <site name="left_ee_control_point" pos="0 0 0.08" quat="0 1 0 0" size="0.01" rgba="0 1 0 1"/>
 
                         <!-- Left HX5 D20 Hand -->

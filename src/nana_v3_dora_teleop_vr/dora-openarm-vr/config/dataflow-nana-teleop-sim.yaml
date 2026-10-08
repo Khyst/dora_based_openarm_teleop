@@ -2,6 +2,7 @@ nodes:
   - id: web-ui
     build: pip install -e ../../dora-openarm-web-ui
     path: dora-openarm-web-ui
+    args: "--xml ../../../nana_v3_description/assets/robot/urdf/nana_v4_corrected.xml"
     env:
       METADATA_FILE: "test_metadata.yaml"
     inputs:

@@ -18,15 +18,12 @@ while [[ $# -gt 0 ]]; do
       RECORD_TYPE="$2"
       shift 2
       ;;
-    trajectory|trajectories|waypoint|waypoints)
+    trajectories|waypoints)
       RECORD_TYPE="$1"
       shift
       ;;
-    web|web-ui|mujoco|foxglove)
+    web)
       VISUALIZER="$1"
-      if [ "$VISUALIZER" == "web-ui" ]; then
-        VISUALIZER="web"
-      fi
       shift
       ;;
     --help|-h)
@@ -35,7 +32,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     *)
       echo "Unknown argument: $1"
-      echo "Usage: $0 [web|mujoco|foxglove] [waypoints|trajectories] [--visualizer web|mujoco|foxglove] [--record-type waypoints|trajectories]"
+      echo "Usage: $0 [web] [waypoints|trajectories] [--visualizer web] [--record-type waypoints|trajectories]"
       exit 1
       ;;
   esac
@@ -43,16 +40,12 @@ done
 
 export RECORD_TYPE
 
-if [ "$VISUALIZER" != "web" ] && [ "$VISUALIZER" != "foxglove" ] && [ "$VISUALIZER" != "mujoco" ]; then
-    echo "❌ Error: Invalid visualizer '$VISUALIZER'. Options: 'web', 'foxglove', 'mujoco'"
+if [ "$VISUALIZER" != "web" ]; then
+    echo "❌ Error: Invalid visualizer '$VISUALIZER'. Options: 'web'"
     exit 1
 fi
 
-if [ "$VISUALIZER" == "web" ]; then
-    DATAFLOW_FILE="$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop.yaml"
-else
-    DATAFLOW_FILE="$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop-${VISUALIZER}.yaml"
-fi
+DATAFLOW_FILE="$ROOT_DIR/src/nana_v3_dora_teleop_vr/dora-openarm-vr/config/dataflow-nana-teleop.yaml"
 
 # Auto-run setup if virtual environment is missing
 if [ ! -d "$ROOT_DIR/.venv" ]; then
@@ -67,16 +60,10 @@ fi
 export PATH="$ROOT_DIR/.venv/bin:$HOME/.local/bin:$PATH"
 export CMAKE_PREFIX_PATH="$HOME/.local:$CMAKE_PREFIX_PATH"
 
-echo "[NANA Teleop Real] Starting Dora real robot teleoperation dataflow locally..."
+echo "[NANA Teleop Sim] Starting Dora simulation dataflow locally..."
 echo "  - URDF/XML Model: nana_v3_description"
-echo "  - Follower Arms: Left & Right OpenArm Hardware"
 echo "  - Visualizer: $VISUALIZER"
 echo "  - Record Type: $RECORD_TYPE"
-if [ "$VISUALIZER" == "foxglove" ]; then
-    echo "  - Foxglove Visualizer: ws://localhost:8765 (Foxglove Studio: https://app.foxglove.dev)"
-else
-    echo "  - MuJoCo GUI Viewer: Passive 3D Window"
-fi
 echo "  - UDP Listener: 0.0.0.0:5006 (Meta Quest VR)"
 echo "  - Press Ctrl+C to stop"
 echo ""

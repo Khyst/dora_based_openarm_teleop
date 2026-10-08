@@ -17,19 +17,20 @@
 import argparse
 import asyncio
 import collections
+from collections.abc import AsyncIterable
 from contextlib import asynccontextmanager
 import dataclasses
 import datetime
-from collections.abc import AsyncIterable
 import json
 import os
 import pathlib
 import time
+
 import dora
 from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.sse import EventSourceResponse, ServerSentEvent
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import pyarrow as pa
 import uvicorn
@@ -38,12 +39,33 @@ import yaml
 base_dir = os.path.dirname(__file__)
 templates = Jinja2Templates(directory=f"{base_dir}/templates")
 
+# Global variables & Node Configurations
 node = None
 auto_open = False
 port = 8000
 tasks = []
 record_type = "waypoint"
 vr_data_dir: pathlib.Path | None = None
+
+xml_path: str = "../../../nana_v3_description/assets/robot/urdf/nana_v4_corrected.xml"
+xml_url: str = "/nana_v3_description/assets/robot/urdf/nana_v4_corrected.xml"
+
+
+def _convert_xml_path_to_url(raw_path: str) -> str:
+    """
+        입력받은 XML 경로에서 'nana_v3_description/' 이후의 정해진 상대 경로만 추출하여 static mount URL로 변환합니다.
+    """
+    p = pathlib.Path(raw_path).as_posix()
+    target_prefix = "nana_v3_description/"
+
+    if target_prefix in p:
+        sub_path = p.split(target_prefix, 1)[1]
+        return f"/nana_v3_description/{sub_path}"
+
+    raise ValueError(
+        f"Invalid XML path: '{raw_path}'. "
+        f"Path must contain '{target_prefix}' static mount directory."
+    )
 
 
 @asynccontextmanager
@@ -53,6 +75,7 @@ async def _lifespan(app: FastAPI):
         url = f"http://127.0.0.1:{port}"
         await asyncio.create_subprocess_exec("open", url)
     yield
+
 
 app = FastAPI(lifespan=_lifespan)
 
@@ -147,6 +170,7 @@ VR_RECEIVE_TIMES_INPUTS = ("vr_receive_times", "vr_recv_ts")
 VR_TIMESTAMP_WINDOW = 120
 VR_STALE_AFTER_S = 1.0
 
+
 @dataclasses.dataclass
 class CameraStats:
     fps: float = 0.0
@@ -214,7 +238,7 @@ def _update_vr_stats(ts_s: float) -> None:
 
 async def _notify_state_changed() -> None:
     global state_version
-    async with _state_changed: # Why? thread-safe
+    async with _state_changed:
         state_version += 1
         _state_changed.notify_all()
 
@@ -263,7 +287,6 @@ def _command_start():
     recorded_trajectory.clear()
     recorded_waypoints.clear()
     recording_start_time = time.time()
-    # Save initial state snapshot
     recorded_trajectory.append(_get_current_teleop_snapshot())
     print(f"[dora-openarm-web-ui] 🔴 Started recording episode {state.episode_number}")
 
@@ -273,11 +296,10 @@ def _command_success(dataset_data=None):
     if node:
         node.send_output("command", pa.array(["success"]))
     state.collecting = False
-    
+
     end_time = time.time()
     start_time = recording_start_time if recording_start_time > 0 else end_time
 
-    # Construct clean dataset payload according to record_type
     base_data = {
         "episode_number": state.episode_number,
         "task_index": state.task_index,
@@ -289,28 +311,25 @@ def _command_success(dataset_data=None):
     }
 
     if record_type == "waypoint":
-        # Extract waypoints only
         wp_list = list(recorded_waypoints)
         if dataset_data and isinstance(dataset_data, dict):
             if dataset_data.get("waypoints"):
                 wp_list = dataset_data["waypoints"]
             elif dataset_data.get("trajectories") and not recorded_waypoints:
                 wp_list = dataset_data["trajectories"]
-        
+
         base_data["waypoints_count"] = len(wp_list)
         base_data["waypoints"] = wp_list
         final_dataset = base_data
     else:
-        # Extract trajectories only
         traj_list = list(recorded_trajectory)
         if dataset_data and isinstance(dataset_data, dict) and dataset_data.get("trajectories"):
             traj_list = dataset_data["trajectories"]
-        
+
         base_data["samples_count"] = len(traj_list)
         base_data["trajectories"] = traj_list
         final_dataset = base_data
 
-    # Save dataset file
     try:
         if vr_data_dir:
             out_dir = vr_data_dir
@@ -323,7 +342,7 @@ def _command_success(dataset_data=None):
 
         out_dir.mkdir(parents=True, exist_ok=True)
         filepath = out_dir / f"episode_{state.episode_number}_{int(time.time())}.json"
-        
+
         def _clean_item(item):
             if isinstance(item, dict):
                 return {
@@ -381,7 +400,11 @@ def _root(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="root.html",
-        context={"state": state, "state_version": state_version},
+        context={
+            "state": state,
+            "state_version": state_version,
+            "xml_url": xml_url,
+        },
     )
 
 
@@ -547,7 +570,6 @@ def _parse_pose(val):
     try:
         arr = None
 
-        # Case 1: PyArrow object via to_pylist()
         if hasattr(val, "to_pylist"):
             plist = val.to_pylist()
             if plist and isinstance(plist, list):
@@ -559,7 +581,6 @@ def _parse_pose(val):
                 elif isinstance(item, (int, float)) and len(plist) >= 7:
                     arr = plist
 
-        # Case 2: PyArrow object via as_py()
         if arr is None and hasattr(val, "as_py"):
             py_val = val.as_py()
             if isinstance(py_val, list) and py_val:
@@ -573,7 +594,6 @@ def _parse_pose(val):
             elif isinstance(py_val, (list, tuple)):
                 arr = py_val
 
-        # Case 3: Standard Python Dict
         if arr is None and isinstance(val, dict):
             if "pose" in val:
                 arr = val["pose"]
@@ -588,7 +608,6 @@ def _parse_pose(val):
                     "qw": float(val.get("qw", 1.0)),
                 }
 
-        # Case 4: Standard Python List or Tuple
         if arr is None and isinstance(val, (list, tuple)):
             if val and isinstance(val[0], dict) and "pose" in val[0]:
                 arr = val[0]["pose"]
@@ -618,18 +637,15 @@ def _parse_float_array(val):
     if val is None:
         return []
     try:
-        # Case 1: PyArrow StructArray or ListArray via to_pylist()
         if hasattr(val, "to_pylist"):
             pylist = val.to_pylist()
             if not pylist:
                 return []
             item = pylist[0]
             if isinstance(item, dict):
-                # Look for qpos, position, new_position, or values key
                 for k in ("qpos", "new_position", "position", "values", "joint_states"):
                     if k in item and isinstance(item[k], (list, tuple)):
                         return [float(x) for x in item[k]]
-                # Fallback: check values of dictionary if numeric
                 dict_vals = list(item.values())
                 if dict_vals and isinstance(dict_vals[0], (int, float)):
                     return [float(x) for x in dict_vals]
@@ -640,7 +656,6 @@ def _parse_float_array(val):
             elif isinstance(item, (list, tuple)):
                 return [float(x) for x in item]
 
-        # Case 2: PyArrow Struct/Scalar via as_py()
         if hasattr(val, "as_py"):
             py_val = val.as_py()
             if isinstance(py_val, dict):
@@ -655,13 +670,11 @@ def _parse_float_array(val):
                             return [float(x) for x in item[k]]
                 return [float(x) for x in py_val]
 
-        # Case 3: Standard Python Dict
         if isinstance(val, dict):
             for k in ("qpos", "new_position", "position", "values", "joint_states"):
                 if k in val and isinstance(val[k], (list, tuple)):
                     return [float(x) for x in val[k]]
 
-        # Case 4: Standard Python List or Tuple
         if isinstance(val, (list, tuple)):
             if val and isinstance(val[0], dict):
                 item = val[0]
@@ -741,7 +754,7 @@ async def _button(request: Request):
         "status": "ok",
         "button_states": state.button_states,
         "collecting": state.collecting,
-        "waypoints_count": state.waypoints_count
+        "waypoints_count": state.waypoints_count,
     })
 
 
@@ -750,34 +763,29 @@ async def _main_uvicorn(server):
 
 
 async def _main_dora(server):
+    if not node:
+        return
 
     _command_arm_start()
-
     last_values = {}
 
     while state.running:
-        
-        if node.is_empty(): # Why?: If there is no event, it will wait for 0.001 seconds and continue.
+        if node.is_empty():
             await asyncio.sleep(0.001)
             continue
-        
+
         event = node.next()
-        
         if event["type"] == "STOP":
             state.running = False
-        
+
         elif event["type"] == "INPUT":
-
             event_id = event["id"]
-
             val = event["value"]
 
             try:
                 if event_id == "tick":
-                    
-                    if state.collecting: # 상태 관리
+                    if state.collecting:
                         recorded_trajectory.append(_get_current_teleop_snapshot())
-
                     continue
 
                 if event_id in CAMERA_INPUTS:
@@ -785,7 +793,6 @@ async def _main_dora(server):
                         event_id,
                         _event_ts_to_seconds(event["metadata"].get("timestamp")),
                     )
-
                     continue
 
                 if event_id in ARM_STATUS_INPUTS:
@@ -793,14 +800,12 @@ async def _main_dora(server):
                     if getattr(state, event_id) != str_val:
                         setattr(state, event_id, str_val)
                         await _notify_state_changed()
-
                     continue
 
                 if event_id in VR_RECEIVE_TIMES_INPUTS:
                     if hasattr(val, "to_pylist"):
                         for ts_ns in val.to_pylist():
                             _update_vr_stats(float(ts_ns) / 1e9)
-
                     continue
 
                 if event_id in VR_TRIGGER_INPUTS:
@@ -809,44 +814,39 @@ async def _main_dora(server):
                     if event_id == "trigger_right":
                         state.trigger_states["trigger_r"] = flt_val
                         state.trigger_pressed_right = bool(flt_val > 0.5)
-
                     elif event_id == "grip_right":
                         state.trigger_states["grip_r"] = flt_val
-
                     elif event_id == "trigger_left":
                         state.trigger_states["trigger_l"] = flt_val
                         state.trigger_pressed_left = bool(flt_val > 0.5)
-
                     elif event_id == "grip_left":
                         state.trigger_states["grip_l"] = flt_val
 
                     await _notify_state_changed()
-
                     continue
 
                 if event_id in ("pose_right", "pose_left", "pose_reference", "pose_hmd"):
                     parsed = _parse_pose(val)
-
                     if parsed:
-                        key = "controller_r" if event_id == "pose_right" else ("controller_l" if event_id == "pose_left" else "hmd")
+                        key = (
+                            "controller_r"
+                            if event_id == "pose_right"
+                            else ("controller_l" if event_id == "pose_left" else "hmd")
+                        )
                         state.tracked_poses[key] = parsed
                         await _notify_state_changed()
-
                     continue
 
                 if event_id in ("position_left", "position_right"):
                     arr = _parse_float_array(val)
-
                     if arr:
                         side = "left" if "left" in event_id else "right"
                         state.joint_states[side] = arr
                         await _notify_state_changed()
-
                     continue
 
                 if event_id in ("button_a", "button_b", "button_x", "button_y"):
                     btn_val = _parse_bool_scalar(val, False)
-
                     btn_name = event_id.replace("button_", "")
                     state.button_states[btn_name] = btn_val
 
@@ -854,20 +854,17 @@ async def _main_dora(server):
                     last_values[event_id] = btn_val
 
                     if triggered:
-                        # Recording Mode Toggle on Button X or Button A
                         if event_id in ("button_a", "button_x"):
                             if state.collecting:
                                 _command_success()
                             else:
                                 _command_start()
-                        # Waypoint Trajectory Capture on Button Y or Button B
                         elif event_id in ("button_b", "button_y"):
                             if state.collecting:
                                 state.waypoints_count += 1
                                 recorded_waypoints.append(_get_current_teleop_snapshot())
 
                     await _notify_state_changed()
-
                     continue
 
             except Exception as e:
@@ -877,27 +874,33 @@ async def _main_dora(server):
 
 
 async def _main_async():
-
     config = uvicorn.Config(app, host="0.0.0.0", port=port, log_level="info")
-
     server = uvicorn.Server(config)
 
     task_uvicorn = asyncio.create_task(_main_uvicorn(server))
-
     task_dora = asyncio.create_task(_main_dora(server))
 
     await task_uvicorn
-
     state.running = False
-
     await task_dora
 
 
 def main():
+    global node, tasks, auto_open, port, vr_data_dir, record_type, xml_path, xml_url
 
-    global node, tasks, auto_open, port, vr_data_dir, record_type
+    parser = argparse.ArgumentParser(
+        description="Three.js 3D Web UI & Trajectory Recording for OpenArm"
+    )
 
-    parser = argparse.ArgumentParser(description="Three.js 3D Web UI & Trajectory Recording for OpenArm")
+    parser.add_argument(
+        "--xml",
+        default=os.getenv(
+            "ROBOT_XML",
+            "../../../nana_v3_description/assets/robot/urdf/nana_v4_corrected.xml",
+        ),
+        help="Path to MuJoCo XML / URDF robot description file",
+        type=str,
+    )
 
     parser.add_argument(
         "--metadata-file",
@@ -939,40 +942,41 @@ def main():
 
     args = parser.parse_args()
 
-    auto_open = args.auto_open
+    xml_path = str(args.xml)
+    try:
+        xml_url = _convert_xml_path_to_url(xml_path)
+    except ValueError as e:
+        print(f"[dora-openarm-web-ui] ❌ Error: {e}")
+        return
 
+    auto_open = args.auto_open
     port = args.port
 
     if args.vr_data_dir:
         vr_data_dir = args.vr_data_dir.resolve()
 
     raw_type = str(args.record_type or "waypoint").strip().lower()
-
     if "trajectory" in raw_type or "trajectories" in raw_type:
         record_type = "trajectory"
     else:
         record_type = "waypoint"
-        
+
     state.record_type = record_type
 
+    print(f"[dora-openarm-web-ui] Robot Description XML: {xml_path}")
     print(f"[dora-openarm-web-ui] Dataset Recording Type: {record_type.upper()}")
 
     metadata = load_yaml(args.metadata_file)
-
     tasks = metadata.get("tasks", [{"prompt": "OpenArm Teleop Task"}])
-
     state.task_title = tasks[state.task_index].get("prompt", "OpenArm Teleop Task")
 
     try:
         node = dora.Node()
-
     except Exception as e:
-
         print(f"[dora-openarm-web-ui] Running without Dora environment ({e})")
 
     asyncio.run(_main_async())
 
 
 if __name__ == "__main__":
-    
     main()

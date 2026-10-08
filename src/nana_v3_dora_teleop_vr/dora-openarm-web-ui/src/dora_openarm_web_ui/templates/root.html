@@ -20,18 +20,18 @@
 
   <style>
     :root {
-      --bg-color: #0b0f19;
-      --card-bg: rgba(23, 32, 51, 0.85);
-      --card-border: rgba(51, 65, 85, 0.6);
-      --card-border-active: #3b82f6;
-      --primary-blue: #3b82f6;
-      --primary-blue-hover: #2563eb;
-      --accent-sky: #0ea5e9;
-      --status-green: #22c55e;
-      --status-red: #ef4444;
-      --status-yellow: #f59e0b;
-      --text-main: #f8fafc;
-      --text-sub: #cbd5e1;
+      --bg-color: #f0f4f8;
+      --card-bg: rgba(255, 255, 255, 0.92);
+      --card-border: rgba(203, 213, 225, 0.8);
+      --card-border-active: #2563eb;
+      --primary-blue: #2563eb;
+      --primary-blue-hover: #1d4ed8;
+      --accent-sky: #0284c7;
+      --status-green: #16a34a;
+      --status-red: #dc2626;
+      --status-yellow: #d97706;
+      --text-main: #0f172a;
+      --text-sub: #334155;
       --text-dim: #64748b;
       --font-mono: "JetBrains Mono", monospace;
       --font-main: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -59,12 +59,13 @@
       position: relative;
       z-index: 10;
       height: 56px;
-      background: #0f172a;
+      background: #ffffff;
       border-bottom: 1px solid var(--card-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
 
     .logo-box {
@@ -102,7 +103,7 @@
     }
 
     .info-badge {
-      background: rgba(30, 41, 59, 0.7);
+      background: rgba(241, 245, 249, 0.9);
       padding: 5px 12px;
       border-radius: 6px;
       border: 1px solid var(--card-border);
@@ -130,7 +131,7 @@
       position: relative;
       width: 100%;
       height: 100%;
-      background: #070a12;
+      background: #e8edf3;
     }
 
     #three-canvas {
@@ -199,7 +200,7 @@
     }
 
     .tf-btn {
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(255, 255, 255, 0.9);
       border: 1px solid var(--card-border);
       color: var(--text-sub);
       font-family: var(--font-mono);
@@ -210,17 +211,18 @@
       cursor: pointer;
       backdrop-filter: blur(8px);
       transition: all 0.2s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
     .tf-btn:hover {
       border-color: var(--primary-blue);
-      color: var(--text-main);
-      background: rgba(30, 41, 59, 0.9);
+      color: var(--primary-blue);
+      background: rgba(241, 245, 249, 1);
     }
 
     .tf-btn.off {
       color: var(--text-dim);
-      background: rgba(15, 23, 42, 0.5);
+      background: rgba(255, 255, 255, 0.6);
     }
 
     /* Control Toast Overlay (Top-Right Popup Notifications) */
@@ -236,7 +238,7 @@
     }
 
     .top-right-toast {
-      background: rgba(15, 23, 42, 0.95);
+      background: rgba(255, 255, 255, 0.97);
       border: 1px solid var(--card-border);
       border-left: 4px solid var(--status-green);
       color: var(--text-main);
@@ -245,7 +247,7 @@
       font-weight: 600;
       padding: 10px 16px;
       border-radius: 6px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       backdrop-filter: blur(8px);
       transform: translateX(120%);
       opacity: 0;
@@ -270,7 +272,7 @@
 
     /* Right 5-Tier Data Panel Stack */
     .data-panel-stack {
-      background: rgba(15, 23, 42, 0.95);
+      background: #f0f4f8;
       border-left: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
@@ -280,13 +282,14 @@
     }
 
     .panel-card {
-      background: rgba(23, 32, 51, 0.75);
+      background: rgba(255, 255, 255, 0.92);
       border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 14px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
     }
 
     .panel-title {
@@ -331,14 +334,14 @@
       align-items: center;
       font-family: var(--font-mono);
       font-size: 13px;
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(241, 245, 249, 0.9);
       padding: 6px 10px;
       border-radius: 5px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(203, 213, 225, 0.7);
     }
 
     .joint-name {
-      color: #f1f5f9;
+      color: #1e293b;
       font-weight: 700;
       font-size: 13px;
     }
@@ -354,10 +357,10 @@
       display: flex;
       flex-direction: column;
       gap: 5px;
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(241, 245, 249, 0.9);
       padding: 8px 10px;
       border-radius: 5px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(203, 213, 225, 0.7);
     }
 
     .pose-target {
@@ -402,7 +405,7 @@
       padding: 9px 0;
       border-radius: 6px;
       border: 1px solid var(--card-border);
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(241, 245, 249, 0.9);
       color: var(--text-dim);
       cursor: pointer;
       user-select: none;
@@ -410,9 +413,9 @@
     }
 
     .btn-badge.active {
-      background: rgba(59, 130, 246, 0.25);
+      background: rgba(37, 99, 235, 0.15);
       border-color: var(--primary-blue);
-      color: #ffffff;
+      color: var(--primary-blue);
     }
 
     /* Panel 4: Trigger Display */
@@ -444,10 +447,10 @@
     .progress-bar-bg {
       width: 100%;
       height: 7px;
-      background: rgba(15, 23, 42, 0.8);
+      background: rgba(203, 213, 225, 0.5);
       border-radius: 4px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(148, 163, 184, 0.3);
     }
 
     .progress-bar-fill {
@@ -478,47 +481,47 @@
     }
 
     .rec-start-btn {
-      background: rgba(239, 68, 68, 0.15);
+      background: rgba(220, 38, 38, 0.08);
       border: 1px solid var(--status-red);
-      color: #ffffff;
+      color: var(--status-red);
     }
 
     .rec-start-btn:hover {
-      background: rgba(239, 68, 68, 0.25);
+      background: rgba(220, 38, 38, 0.18);
     }
 
     .rec-stop-btn {
-      background: rgba(245, 158, 11, 0.18);
+      background: rgba(217, 119, 6, 0.1);
       border: 1px solid var(--status-yellow);
       color: var(--status-yellow);
     }
 
     .rec-stop-btn:hover {
-      background: rgba(245, 158, 11, 0.3);
+      background: rgba(217, 119, 6, 0.2);
     }
 
     .waypoint-btn {
-      background: rgba(59, 130, 246, 0.12);
+      background: rgba(37, 99, 235, 0.08);
       border: 1px solid var(--primary-blue);
-      color: var(--text-main);
+      color: var(--primary-blue);
     }
 
     .waypoint-btn:hover {
-      background: rgba(59, 130, 246, 0.25);
+      background: rgba(37, 99, 235, 0.18);
     }
 
     .replay-btn {
-      background: rgba(34, 197, 94, 0.12);
+      background: rgba(22, 163, 74, 0.08);
       border: 1px solid var(--status-green);
       color: var(--status-green);
     }
 
     .replay-btn:hover {
-      background: rgba(34, 197, 94, 0.22);
+      background: rgba(22, 163, 74, 0.18);
     }
 
     .replay-btn.playing {
-      background: rgba(245, 158, 11, 0.2);
+      background: rgba(217, 119, 6, 0.12);
       border-color: var(--status-yellow);
       color: var(--status-yellow);
     }
@@ -529,11 +532,11 @@
     }
 
     ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.5);
+      background: rgba(241, 245, 249, 0.8);
     }
 
     ::-webkit-scrollbar-thumb {
-      background: rgba(51, 65, 85, 0.8);
+      background: rgba(148, 163, 184, 0.8);
       border-radius: 3px;
     }
   </style>
@@ -852,7 +855,7 @@
     const viewportContainer = canvas.parentElement;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x070a12);
+    scene.background = new THREE.Color(0xe8edf3);
 
     const camera = new THREE.PerspectiveCamera(
       50,
@@ -876,10 +879,10 @@
     // ==========================================
     // REALISTIC INDUSTRIAL STUDIO LIGHTING SETUP
     // ==========================================
-    const hemiLight = new THREE.HemisphereLight(0xf8fafc, 0x1e293b, 1.8);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xdde3ec, 1.8);
     scene.add(hemiLight);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
     scene.add(ambientLight);
 
     const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
@@ -887,7 +890,7 @@
     keyLight.castShadow = true;
     scene.add(keyLight);
 
-    const fillLight = new THREE.DirectionalLight(0x94a3b8, 1.0);
+    const fillLight = new THREE.DirectionalLight(0xcbd5e1, 1.0);
     fillLight.position.set(-4, 6, 3);
     scene.add(fillLight);
 
@@ -896,7 +899,7 @@
     scene.add(pointLight);
 
     // Studio Floor Grid
-    const gridHelper = new THREE.GridHelper(10, 20, 0x334155, 0x1e293b);
+    const gridHelper = new THREE.GridHelper(10, 20, 0x94a3b8, 0xcbd5e1);
     gridHelper.position.y = 0;
     scene.add(gridHelper);
 
@@ -920,7 +923,7 @@
       spriteCanvas.height = 64;
       const ctx = spriteCanvas.getContext('2d');
 
-      ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
       ctx.strokeStyle = textColor;
       ctx.lineWidth = 2;
       ctx.beginPath();

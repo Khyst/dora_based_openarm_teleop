@@ -44,7 +44,7 @@ limitations under the License.
   <joint name="nana_v3_left_nana_v3_body_link0_joint" type="fixed">
     <parent link="nana_v3_body_link0"/>
     <child link="nana_v3_left_link0"/>
-    <origin rpy="-1.5708 0 0" xyz="0.0 0.031 0.698"/>
+    <origin rpy="-1.5708 0 0" xyz="0.0 0.18 1.22"/>
   </joint>
   <link name="nana_v3_left_link0">
     <visual name="nana_v3_left_link0_visual">
@@ -250,7 +250,7 @@ limitations under the License.
   <joint name="nana_v3_right_nana_v3_body_link0_joint" type="fixed">
     <parent link="nana_v3_body_link0"/>
     <child link="nana_v3_right_link0"/>
-    <origin rpy="1.5708 0 0" xyz="0.0 -0.031 0.698"/>
+    <origin rpy="1.5708 0 0" xyz="0.0 -0.18 1.22"/>
   </joint>
   <link name="nana_v3_right_link0">
     <visual name="nana_v3_right_link0_visual">

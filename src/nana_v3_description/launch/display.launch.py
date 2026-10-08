@@ -53,7 +53,7 @@ def generate_launch_description():
     default_model_path = os.path.join(
         pkg_share,
         "urdf",
-        "nana_v3_corrected.urdf",
+        "nana_v4_corrected.urdf",
     )
 
     default_rviz_config_path = os.path.join(

@@ -65,7 +65,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     }
 
     .logo-box {
@@ -273,7 +273,7 @@
       border-top: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
-      box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
     }
 
     .log-panel-header {
@@ -307,8 +307,15 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.35; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.35;
+      }
     }
 
     .log-clear-btn {
@@ -350,11 +357,25 @@
       flex-shrink: 0;
     }
 
-    .log-msg { color: var(--text-main); }
-    .log-msg.info  { color: #1e40af; }
-    .log-msg.warn  { color: #92400e; }
-    .log-msg.error { color: var(--status-red); }
-    .log-msg.ok    { color: var(--status-green); }
+    .log-msg {
+      color: var(--text-main);
+    }
+
+    .log-msg.info {
+      color: #1e40af;
+    }
+
+    .log-msg.warn {
+      color: #92400e;
+    }
+
+    .log-msg.error {
+      color: var(--status-red);
+    }
+
+    .log-msg.ok {
+      color: var(--status-green);
+    }
 
     /* 3D Floating Status Badge */
     .floating-status-badge {
@@ -427,7 +448,7 @@
       cursor: pointer;
       backdrop-filter: blur(8px);
       transition: all 0.2s ease;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
 
     .tf-btn:hover {
@@ -505,7 +526,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
     }
 
     .panel-title {
@@ -1313,21 +1334,73 @@
         function parseGeoms(bodyNode, parentThreeObj, mat) {
           bodyNode.querySelectorAll(":scope > geom").forEach((gNode) => {
             const meshName = gNode.getAttribute("mesh");
+            const gType = gNode.getAttribute("type") || (meshName ? "mesh" : "box");
             const gPos = parsePos(gNode.getAttribute("pos"));
             const gQuat = parseQuat(gNode.getAttribute("quat"));
+            const sizeStr = gNode.getAttribute("size");
+            const sizeArr = sizeStr ? sizeStr.trim().split(/\s+/).map(Number) : [0.05, 0.05, 0.05];
 
-            if (meshName && meshAssets[meshName]) {
+            // 색상/재질(rgba) 정보가 개별 geom에 명시되어 있다면 커스텀 재질 생성
+            let currentMat = mat;
+            const rgbaStr = gNode.getAttribute("rgba");
+            if (rgbaStr) {
+              const rgba = rgbaStr.trim().split(/\s+/).map(Number);
+              if (rgba.length >= 3) {
+                currentMat = new THREE.MeshStandardMaterial({
+                  color: new THREE.Color(rgba[0], rgba[1], rgba[2]),
+                  opacity: rgba[3] !== undefined ? rgba[3] : 1.0,
+                  transparent: rgba[3] !== undefined && rgba[3] < 1.0,
+                  roughness: 0.7,
+                  metalness: 0.1,
+                  side: THREE.DoubleSide
+                });
+              }
+            }
+
+            if (gType === "mesh" && meshName && meshAssets[meshName]) {
+              // 1. Mesh 형태 처리
               const asset = meshAssets[meshName];
               stlLoader.load(asset.url, (geom) => {
                 geom.computeVertexNormals();
                 geom.scale(...asset.scale);
-                const mesh = new THREE.Mesh(geom, mat);
+                const mesh = new THREE.Mesh(geom, currentMat);
                 mesh.position.copy(gPos);
                 mesh.quaternion.copy(gQuat);
                 mesh.castShadow = true;
                 mesh.receiveShadow = true;
                 parentThreeObj.add(mesh);
               });
+            } else {
+              // 2. 기본 도형 (Primitive Geometry) 처리
+              let primGeom = null;
+
+              if (gType === "box") {
+                // MuJoCo의 size는 half-extents (반지름/half-size) 형태이므로 2배 적용
+                const sx = (sizeArr[0] || 0.05) * 2;
+                const sy = (sizeArr[1] || 0.05) * 2;
+                const sz = (sizeArr[2] || 0.05) * 2;
+                primGeom = new THREE.BoxGeometry(sx, sy, sz);
+              } else if (gType === "cylinder") {
+                const radius = sizeArr[0] || 0.05;
+                const halfHeight = sizeArr[1] || 0.05;
+                primGeom = new THREE.CylinderGeometry(radius, radius, halfHeight * 2, 32);
+              } else if (gType === "sphere") {
+                const radius = sizeArr[0] || 0.05;
+                primGeom = new THREE.SphereGeometry(radius, 32, 32);
+              } else if (gType === "capsule") {
+                const radius = sizeArr[0] || 0.05;
+                const halfHeight = sizeArr[1] || 0.05;
+                primGeom = new THREE.CylinderGeometry(radius, radius, halfHeight * 2, 32);
+              }
+
+              if (primGeom) {
+                const mesh = new THREE.Mesh(primGeom, currentMat);
+                mesh.position.copy(gPos);
+                mesh.quaternion.copy(gQuat);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+                parentThreeObj.add(mesh);
+              }
             }
           });
         }
@@ -1389,7 +1462,7 @@
         parseGeoms(worldbodyNode, robotRootGroup, bodyMaterial);
 
         worldbodyNode.querySelectorAll(":scope > body").forEach((childBody) => {
-            parseBodyNode(childBody, robotRootGroup);
+          parseBodyNode(childBody, robotRootGroup);
         });
 
         appendLog('[Robot] MuJoCo XML loaded. Joints: ' + Object.keys(jointsMap).length, 'ok');
@@ -1413,7 +1486,7 @@
       const scroll = document.getElementById('log-scroll');
       if (!scroll) return;
       const now = new Date();
-      const ts = now.toTimeString().slice(0,8) + '.' + String(now.getMilliseconds()).padStart(3,'0');
+      const ts = now.toTimeString().slice(0, 8) + '.' + String(now.getMilliseconds()).padStart(3, '0');
       const entry = document.createElement('div');
       entry.className = 'log-entry';
       entry.innerHTML = `<span class="log-ts">[${ts}]</span><span class="log-msg ${level}">${msg}</span>`;
@@ -1434,39 +1507,40 @@
     // ==========================================
     // TREE VIEW BUILDER
     // ==========================================
+    // ==========================================
+    // TREE VIEW BUILDER (축약 및 간소화 버전)
+    // ==========================================
     function buildTreeFromXML(xmlDoc) {
       const container = document.getElementById('robot-tree-view');
       if (!container) return;
       container.innerHTML = '';
 
-      function makeRow(icon, label, cls, jointName, depth) {
+      function makeSimpleRow(icon, label, valueId = null, badgeClass = '') {
         const row = document.createElement('div');
         row.className = 'tree-node-row';
+        row.style.padding = '6px 8px';
+        row.style.marginBottom = '2px';
         row.title = label;
-
-        const toggle = document.createElement('span');
-        toggle.className = 'tree-toggle';
-        toggle.textContent = '';
 
         const iconSpan = document.createElement('span');
         iconSpan.className = 'tree-icon';
         iconSpan.textContent = icon;
+        iconSpan.style.marginRight = '6px';
 
         const labelSpan = document.createElement('span');
-        labelSpan.className = cls;
-        labelSpan.textContent = label.replace('nana_v3_', '');
+        labelSpan.style.fontSize = '12px';
+        labelSpan.style.fontWeight = '600';
+        labelSpan.style.color = 'var(--text-main)';
+        labelSpan.textContent = label;
 
-        row.appendChild(toggle);
         row.appendChild(iconSpan);
         row.appendChild(labelSpan);
 
-        // Joint value badge (updated live)
-        if (jointName) {
+        if (valueId) {
           const badge = document.createElement('span');
-          const armCls = label.includes('left') ? 'left-arm' : (label.includes('right') ? 'right-arm' : '');
-          badge.className = `tree-val-badge ${armCls}`;
+          badge.className = `tree-val-badge ${badgeClass}`;
           badge.textContent = '0.00';
-          badge.id = `tree-jv-${jointName.replace(/[^a-zA-Z0-9]/g,'_')}`;
+          badge.id = valueId;
           row.appendChild(badge);
         }
 
@@ -1474,63 +1548,53 @@
           document.querySelectorAll('.tree-node-row.selected').forEach(el => el.classList.remove('selected'));
           row.classList.add('selected');
         });
+
         return row;
       }
 
-      function buildBodyNode(bodyNode, parentEl) {
-        const bName = bodyNode.getAttribute('name') || '';
-        const jointNode = bodyNode.querySelector(':scope > joint');
-        const jName = jointNode ? jointNode.getAttribute('name') : null;
+      // 1. Base / Torso
+      const baseGroup = document.createElement('div');
+      baseGroup.appendChild(makeSimpleRow('🤖', 'Base Unit (body_link0)'));
+      baseGroup.appendChild(makeSimpleRow('🧠', 'Upper Body & Head'));
+      container.appendChild(baseGroup);
 
-        const nodeWrap = document.createElement('div');
-        nodeWrap.className = 'tree-node';
+      // 구분선
+      const createDivider = (text) => {
+        const div = document.createElement('div');
+        div.style.fontSize = '10px';
+        div.style.fontWeight = '700';
+        div.style.color = 'var(--text-dim)';
+        div.style.margin = '10px 0 4px 4px';
+        div.style.textTransform = 'uppercase';
+        div.textContent = text;
+        return div;
+      };
 
-        const armIcon = bName.includes('left') ? '🟢' : (bName.includes('right') ? '🔵' : '⚪');
-        const linkRow = makeRow(armIcon, bName || 'link', 'tree-label-link', null, 0);
-        nodeWrap.appendChild(linkRow);
-
-        if (jName) {
-          const jRow = makeRow('⚙', jName, 'tree-label-joint', jName, 0);
-          jRow.style.paddingLeft = '14px';
-          nodeWrap.appendChild(jRow);
-        }
-
-        const children = bodyNode.querySelectorAll(':scope > body');
-        if (children.length > 0) {
-          const childrenWrap = document.createElement('div');
-          childrenWrap.className = 'tree-children';
-          children.forEach(child => buildBodyNode(child, childrenWrap));
-
-          // Add toggle arrow
-          const toggle = linkRow.querySelector('.tree-toggle');
-          toggle.textContent = '▾';
-          toggle.style.cursor = 'pointer';
-          let open = true;
-          toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            open = !open;
-            childrenWrap.style.display = open ? '' : 'none';
-            toggle.textContent = open ? '▾' : '▸';
-          });
-          nodeWrap.appendChild(childrenWrap);
-        }
-
-        parentEl.appendChild(nodeWrap);
+      // 2. Left Arm (J1 ~ J7 + Hand)
+      container.appendChild(createDivider('🟢 Left Arm (7-DOF)'));
+      const leftGroup = document.createElement('div');
+      leftGroup.style.paddingLeft = '6px';
+      for (let i = 1; i <= 7; i++) {
+        const jName = `openarm_left_joint${i}`;
+        const badgeId = `tree-jv-${jName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        leftGroup.appendChild(makeSimpleRow('⚙️', `Left Joint ${i}`, badgeId, 'left-arm'));
       }
+      leftGroup.appendChild(makeSimpleRow('🖐️', 'Left Hand (HX5 D20)'));
+      container.appendChild(leftGroup);
 
-      // Root base link
-      const rootRow = makeRow('🤖', 'body_link0 (base)', 'tree-label-base', null, 0);
-      container.appendChild(rootRow);
-
-      const worldbody = xmlDoc.querySelector('worldbody');
-      if (worldbody) {
-        const rootBodyWrap = document.createElement('div');
-        rootBodyWrap.className = 'tree-children';
-        worldbody.querySelectorAll(':scope > body').forEach(b => buildBodyNode(b, rootBodyWrap));
-        container.appendChild(rootBodyWrap);
+      // 3. Right Arm (J1 ~ J7 + Hand)
+      container.appendChild(createDivider('🔵 Right Arm (7-DOF)'));
+      const rightGroup = document.createElement('div');
+      rightGroup.style.paddingLeft = '6px';
+      for (let i = 1; i <= 7; i++) {
+        const jName = `openarm_right_joint${i}`;
+        const badgeId = `tree-jv-${jName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        rightGroup.appendChild(makeSimpleRow('⚙️', `Right Joint ${i}`, badgeId, 'right-arm'));
       }
+      rightGroup.appendChild(makeSimpleRow('🖐️', 'Right Hand (HX5 D20)'));
+      container.appendChild(rightGroup);
 
-      appendLog('Tree view built.', 'info');
+      appendLog('Tree view simplified.', 'info');
     }
 
     // Live-update tree joint value badges
@@ -1539,8 +1603,8 @@
       const l = telemetry.joint_states.left || [];
       const r = telemetry.joint_states.right || [];
       for (let i = 0; i < 7; i++) {
-        const lKey = `tree-jv-openarm_left_joint${i+1}`;
-        const rKey = `tree-jv-openarm_right_joint${i+1}`;
+        const lKey = `tree-jv-openarm_left_joint${i + 1}`;
+        const rKey = `tree-jv-openarm_right_joint${i + 1}`;
         const lEl = document.getElementById(lKey);
         const rEl = document.getElementById(rKey);
         if (lEl) lEl.textContent = (l[i] || 0).toFixed(2);
@@ -1549,7 +1613,7 @@
     }
 
     // Directly load and parse nana_v3_corrected.xml into Three.js
-    loadMuJoCoXMLRobot('/nana_v3_description/assets/robot/urdf/nana_v3_corrected.xml');
+    loadMuJoCoXMLRobot('/nana_v3_description/assets/robot/urdf/nana_v4_corrected.xml');
 
     function parsePoseStats(pose) {
       if (!pose) return { x: 0, y: 0, z: 0, r: 0, p: 0, yw: 0 };
@@ -2012,7 +2076,7 @@
     animate();
 
     // Resize: account for viewport-3d (not full viewport-container)
-    window._viewportUpdateSize = function() {
+    window._viewportUpdateSize = function () {
       const v3d = document.querySelector('.viewport-3d');
       if (!v3d) return;
       const w = v3d.clientWidth;

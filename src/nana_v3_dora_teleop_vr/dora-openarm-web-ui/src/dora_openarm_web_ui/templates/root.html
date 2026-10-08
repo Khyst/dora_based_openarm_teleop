@@ -121,7 +121,7 @@
       z-index: 1;
       flex: 1;
       display: grid;
-      grid-template-columns: 260px 1fr 420px;
+      grid-template-columns: 340px 1fr 420px;
       height: calc(100vh - 56px);
       overflow: hidden;
     }
@@ -1160,23 +1160,25 @@
     // Helper function to create 3D Text Sprite Labels for Joint Names
     function createTextSprite(text, textColor = "#38bdf8") {
       const spriteCanvas = document.createElement('canvas');
-      spriteCanvas.width = 256;
-      spriteCanvas.height = 64;
+      spriteCanvas.width = 384;
+      spriteCanvas.height = 80;
       const ctx = spriteCanvas.getContext('2d');
 
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.90)';
+      // Background box with colored border
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
       ctx.strokeStyle = textColor;
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.roundRect(3, 3, 250, 58, 8);
+      ctx.roundRect(3, 3, 378, 74, 10);
       ctx.fill();
       ctx.stroke();
 
-      ctx.font = 'bold 20px "JetBrains Mono", "Inter", sans-serif';
-      ctx.fillStyle = textColor;
+      // Text: black, bold, larger
+      ctx.font = 'bold 28px "Inter", "JetBrains Mono", sans-serif';
+      ctx.fillStyle = '#111111';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(text, 128, 32);
+      ctx.fillText(text, 192, 40);
 
       const texture = new THREE.CanvasTexture(spriteCanvas);
       const spriteMaterial = new THREE.SpriteMaterial({
@@ -1185,8 +1187,8 @@
         depthTest: false
       });
       const sprite = new THREE.Sprite(spriteMaterial);
-      sprite.scale.set(0.14, 0.035, 1);
-      sprite.position.set(0, 0.05, 0);
+      sprite.scale.set(0.22, 0.046, 1);
+      sprite.position.set(0, 0.07, 0);
       sprite.renderOrder = 1000;
 
       jointLabelsList.push(sprite);

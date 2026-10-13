@@ -125,7 +125,7 @@
                         <geom name="nana_v3_left_link7_collision" pos="0 0 -0.5585" type="mesh" mesh="link7_symp"/>
                         
                         <site name="left_ee_control_point" pos="0 0 0.08" quat="0 1 0 0" size="0.01" rgba="0 1 0 1"/>
-
+                        
                         <!-- Left HX5 D20 Hand -->
                         <body name="hx5_d20_left_base" pos="0 0 0.08" quat="0.707107 0 0 0.707107">
                           <inertial pos="-0.00262263 -0.00168363 0.0622837" mass="0.301852" diaginertia="0.000528544 0.00038232 0.00020125"/>

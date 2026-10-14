@@ -1,6 +1,6 @@
 # OpenARM Dora Teleoperation Workspace (`dora_based_openarm_teleop`)
 
-본 워크스페이스는 **Dora-rs** 및 **`uv` Workspace** 기반으로 NANA v3 로봇의 VR 원격 제어(Teleoperation) 및 시뮬레이션을 효율적으로 관리하고 실행할 수 있도록 통합 구성된 개발 환경입니다.
+본 워크스페이스는 **Dora-rs** 및 **`uv` Workspace** 기반으로 모바일 휴머노이드 로봇의 VR 원격 제어(Teleoperation) 및 시뮬레이션을 효율적으로 관리하고 실행할 수 있도록 통합 구성된 개발 환경입니다.
 
 ---
 
@@ -35,11 +35,7 @@ cd dora_based_openarm_teleop
 ├── scripts/                    # 유틸리티 및 데이터플로우 실행 스크립트 폴더
 │   ├── setup_env.sh            # 자동화 환경 설치 및 동기화 스크립트
 │   ├── run_sim.sh              # 시뮬레이션(MuJoCo) 실행 스크립트
-│   ├── run_sim_record.sh       # 시뮬레이션 실행 + VR 텔레메트리 녹화 스크립트
-│   ├── run_sim_play.sh         # 시뮬레이션 상에서 녹화본 재생 스크립트 (VR 헤드셋 미사용)
 │   ├── run_real.sh             # 실물 로봇 제어 실행 스크립트
-│   ├── run_real_record.sh      # 실물 로봇 제어 + VR 텔레메트리 녹화 스크립트
-│   └── run_real_play.sh        # 실물 로봇 상에서 녹화본 재생 스크립트 (VR 헤드셋 미사용)
 └── src/
     ├── docs/                   # 프로젝트 파이프라인 & 파라미터 튜닝 문서
     ├── nana_v3_description/    # NANA v3 로봇 모델 (nana_v3.urdf, nana_v3.xml 및 3D Mesh)
@@ -65,7 +61,7 @@ cd dora_based_openarm_teleop
 ### 1. 기본 원격 제어 (Live Mode)
 
 #### 1) 시뮬레이션 실행 (Simulation Mode)
-VR(Meta Quest 3)로 수신받은 위치 데이터를 **MuJoCo 시뮬레이터** 상의 NANA v3 로봇 모델에 실시간 IK 및 Hamsa 손 제어를 적용하여 확인합니다.
+VR(Meta Quest 3)로 수신받은 위치 데이터를 **MuJoCo 시뮬레이터** 상의 로봇 모델에 실시간 IK 및 Hamsa 손 제어를 적용하여 확인합니다.
 ```bash
 ./scripts/run_sim.sh
 ```
